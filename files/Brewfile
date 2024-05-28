@@ -26,8 +26,8 @@ is_arm = Hardware::CPU.arm?
 # Use my login id to selectively enable certain lines/blocks (kept for reference)
 # is_vijay = `whoami`.chomp == 'vijay'
 
-# tap 'buo/cask-upgrade'
 tap 'romkatv/powerlevel10k'
+# tap 'trailofbits/homebrew-brew-verify'
 # tap 'trailofbits/homebrew-brew-verify'
 
 brew 'bash'
@@ -66,68 +66,97 @@ brew 'prettyping'
 brew 'ripgrep'
 brew 'shellcheck'
 # brew 'speedtest-cli'
-brew 'syncthing'
+# brew 'syncthing'
+# brew 'spidermonkey'
+# brew 'sqlcipher'
+# brew 'syncthing'
+# brew 'terraform'
 brew 'tldr'
 # brew 'tmux'
 brew 'vim'
 brew 'watch'
 brew 'wget'
-brew 'wifi-password'
+# brew 'wifi-password'
+brew 'zola'
 brew 'zsh'
 
 # ----------------------------------------------------------------------------------------------------------
 brew 'mas'
 mas 'iBar-Menubar icon control tool', id: 6443843900
-mas 'Velja', id: 1607635845
+# mas 'Velja', id: 1607635845
 
 # ----------------------------------------------------------------------------------------------------------
-cask 'aldente'
-# cask 'alfred'
-cask 'apparency'
+# cask 'aldente'
+# cask 'alt-tab'
 cask 'appcleaner'
 cask 'arc'
-cask 'brave-browser@nightly'
+cask 'bitwarden'
+# cask 'brave-browser@nightly' # TODO: Browsing with containers is not present - June 2023
 cask 'clocker'
 cask 'cloudflare-warp'
 cask 'command-x'
 # cask 'dbeaver-community'
 # cask 'dupeguru'
-cask 'firefox@nightly' #, greedy: true
-cask 'flycut'
+# cask 'firefox'
+# cask 'firefox@developer-edition'
+# cask 'firefox@nightly' #, greedy: true
+# cask 'flycut'
+# cask 'font-menlo-for-powerline'
 cask 'font-meslo-lg-nerd-font'
+# cask 'font-powerline-symbols'
+# cask 'freemind'
 # cask 'git-credential-manager'  # https://docs.github.com/en/get-started/getting-started-with-git/caching-your-github-credentials-in-git
-# cask 'intellij-idea-ce'
-cask 'iterm2@nightly'
-cask 'itsycal'
+cask 'google-chrome'
+# cask 'google-chrome@beta'
+cask 'intellij-idea'
+cask 'iterm2'
+# cask 'iterm2@beta'
+# cask 'itsycal'
 # cask 'kdiff3'
-cask 'keepassxc@beta'
+# cask 'keepassxc'
+# cask 'keepassxc@beta'
 cask 'keepingyouawake'
-cask 'keybase'
+# cask 'keybase'
 # cask 'keycastr'
-cask 'libreoffice'
+# cask 'libreoffice'
 # cask 'licecap'
 # cask 'lulu'
-cask 'monolingual'
+cask "microsoft-remote-desktop"
+# cask 'monolingual' if is_vijay
 # cask 'netspot'
 # cask 'ngrok'
-cask 'notunes'
-# cask 'onyx'  # Commented out since I'm on the beta version of macos
-cask 'protonvpn'
+# cask 'notunes' if is_vijay
+# cask 'onyx' if is_vijay # unless is_arm
+# cask 'parallels'    # TODO: Can this be replaced with 'utm'?
+# cask 'protonvpn'
 cask 'rancher'
-cask 'rectangle'
-cask 'silicon' if is_arm
+# cask 'rectangle'
+cask 'rider'
+# cask 'https://raw.githubusercontent.com/Homebrew/homebrew-cask/4939f785e49aa3adba60a83da6ff3a17e6011022/Casks/rider.rb', pin: true
+# cask 'silicon' if is_arm
 cask 'stats'
 # cask 'tempbox'
-cask 'the-unarchiver'
-cask 'thunderbird@daily'  # TODO: Commented out since I haven't opened TBird for the past 6 months - maybe its time to let go
-cask 'vscodium@insiders'   # TODO: Doesn't handle 'Remote Containers' and GH-based auto-syncing when comparing to VSCode
+# cask 'the-unarchiver'
+# cask 'thunderbird'
+# cask 'thunderbird@beta'
+# cask 'thunderbird@daily'  # TODO: Commented out since I haven't opened TBird for the past 6 months - maybe its time to let go
+# cask 'turbo-boost-switcher' unless is_arm
+# cask 'vagrant'
+# cask 'virtualbox' unless is_arm
+# cask 'virtualbox-extension-pack' unless is_arm
+cask 'vmware-fusion'
+cask 'visual-studio-code'
+# cask 'vscodium'   # TODO: Doesn't handle 'Remote Containers' and GH-based auto-syncing when comparing to VSCode
+# cask 'vscodium@insiders'   # TODO: Doesn't handle 'Remote Containers' and GH-based auto-syncing when comparing to VSCode
+# cask 'vlc' unless is_vijay
+# cask 'whatsapp'
 cask 'zoom'
 
 # VSCode extensions
 # Note: I don't want brew to silently install VS Code (which is what it does currently if the following lines are present but it doesn't find code!)
 is_vscode_installed = !`which code`.chomp.empty?
 if is_vscode_installed
-  vscode 'brandonkirbyson.vscode-animations'
+  # vscode 'brandonkirbyson.vscode-animations'
   vscode 'britesnow.vscode-toggle-quotes'
   vscode 'codezombiech.gitignore'
   vscode 'davidanson.vscode-markdownlint'

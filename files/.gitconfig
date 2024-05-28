@@ -8,10 +8,12 @@
 # Note: Even though this will show up twice in `git config -l` - it will still be overridden based on the order of the includeIf lines below
 [includeIf "gitdir/i:~/"]             # Personal
   path = ~/.gitconfig-oss.inc         # Personal
-[includeIf "gitdir/i:~/dev/jd/"]      # Personal
-  path = ~/.gitconfig-jd.inc          # Personal
+[includeIf "gitdir/i:~/Desktop/JD/"]  # Personal
+  path = ~/Desktop/JD/.gitconfig-jd   # Personal
 [includeIf "gitdir/i:~/dev/tw/"]      # Personal
   path = ~/.gitconfig-tw.inc          # Personal
+[advice]
+  detachedHead = true
 [alias]
   # find dangling commits
   dangling = fsck --no-reflog
