@@ -12,6 +12,7 @@ type load_file_if_exists &> /dev/null 2>&1 || source "${HOME}/.shellrc"
 
 # Add flags to existing aliases.
 alias less="${aliases[less]:-less} -RF"
+command_exists eza && alias ls='eza --icons'
 alias ls="${aliases[ls]:-ls} -G"
 alias ll='ls -la'
 alias cp="${aliases[cp]:-cp} -p"
