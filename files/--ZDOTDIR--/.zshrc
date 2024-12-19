@@ -129,6 +129,8 @@ load_file_if_exists "${ZSH}/oh-my-zsh.sh"
 
 # Preferred editor for remote sessions
 test -n "${SSH_CONNECTION}" && export EDITOR="vi"
+# Use zed if its installed (both Mac OSX and Linux)
+command_exists zed && test -z "${EDITOR}" && export EDITOR="zed --wait"
 # Use code if its installed (both Mac OSX and Linux)
 command_exists code && ! is_non_zero_string "${EDITOR}" && export EDITOR="code --wait"
 # If neither of the above works, then fall back to vi

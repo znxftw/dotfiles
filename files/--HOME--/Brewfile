@@ -59,6 +59,8 @@ cask 'keybase', postinstall: "type setup_login_item &> /dev/null 2>&1 || source 
 return true if is_base_install
 
 # formulae pulled in for advanced configs (these are optional, but still recommended)
+brew 'awscli'
+brew 'awscli-local'
 brew 'bat'
 brew 'btop'
 brew 'git-gui'
@@ -67,32 +69,42 @@ brew 'moreutils'
 brew 'ncdu'
 brew 'prettyping'
 brew 'ripgrep'
+brew 'rustup'
+brew 'shellcheck'
 brew 'syncthing'
+brew 'terragrunt'
 brew 'tldr'
+brew 'watch'
+brew 'zola'
 
 cask 'aldente', postinstall: "type setup_login_item &> /dev/null 2>&1 || source \"${HOME}/.aliases\"; setup_login_item 'AlDente'"
 cask 'appcleaner'
+cask 'bitwarden'
 cask 'brave-browser'
-cask 'clocker', postinstall: "type setup_login_item &> /dev/null 2>&1 || source \"${HOME}/.aliases\"; setup_login_item 'Clocker'"
-cask 'fliqlo'
-cask 'firefox@nightly' #, greedy: true
-cask 'jordanbaird-ice', postinstall: "type setup_login_item &> /dev/null 2>&1 || source \"${HOME}/.aliases\"; setup_login_item 'Ice'"
+cask 'bruno'
+cask 'font-meslo-lg-nerd-font'
+cask 'google-chrome'
+cask 'google-cloud-sdk'
+cask 'intellij-idea'
+cask 'iterm2'
 cask 'keepassxc@beta'
 cask 'keepingyouawake', postinstall: "type setup_login_item &> /dev/null 2>&1 || source \"${HOME}/.aliases\"; setup_login_item 'KeepingYouAwake'"
 cask 'keycastr'
 cask 'keyclu' if is_arm
-# cask 'monolingual'
-cask 'notunes'
+cask 'libreoffice'
+cask 'obsidian'
 cask 'ollama', restart_service: :changed
 cask 'onlyoffice'
 cask 'onyx'
 cask 'protonvpn'
 cask 'rancher'
 cask 'raycast', postinstall: "type setup_login_item &> /dev/null 2>&1 || source \"${HOME}/.aliases\"; setup_login_item 'Raycast'"
-# cask 'silicon' if is_arm
+cask 'rider'
 cask 'stats', postinstall: "type setup_login_item &> /dev/null 2>&1 || source \"${HOME}/.aliases\"; setup_login_item 'Stats'"
-cask 'the-unarchiver'
-cask 'vscodium@insiders'   # TODO: Doesn't handle 'Remote Containers' and GH-based auto-syncing when compared to VSCode
+cask 'steam'
+cask 'visual-studio-code'
+cask 'windows-app'
+cask 'zed'
 cask 'zen-browser@twilight'
 cask 'zoom'
 
@@ -103,16 +115,7 @@ mas 'PDFgear', id: 6469021132
 # Note: I don't want brew to silently install VS Code (which is what it does currently if the following lines are present but it doesn't find code!)
 is_vscode_installed = !`which code`.chomp.empty?
 if is_vscode_installed
-  # This is failing on different machines
-  # vscode 'formulahendry.code-runner'
-  # vscode 'nicolasvuillamy.vscode-groovy-lint'
-  # vscode 'redhat.java'
-  # vscode 'sonarsource.sonarlint-vscode'
-  # vscode 'vscjava.vscode-java-debug'
-  # vscode 'vscjava.vscode-java-pack'
-  # vscode 'vscjava.vscode-java-test'
-  # vscode 'vscjava.vscode-lombok'
-  vscode 'brandonkirbyson.vscode-animations'
+  # vscode 'brandonkirbyson.vscode-animations'
   vscode 'britesnow.vscode-toggle-quotes'
   vscode 'codezombiech.gitignore'
   vscode 'davidanson.vscode-markdownlint'
