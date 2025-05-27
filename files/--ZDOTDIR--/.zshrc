@@ -127,6 +127,8 @@ load_file_if_exists "${ZSH}/oh-my-zsh.sh"
 
 # Preferred editor for remote sessions
 is_non_zero_string "${SSH_CONNECTION}" && export EDITOR="vi"
+# Use zed if its installed (both Mac OSX and Linux)
+command_exists zed && ! is_non_zero_string "${EDITOR}" && export EDITOR="zed --wait"
 # Use code if its installed (both Mac OSX and Linux)
 command_exists code && ! is_non_zero_string "${EDITOR}" && export EDITOR="code --wait"
 # If neither of the above works, then fall back to vi
@@ -338,3 +340,5 @@ typeset -gU cdpath CPPFLAGS cppflags FPATH fpath infopath LDFLAGS ldflags MANPAT
 # for profiling zsh, see: https://unix.stackexchange.com/a/329719/27109
 # execute 'ZSH_PROFILE_RC=true zsh' and run 'zprof' to get the details
 [[ -n "${ZSH_PROFILE_RC+1}" ]] && zprof
+
+prepend_to_path_if_dir_exists "${HOMEBREW_PREFIX}/bin"

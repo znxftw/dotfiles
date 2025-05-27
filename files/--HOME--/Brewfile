@@ -59,6 +59,8 @@ cask 'keybase', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 
 return 0 if is_base_install
 
 # formulae pulled in for advanced configs (these are optional, but still recommended)
+brew 'awscli'
+brew 'awscli-local'
 brew 'bat'
 brew 'btop'
 brew 'git-gui'
@@ -67,23 +69,25 @@ brew 'moreutils'
 brew 'ncdu'
 brew 'prettyping'
 brew 'ripgrep'
+brew 'rustup'
+brew 'shellcheck'
 brew 'syncthing'
+brew 'terragrunt'
+brew 'tesseract'
 brew 'tldr'
+brew 'watch'
+brew 'zola'
 
-# cask 'batteryboi'
-# cask 'battery-toolkit' #, postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Battery Toolkit'"
-cask 'aldente', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'AlDente'"
+
+cask 'appcleaner'
+cask 'bitwarden'
 cask 'brave-browser'
-cask 'clocker', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Clocker'"
-cask 'fliqlo'
-cask 'firefox@nightly' #, greedy: true
-cask 'jordanbaird-ice', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Ice'" if OS::Mac::version >= 14
+cask 'bruno'
+cask 'google-chrome'
+cask 'google-cloud-sdk'
+cask 'intellij-idea'
 cask 'keepassxc@beta'
-cask 'keycastr'
-cask 'keyclu' if is_arm
-cask 'knockknock'
-# cask 'monolingual'
-cask 'notunes'
+cask 'obsidian'
 cask 'ollama', restart_service: :changed
 cask 'onlyoffice'
 cask 'onyx'
@@ -91,32 +95,21 @@ cask 'pearcleaner', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.s
 cask 'protonvpn'
 cask 'rancher'
 cask 'raycast', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Raycast'"
-# cask 'silicon' if is_arm
+cask 'rider'
 cask 'stats', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Stats'"
-cask 'the-unarchiver'
-# cask 'thunderbird@daily'
-cask 'utm'
-cask 'vscodium@insiders'   # TODO: Doesn't handle 'Remote Containers' and GH-based auto-syncing when compared to VSCode
-cask 'zen@twilight'
+cask 'steam'
+cask 'visual-studio-code'
+cask 'windows-app'
+cask 'zed'
+cask 'zen'
 cask 'zoom'
 
-brew 'mas'
-mas 'PDFgear', id: 6469021132
 
 # VSCode extensions
 # Note: I don't want brew to silently install VS Code (which is what it does currently if the following lines are present but it doesn't find code!)
 is_vscode_installed = !`PATH=/opt/homebrew/bin:/usr/local/bin:${PATH} which code`.chomp.empty?  # explicitly set PATH since the shell being opened doesn't run the login configs
 if is_vscode_installed
-  # This is failing on different machines
-  # vscode 'formulahendry.code-runner'
-  # vscode 'nicolasvuillamy.vscode-groovy-lint'
-  # vscode 'redhat.java'
-  # vscode 'sonarsource.sonarlint-vscode'
-  # vscode 'vscjava.vscode-java-debug'
-  # vscode 'vscjava.vscode-java-pack'
-  # vscode 'vscjava.vscode-java-test'
-  # vscode 'vscjava.vscode-lombok'
-  vscode 'brandonkirbyson.vscode-animations'
+  # vscode 'brandonkirbyson.vscode-animations'
   vscode 'britesnow.vscode-toggle-quotes'
   vscode 'codezombiech.gitignore'
   vscode 'davidanson.vscode-markdownlint'
