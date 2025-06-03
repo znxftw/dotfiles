@@ -2,6 +2,10 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.1
+
+* *[Brewfile]* Added Picocrypt
+
 ### 2.0.0
 
 * Squashed all commits into a single commit.

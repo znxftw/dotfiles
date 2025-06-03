@@ -11,8 +11,6 @@
 # Upgrades and cleans up all regular outdated casks and libs (non-greedy)
 
 # TODO: Need to find cask for:
-#   Battery Toolkit
-#   Picocrypt
 #   Tinkertool
 #   ZoomHider
 
@@ -31,6 +29,7 @@ puts "Only performing base installation!" if is_base_install
 at_exit { system('post-brew-install.sh') }
 
 tap 'romkatv/powerlevel10k'
+tap 'Picocrypt/picocrypt' if is_arm
 
 # formulae pulled in from homebrew to replace system equivalents to fix any security issues since the OS was released
 brew 'bash'
@@ -83,6 +82,7 @@ cask 'ollama', restart_service: :changed
 cask 'onlyoffice'
 cask 'onyx'
 cask 'pearcleaner'
+cask 'picocrypt' if is_arm
 cask 'protonvpn'
 cask 'rancher'
 cask 'raycast', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Raycast'"
@@ -126,6 +126,7 @@ if is_vscode_installed
   vscode 'mikestead.dotenv'
   vscode 'mkhl.direnv'
   vscode 'ms-azuretools.vscode-docker'
+  vscode 'ms-vscode.atom-keybindings'
   vscode 'ms-vscode.vscode-typescript-next'
   vscode 'oderwat.indent-rainbow'
   vscode 'orta.vscode-jest'
