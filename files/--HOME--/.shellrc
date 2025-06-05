@@ -26,25 +26,9 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
 export XDG_STATE_HOME="${XDG_STATE_HOME:-${HOME}/.local/state}"
 
-# Moving homebrew env vars here itself so that the initial homebrew installation on a vanilla OS can be done/applied into memory immediately
 # Cache the architecture check to avoid calling `uname` repeatedly
-if [[ -z "${ARCH}" ]]; then
-  export ARCH="$(uname -m)"
-  export ARCHFLAGS="-arch ${ARCH}"
-fi
-if [[ "${ARCH}" =~ 'arm' ]]; then
-  export HOMEBREW_PREFIX='/opt/homebrew'
-else
-  export HOMEBREW_PREFIX='/usr/local'
-fi
-export HOMEBREW_NO_ANALYTICS=1
-export HOMEBREW_CLEANUP_MAX_AGE_DAYS=3
-export HOMEBREW_CLEANUP_PERIODIC_FULL_DAYS=3
-export HOMEBREW_BAT=1
-export HOMEBREW_VERBOSE_USING_DOTS=1
-export HOMEBREW_BUNDLE_FILE="${HOME}/Brewfile"
-# TODO: Uncomment once this feature is stabilized
-# export HOMEBREW_VERIFY_ATTESTATIONS=1
+[[ -z "${ARCH}" ]] && export ARCH="$(uname -m)"
+export ARCHFLAGS="-arch ${ARCH}"
 
 # Note: Change these as per your settings. Deleting them will essentially unset the var(s) and thus any aliases/backup-operations/etc will not be processed for those deleted variable(s)
 
@@ -185,6 +169,10 @@ extract_last_segment() {
   local without_trailing_slash="$(strip_trailing_slash "${1}")"
   echo "${without_trailing_slash##*/}"
   unset without_trailing_slash
+}
+
+is_arm() {
+  [[ "${ARCH}" =~ 'arm' ]]
 }
 
 is_file() {
@@ -346,6 +334,21 @@ set_ssh_folder_permissions() {
   fi
   unset target_folder
 }
+
+# Moving homebrew env vars here itself so that the initial homebrew installation on a vanilla OS can be done/applied into memory immediately
+if is_arm; then
+  export HOMEBREW_PREFIX='/opt/homebrew'
+else
+  export HOMEBREW_PREFIX='/usr/local'
+fi
+export HOMEBREW_NO_ANALYTICS=1
+export HOMEBREW_CLEANUP_MAX_AGE_DAYS=3
+export HOMEBREW_CLEANUP_PERIODIC_FULL_DAYS=3
+export HOMEBREW_BAT=1
+export HOMEBREW_VERBOSE_USING_DOTS=1
+export HOMEBREW_BUNDLE_FILE="${HOME}/Brewfile"
+# TODO: Uncomment once this feature is stabilized
+# export HOMEBREW_VERIFY_ATTESTATIONS=1
 
 # if is_macos; then
   # Uninstall and reinstall xcode (useful immediately after upgrade or if reinstalling the OS)

@@ -72,8 +72,8 @@ brew 'tldr'
 cask 'aldente', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'AlDente'"
 cask 'brave-browser'
 cask 'clocker', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Clocker'"
-cask 'fliqlo'
 cask 'firefox@nightly' #, greedy: true
+cask 'fliqlo'
 cask 'jordanbaird-ice', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Ice'" if OS::Mac::version >= 14
 cask 'keepassxc@beta'
 cask 'keycastr'

@@ -2,9 +2,14 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.2
+
+* *[.shellrc]* Exposed a new function `is_arm` to denote whether the current machine architecture is ARM.
+* *[post-brew-install.sh]* Will cleanup the `keybase` executables from the `/usr/local/bin` folder if they are present.
+
 ### 2.0.1
 
-* *[Brewfile]* Added Picocrypt
+* *[Brewfile]* Added Picocrypt.
 
 ### 2.0.0
 
