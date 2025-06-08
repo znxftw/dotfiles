@@ -1071,10 +1071,10 @@ fi
 # Spotlight                                                                   #
 ###############################################################################
 
-if ask "Disable Spotlight indexing for any volume that gets mounted and has not yet been indexed before." N; then
-  # Use `sudo mdutil -i off "/Volumes/foo"` to stop indexing any volume.
-  sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
-fi
+# Turning off since this causes the system settings pane to break.
+# if ask "Disable Spotlight indexing for any volume that gets mounted and has not yet been indexed before." N; then
+#   sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
+# fi
 
 if ask "Change indexing order and disable some search results" Y; then
   defaults write com.apple.spotlight orderedItems -array \
@@ -1104,14 +1104,6 @@ fi
 
 if ask "Load new settings before rebuilding the index" Y; then
   killall mds > /dev/null 2>&1
-fi
-
-if ask "Make sure indexing is enabled for the main volume" Y; then
-  sudo mdutil -i on / > /dev/null
-fi
-
-if ask "Rebuild the index from scratch" Y; then
-  sudo mdutil -E / > /dev/null
 fi
 
 ###############################################################################
@@ -1762,6 +1754,9 @@ for app in "${app_array[@]}"; do
 done
 
 sudo softwareupdate --schedule ON
+
+# Re-index spotlight for the Mac volume (to pre-empt any issues with the system settings pane)
+sudo mdutil -E -i on / > /dev/null
 
 echo "Need to manually quit and restart 'Terminal' and 'iTerm' - since one of these might be running this script."
 echo "Done. Note that some of these changes require a logout/restart to take effect."

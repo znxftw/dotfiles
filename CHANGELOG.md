@@ -2,6 +2,10 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.3
+
+* Trying to fix issue with osx-defaults somehow corrupting the `System Settings` app.
+
 ### 2.0.2
 
 * *[.shellrc]* Exposed a new function `is_arm` to denote whether the current machine architecture is ARM.
