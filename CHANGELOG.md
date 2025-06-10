@@ -2,6 +2,10 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.4
+
+* *[.aliases]* Introduced a new function `find_and_append_prefs` that finds and appends the preferences associated with the partial string passed in as an argument. Also, sorts (and removes duplicates) from the config file used to capture preferences.
+
 ### 2.0.3
 
 * Trying to fix issue with osx-defaults somehow corrupting the `System Settings` app.

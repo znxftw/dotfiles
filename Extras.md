@@ -21,7 +21,7 @@ Note:
 
 ## capture-prefs.sh
 
-This script is useful to capture the preferences of the known applications (both system-installed and custom-installed applications) using the `defaults read` command. It can be used to both export the preferences/settings (from the old system) or import them (into the new system)
+This script is useful to capture the preferences of the known applications (both system-installed and custom-installed applications) using the `defaults read` command. It can be used to both export the preferences/settings (from the old system) or import them (into the new system). As of version 2.0.4, added a new shell function to help with the above called: `find_and_append_prefs`.
 
 ## capture-raycast-configs.sh
 

@@ -240,6 +240,17 @@ if is_macos && command_exists brew; then
   }
 fi
 
+if is_macos; then
+  # Finds and appends the preferences associated with the partial string passed in as an argument.
+  # Also, sorts (and removes duplicates) from the config file used to capture preferences
+  find_and_append_prefs() {
+    local file_name="${DOTFILES_DIR}/scripts/data/capture-prefs-domains.txt"
+    defaults find "${1}" | \grep "keys in domain" | cut -d"'" -f2 >> "${file_name}"
+    sort -u -o "${file_name}" "${file_name}"
+    unset file_name
+  }
+fi
+
 # delete all personal data before re-imaging the laptop
 implode() {
   sudo rm -rfv "${HOME}"/.[a-z]*
