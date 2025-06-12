@@ -2,6 +2,11 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.5
+
+* Updated `README.md` to make adoption steps clearer to follow.
+* Formatting of markdown files.
+
 ### 2.0.4
 
 * *[.aliases]* Introduced a new function `find_and_append_prefs` that finds and appends the preferences associated with the partial string passed in as an argument. Also, sorts (and removes duplicates) from the config file used to capture preferences.

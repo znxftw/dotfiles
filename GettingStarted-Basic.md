@@ -18,7 +18,7 @@ All these scripts are optimized for fast loading of the shell so that the user c
 
 **Important Note** After the above script has completed running successfully, you need to do the following *manually*
 
-1. Use [this gist as a template](https://gist.github.com/vraravam/e9676759db46950e1fd817e49e513394) to create equivalent configuration files with your logins and make corresponding changes in `${HOME}/.gitconfig` to reflect the same
+1. Use [this gist as a template](https://gist.github.com/vraravam/e9676759db46950e1fd817e49e513394) to create equivalent configuration files with your logins and make corresponding changes in `files/--HOME--/.gitconfig` to reflect the same
 2. Open the `Terminal` application.
    * Goto Preferences > Profiles > Basic > Text (and change the font to 'MesloLGS Nerd Font')
 3. Open the `iTerm2` application.

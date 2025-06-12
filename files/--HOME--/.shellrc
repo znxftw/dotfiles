@@ -30,7 +30,7 @@ export XDG_STATE_HOME="${XDG_STATE_HOME:-${HOME}/.local/state}"
 [[ -z "${ARCH}" ]] && export ARCH="$(uname -m)"
 export ARCHFLAGS="-arch ${ARCH}"
 
-# Note: Change these as per your settings. Deleting them will essentially unset the var(s) and thus any aliases/backup-operations/etc will not be processed for those deleted variable(s)
+# Note: Change these as per your settings. Deleting/commenting them will essentially unset the var(s) after the shell session is restarted and thus any aliases/backup-operations/etc will not be processed for those deleted variable(s)
 
 # ------------ Env vars for basic/common setup ------------
 # The github username where the setup scripts are downloaded from
