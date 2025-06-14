@@ -29,8 +29,8 @@ This script is useful to capture the raycast preferences/configurations. It can 
 
   ```bash
   export RAYCAST_SETTINGS_PASSWORD='my-password'
-  capture-raycast-configs.sh e "${PERSONAL_PROFILES_DIR}/extension-backups"
-  capture-raycast-configs.sh i "${PERSONAL_PROFILES_DIR}/extension-backups"
+  capture-raycast-configs.sh -e "${PERSONAL_PROFILES_DIR}/extension-backups"
+  capture-raycast-configs.sh -i "${PERSONAL_PROFILES_DIR}/extension-backups"
   ```
 
 *Please note:*

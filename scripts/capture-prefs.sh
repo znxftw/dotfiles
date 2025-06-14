@@ -15,9 +15,9 @@ if ! type red &> /dev/null 2>&1 || ! type is_non_zero_string &> /dev/null 2>&1; 
 fi
 
 usage() {
-  echo "$(red 'Usage'): $(yellow "${1} <e/i>")"
-  echo "  $(yellow 'e')  --> Export from [old] system"
-  echo "  $(yellow 'i')  --> Import into [new] system"
+  echo "$(red 'Usage'): $(yellow "${1} -<e/i>")"
+  echo "  $(yellow '-e')  --> Export from [old] system"
+  echo "  $(yellow '-i')  --> Import into [new] system"
   exit 1
 }
 
@@ -34,12 +34,12 @@ ensure_dir_exists "${target_dir}"
 
 local operation # Declare as local before assignment
 case "${1}" in
-  "e" )
+  "-e" )
     operation='export'
     # Clean up old files before exporting new ones (this also handles the case where some entry has been removed from the list of domains)
     rm -f "${target_dir}"/*.defaults || true
     ;;
-  "i" )
+  "-i" )
     operation='import'
     # No cleanup needed for import
     ;;

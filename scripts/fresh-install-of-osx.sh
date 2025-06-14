@@ -338,7 +338,7 @@ else
 fi
 
 if command_exists 'capture-prefs.sh'; then
-  capture-prefs.sh i
+  capture-prefs.sh -i
   success 'Successfully restored preferences from backup'
 else
   warn "skipping importing of preferences since '$(yellow 'capture-prefs.sh')' couldn't be found in the PATH; Please set it up manually"

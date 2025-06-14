@@ -104,6 +104,12 @@ if is_git_repo "${zen_browser_desktop_codebase}"; then
 fi
 unset zen_browser_desktop_codebase
 
+if command_exists ollama; then
+  section_header "Pull ollama models"
+  ollama pull codellama
+  ollama pull deepseek-r1
+fi
+
 echo "==> Finished independent updates."
 
 section_header 'Update repos in home folder'
@@ -115,7 +121,7 @@ section_header 'Upreb oss repos'
 upreb && success 'Finished upreb for oss repos' || warn 'Failed to upreb oss repos'
 
 section_header 'Capture app preferences'
-capture-prefs.sh e && success 'Finished capturing app preferences' || warn 'Failed to capture app preferences'
+capture-prefs.sh -e && success 'Finished capturing app preferences' || warn 'Failed to capture app preferences'
 
 section_header 'Update home and profiles repos'
 update_all_repos && success 'Finished updating home and profiles repos' || warn 'Failed to update home and profiles repos'

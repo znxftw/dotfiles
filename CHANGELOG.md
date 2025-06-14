@@ -2,6 +2,12 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.6
+
+* Updated more documentation.
+* *[capture-raycast-configs.sh]* and *[capture-prefs.sh]* now handle switches vs arguments/parameters consistently.
+* *[software-updates-cron.sh]* Now also pulls `ollama` models: `codellama` and `deepseek-r1`.
+
 ### 2.0.5
 
 * Updated `README.md` to make adoption steps clearer to follow.

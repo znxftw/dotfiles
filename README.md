@@ -66,7 +66,7 @@ The "advanced" setup is the set of final steps to capture your application prefe
 
 # Finally...
 
-With this latest version, the `files/--HOME--/Brewfile` will be run only with the bare minimum of formulae. Once the process completes, and you restart the Terminal app, you would want to run `bupc` so that all the other applications can be installed.
+The softwares in the `files/--HOME--/Brewfile` will be run only with the bare minimum of formulae. Once the process completes, and you restart the Terminal app, you would want to run `bupc` so that all the other applications can be installed.
 
 Once the above is done, and if you have setup the [keybase](https://keybase.io)-based home repo, profile repo, etc - you can then re-import your exported preferences from the [pre-requisites section](#pre-requisite-if-you-want-to-capture-data-from-your-current-mac).
 
@@ -78,8 +78,7 @@ As a summary, these files will typically have changes between your setup and min
 - `files/--HOME--/.gitconfig` (the `IncludeIf` line to match your global/base configuration filename)
 - `files/--HOME--/.shellrc` (`GH_USERNAME`, `KEYBASE_USERNAME`, and other changeable env vars to control which steps to perform vs which to bypass)
 - `files/--HOME--/Brewfile` (the list of applications and command-line utilities that you choose to install in your local machine)
-- `scripts/capture-prefs.sh` (what application preferences that you choose to backup - based on the entries in the `Brewfile`)
-- `scripts/fresh-install-of-osx.sh` (what applications you choose to set as login items on every reboot)
+- `scripts/data/capture-prefs-domains.txt` (what application preferences that you choose to backup - based on the entries in the `Brewfile`)
 
 # Ongoing tasks to keep your backup up-to-date on a regular basis
 
