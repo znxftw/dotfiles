@@ -18,7 +18,8 @@
 cask_args appdir: '/Applications', fontdir: '/Library/Fonts', no_quarantine: true, adopt: true
 
 # java_present = system('/usr/libexec/java_home --failfast')
-is_arm = Hardware::CPU.arm?
+is_arm = ::Hardware::CPU.arm?
+is_beta_os = ::OS::Mac::full_version.unsupported_release?
 
 is_base_install = ENV.has_key?('HOMEBREW_BASE_INSTALL')
 puts "Only performing base installation!" if is_base_install
@@ -80,7 +81,7 @@ cask 'keycastr'
 cask 'keyclu' if is_arm
 cask 'ollama', restart_service: :changed
 cask 'onlyoffice'
-cask 'onyx'
+cask 'onyx' unless is_beta_os
 cask 'pearcleaner'
 cask 'picocrypt' if is_arm
 cask 'protonvpn'
