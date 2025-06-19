@@ -10,9 +10,9 @@
 set -e
 
 # Check for one representative function to see if sourcing is needed
-if ! type is_file &> /dev/null 2>&1 || ! type warn &> /dev/null 2>&1 ; then
-  source "${HOME}/.shellrc"
-fi
+type section_header &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+
+section_header "Setting up touchId for sudo access in terminal shells"
 
 if ! ioreg -c AppleBiometricSensor | \grep -q AppleBiometricSensor; then
   warn 'Touch ID hardware is not detected. Skipping configuration.'

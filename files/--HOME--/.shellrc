@@ -277,6 +277,9 @@ is_windows() {
   [[ "${OSTYPE}" =~ 'MINGW' ]]
 }
 
+###############################################################################################
+# Ask for the administrator password upfront and keep it alive until this script has finished #
+###############################################################################################
 keep_sudo_alive() {
   section_header 'Keeping sudo alive till this script has finished'
   sudo -v
@@ -321,7 +324,11 @@ clone_repo_into() {
   unset target_folder
 }
 
+#################################
+# Setup ssh scripts/directories #
+#################################
 set_ssh_folder_permissions() {
+  section_header 'Setting ssh config file permissions'
   local target_folder="${HOME}/.ssh"
   ensure_dir_exists "${target_folder}"
   # Set directory permissions first

@@ -2,6 +2,10 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.8
+
+* *[fresh-install-of-osx.sh]* Moved each logical block into a function so its easier to understand and maintain.
+
 ### 2.0.7
 
 * *[Brewfile]* Onyx is now only processed if the current OS is non-beta.

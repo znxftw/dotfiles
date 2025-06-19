@@ -28,176 +28,149 @@ clone_omz_plugin_if_not_present() {
 ######################################################################################################################
 # Set DNS of 8.8.8.8 before proceeding (in some cases, for eg Jio Wifi, github doesn't resolve at all and times out) #
 ######################################################################################################################
-# Fetch only organization and grep quietly (-q) and case-insensitively (-i) for Jio ISP
-if curl -fsS ipinfo.io/org | \grep -qi 'jio'; then
-  echo '==> Setting DNS for WiFi'
-  sudo networksetup -setdnsservers Wi-Fi 8.8.8.8
-fi
+setup_jio_dns() {
+  # Fetch only organization and grep quietly (-q) and case-insensitively (-i) for Jio ISP
+  if curl -fsS ipinfo.io/org | \grep -qi 'jio'; then
+    echo '==> Setting DNS for WiFi'
+    sudo networksetup -setdnsservers Wi-Fi 8.8.8.8
+  fi
+}
 
 #################################################################################################
 # Download and source this utility script - so that the functions are available for this script #
 #################################################################################################
-echo "==> Download the '${HOME}/.shellrc' for loading the utility functions"
-# Check for one key function defined in .shellrc to see if sourcing is needed
-if ! type keep_sudo_alive &> /dev/null 2>&1; then
-  [[ ! -f "${HOME}/.shellrc" ]] && curl -fsSL "https://raw.githubusercontent.com/${GH_USERNAME}/dotfiles/refs/heads/${DOTFILES_BRANCH}/files/--HOME--/.shellrc" -o "${HOME}/.shellrc"
-  FIRST_INSTALL=true source "${HOME}/.shellrc"
-else
-  warn "skipping downloading and sourcing '$(yellow "${HOME}/.shellrc")' since its already loaded"
-fi
-
-###############################################################################################
-# Ask for the administrator password upfront and keep it alive until this script has finished #
-###############################################################################################
-keep_sudo_alive
-
-###############################
-# Do not allow rootless login #
-###############################
-# Note: Commented out since I am not sure if we need to do this on the office MBP or not
-# section_header 'Verifying rootless status'
-# [[ "$(/usr/bin/csrutil status | awk '/status/ {print $5}' | sed 's/\.$//')" == "enabled" ]] && error "csrutil ('rootless') is enabled. Please disable in boot screen and run again!"
+download_and_source_shellrc() {
+  echo "==> Download the '${HOME}/.shellrc' for loading the utility functions"
+  # Check for one key function defined in .shellrc to see if sourcing is needed
+  if ! type keep_sudo_alive &> /dev/null 2>&1; then
+    [[ ! -f "${HOME}/.shellrc" ]] && curl -fsSL "https://raw.githubusercontent.com/${GH_USERNAME}/dotfiles/refs/heads/${DOTFILES_BRANCH}/files/--HOME--/.shellrc" -o "${HOME}/.shellrc"
+    FIRST_INSTALL=true source "${HOME}/.shellrc"
+  else
+    warn "skipping downloading and sourcing '$(yellow "${HOME}/.shellrc")' since its already loaded"
+  fi
+}
 
 #####################
 # Turn on FileVault #
 #####################
-section_header 'Verifying FileVault status'
-[[ "$(fdesetup isactive)" != 'true' ]] && error 'FileVault is not turned on. Please encrypt your hard disk!'
+ensure_filevault_is_on() {
+  section_header 'Verifying FileVault status'
+  [[ "$(fdesetup isactive)" != 'true' ]] && error 'FileVault is not turned on. Please encrypt your hard disk!'
+}
 
 ##################################
 # Install command line dev tools #
 ##################################
-section_header 'Installing xcode command-line tools'
-# Check if Xcode Command Line Tools are installed
-if ! xcode-select -p &> /dev/null; then
-  # install using the non-gui cmd-line alone
-  touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
-  sudo softwareupdate -ia --agree-to-license --force
-  rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
-  success 'Successfully installed xcode command-line tools'
-else
-  warn 'skipping installation of xcode command-line tools since its already present'
-fi
-
-#################################
-# Setup ssh scripts/directories #
-#################################
-section_header 'Setting ssh config file permissions'
-set_ssh_folder_permissions
+install_xcode_command_line_tools() {
+  section_header 'Installing xcode command-line tools'
+  # Check if Xcode Command Line Tools are installed
+  if ! xcode-select -p &> /dev/null; then
+    # install using the non-gui cmd-line alone
+    touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+    sudo softwareupdate -ia --agree-to-license --force
+    rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+    success 'Successfully installed xcode command-line tools'
+  else
+    warn 'skipping installation of xcode command-line tools since its already present'
+  fi
+}
 
 #################################################################################
 # Ensure that some of the directories corresponding to the env vars are created #
 #################################################################################
-section_header 'Creating directories defined by various env vars'
-ensure_dir_exists "${DOTFILES_DIR}"
-ensure_dir_exists "${PROJECTS_BASE_DIR}"
-ensure_dir_exists "${PERSONAL_BIN_DIR}"
-ensure_dir_exists "${PERSONAL_CONFIGS_DIR}"
-ensure_dir_exists "${PERSONAL_PROFILES_DIR}"
-ensure_dir_exists "${XDG_CACHE_HOME}"
-ensure_dir_exists "${XDG_CONFIG_HOME}"
-ensure_dir_exists "${XDG_DATA_HOME}"
-ensure_dir_exists "${XDG_STATE_HOME}"
+ensure_directories_exist() {
+  section_header 'Creating directories defined by various env vars'
+  local -a folders=("${DOTFILES_DIR}" "${PROJECTS_BASE_DIR}" "${PERSONAL_BIN_DIR}" "${PERSONAL_CONFIGS_DIR}" "${PERSONAL_PROFILES_DIR}" "${XDG_CACHE_HOME}" "${XDG_CONFIG_HOME}" "${XDG_DATA_HOME}" "${XDG_STATE_HOME}")
+    for folder in "${(@kv)folders}"; do
+      ensure_dir_exists "${folder}"
+    done
+    unset folders
+}
 
-############################
-# Disable macos gatekeeper #
-############################
-# section_header 'Disabling macos gatekeeper'
-# sudo spectl --master-disable
+install_oh_my_zsh_and_custom_plugins() {
+  #####################
+  # Install oh-my-zsh #
+  #####################
+  section_header "Installing oh-my-zsh into '$(yellow "${HOME}/.oh-my-zsh")'"
+  if ! is_directory "${HOME}/.oh-my-zsh"; then
+    sh -c "$(ZSH= curl -fsSL https://install.ohmyz.sh/)" "" --unattended
+    success "Successfully installed oh-my-zsh into '$(yellow "${HOME}/.oh-my-zsh")'"
+  else
+    warn "skipping installation of oh-my-zsh since '$(yellow "${HOME}/.oh-my-zsh")' is already present"
+  fi
 
-#####################
-# Install oh-my-zsh #
-#####################
-section_header "Installing oh-my-zsh into '$(yellow "${HOME}/.oh-my-zsh")'"
-if ! is_directory "${HOME}/.oh-my-zsh"; then
-  sh -c "$(ZSH= curl -fsSL https://install.ohmyz.sh/)" "" --unattended
-  success "Successfully installed oh-my-zsh into '$(yellow "${HOME}/.oh-my-zsh")'"
-else
-  warn "skipping installation of oh-my-zsh since '$(yellow "${HOME}/.oh-my-zsh")' is already present"
-fi
+  ##############################
+  # Install custom omz plugins #
+  ##############################
+  # Note: Some of these are available via brew, but enabling them will take an additional step and the only other benefit (of keeping them up-to-date using brew can still be achieved by updating the git repos directly)
+  section_header 'Installing custom omz plugins'
+  # Note: These are not installed using homebrew since sourcing of the files needs to be explicit in .zshrc
+  # Also, the order of these being referenced in the zsh session startup (for vanilla OS) will cause a warning to be printed though the rest of the shell startup sequence is still performed. Ultimately, until they become included by default into omz, keep them here as custom plugins
+  clone_omz_plugin_if_not_present https://github.com/zdharma-continuum/fast-syntax-highlighting
+  clone_omz_plugin_if_not_present https://github.com/zsh-users/zsh-autosuggestions
+  clone_omz_plugin_if_not_present https://github.com/zsh-users/zsh-completions
+}
 
-##############################
-# Install custom omz plugins #
-##############################
-# Note: Some of these are available via brew, but enabling them will take an additional step and the only other benefit (of keeping them up-to-date using brew can still be achieved by updating the git repos directly)
-section_header 'Installing custom omz plugins'
-# Note: These are not installed using homebrew since sourcing of the files needs to be explicit in .zshrc
-# Also, the order of these being referenced in the zsh session startup (for vanilla OS) will cause a warning to be printed though the rest of the shell startup sequence is still performed. Ultimately, until they become included by default into omz, keep them here as custom plugins
-clone_omz_plugin_if_not_present https://github.com/zdharma-continuum/fast-syntax-highlighting
-clone_omz_plugin_if_not_present https://github.com/zsh-users/zsh-autosuggestions
-clone_omz_plugin_if_not_present https://github.com/zsh-users/zsh-completions
+clone_dot_files_repo_and_install() {
+  ####################
+  # Install dotfiles #
+  ####################
+  section_header "Installing dotfiles into '$(yellow "${DOTFILES_DIR}")'"
+  if is_non_zero_string "${DOTFILES_DIR}" && ! is_git_repo "${DOTFILES_DIR}"; then
+    # Delete the auto-generated .zshrc since that needs to be replaced by the one in the DOTFILES_DIR repo
+    rm -rf "${ZDOTDIR}/.zshrc"
 
-####################
-# Install dotfiles #
-####################
-section_header "Installing dotfiles into '$(yellow "${DOTFILES_DIR}")'"
-if is_non_zero_string "${DOTFILES_DIR}" && ! is_git_repo "${DOTFILES_DIR}"; then
-  # Delete the auto-generated .zshrc since that needs to be replaced by the one in the DOTFILES_DIR repo
-  rm -rf "${ZDOTDIR}/.zshrc"
+    # Note: Cloning with https since the ssh keys will not be present at this time
+    clone_repo_into "https://github.com/${GH_USERNAME}/dotfiles" "${DOTFILES_DIR}" "${DOTFILES_BRANCH}"
 
-  # Note: Cloning with https since the ssh keys will not be present at this time
-  clone_repo_into "https://github.com/${GH_USERNAME}/dotfiles" "${DOTFILES_DIR}" "${DOTFILES_BRANCH}"
+    # Use the https protocol for pull, but use ssh/git for push
+    git -C "${DOTFILES_DIR}" config url.ssh://git@github.com/.pushInsteadOf https://github.com/
 
-  # Use the https protocol for pull, but use ssh/git for push
-  git -C "${DOTFILES_DIR}" config url.ssh://git@github.com/.pushInsteadOf https://github.com/
+    append_to_path_if_dir_exists "${DOTFILES_DIR}/scripts"
 
-  append_to_path_if_dir_exists "${DOTFILES_DIR}/scripts"
+    # Setup the DOTFILES_DIR repo's upstream if it doesn't already point to UPSTREAM_GH_USERNAME's repo
+    add-upstream-git-config.sh "${DOTFILES_DIR}" "${UPSTREAM_GH_USERNAME}"
 
-  # Setup the DOTFILES_DIR repo's upstream if it doesn't already point to UPSTREAM_GH_USERNAME's repo
-  add-upstream-git-config.sh "${DOTFILES_DIR}" "${UPSTREAM_GH_USERNAME}"
+    install-dotfiles.rb
+  else
+    warn "skipping cloning the dotfiles repo since '$(yellow "${DOTFILES_DIR}")' is either not defined or is already a git repo"
+  fi
+}
 
-  install-dotfiles.rb
-else
-  warn "skipping cloning the dotfiles repo since '$(yellow "${DOTFILES_DIR}")' is either not defined or is already a git repo"
-fi
+install_homebrew()  {
+  ####################
+  # Install homebrew #
+  ####################
+  section_header "Installing homebrew into '$(yellow "${HOMEBREW_PREFIX}")'"
+  ! is_non_zero_string "${HOMEBREW_PREFIX}" && error "'HOMEBREW_PREFIX' env var is not set; something is wrong. Please correct before retrying!"
 
-# Load all zsh config files for PATH and other env vars to take effect
-FIRST_INSTALL=true load_zsh_configs
+  if ! command_exists brew; then
+    # Prep for installing homebrew
+    sudo mkdir -p "${HOMEBREW_PREFIX}/tmp" "${HOMEBREW_PREFIX}/repository" "${HOMEBREW_PREFIX}/plugins" "${HOMEBREW_PREFIX}/bin"
+    sudo chown -fR "$(whoami)":admin "${HOMEBREW_PREFIX}"
+    chmod u+w "${HOMEBREW_PREFIX}"
 
-# Setup any sudo access password from cmd-line to also invoke the gui touchId prompt
-section_header "Setting up touchId for sudo access in terminal shells"
-approve-fingerprint-sudo.sh
+    NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    success 'Successfully installed homebrew'
 
-####################
-# Install homebrew #
-####################
-section_header "Installing homebrew into '$(yellow "${HOMEBREW_PREFIX}")'"
-! is_non_zero_string "${HOMEBREW_PREFIX}" && error "'HOMEBREW_PREFIX' env var is not set; something is wrong. Please correct before retrying!"
+    eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
+  else
+    warn "skipping installation of $(yellow 'homebrew') since it's already installed"
+  fi
+  # TODO: Need to investigate why this step exits on a vanilla OS's first run of this script
+  # Note: Do not set the 'HOMEBREW_BASE_INSTALL' in this script - since its supposed to run idempotently. Also, don't run the cleanup of pre-installed brews/casks (for the same reason)
+  # Run brew bundle install if check fails. Let brew handle idempotency. Continue script even if bundle fails.
+  brew bundle check || brew bundle
+  success 'Successfully installed cmd-line and gui apps using homebrew'
 
-if ! command_exists brew; then
-  # Prep for installing homebrew
-  sudo mkdir -p "${HOMEBREW_PREFIX}/tmp" "${HOMEBREW_PREFIX}/repository" "${HOMEBREW_PREFIX}/plugins" "${HOMEBREW_PREFIX}/bin"
-  sudo chown -fR "$(whoami)":admin "${HOMEBREW_PREFIX}"
-  chmod u+w "${HOMEBREW_PREFIX}"
+  # Note: Load all zsh config files for the 2nd time for PATH and other env vars to take effect (due to defensive programming)
+  load_zsh_configs
 
-  NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  success 'Successfully installed homebrew'
+  # Note: run the post-brew-install script once more (in case it wasn't run by the brew lifecycle due to some errors)
+  post-brew-install.sh
+}
 
-  eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
-else
-  warn "skipping installation of $(yellow 'homebrew') since it's already installed"
-fi
-# TODO: Need to investigate why this step exits on a vanilla OS's first run of this script
-# Note: Do not set the 'HOMEBREW_BASE_INSTALL' in this script - since its supposed to run idempotently. Also, don't run the cleanup of pre-installed brews/casks (for the same reason)
-# Run brew bundle install if check fails. Let brew handle idempotency. Continue script even if bundle fails.
-brew bundle check || brew bundle
-success 'Successfully installed cmd-line and gui apps using homebrew'
-
-# Note: Load all zsh config files for the 2nd time for PATH and other env vars to take effect (due to defensive programming)
-load_zsh_configs
-
-# Note: run the post-brew-install script once more (in case it wasn't run by the brew lifecycle due to some errors)
-post-brew-install.sh
-
-if is_non_zero_string "${KEYBASE_USERNAME}"; then
-  ! command_exists keybase && error 'Keybase not found in the PATH. Aborting!!!'
-
-  ######################
-  # Login into keybase #
-  ######################
-  section_header 'Logging into keybase'
-  ! keybase login && error 'Could not login into keybase. Retry after logging in.'
-
+clone_home_repo() {
   #######################
   # Clone the home repo #
   #######################
@@ -213,7 +186,9 @@ if is_non_zero_string "${KEYBASE_USERNAME}"; then
   else
     warn "skipping cloning of home repo since the '$(yellow 'KEYBASE_HOME_REPO_NAME')' env var hasn't been set"
   fi
+}
 
+clone_profiles_repo() {
   ###########################
   # Clone the profiles repo #
   ###########################
@@ -251,6 +226,59 @@ if is_non_zero_string "${KEYBASE_USERNAME}"; then
   else
     warn "skipping cloning of profiles repo since either the '$(yellow 'KEYBASE_PROFILES_REPO_NAME')' or the '$(yellow 'PERSONAL_PROFILES_DIR')' env var hasn't been set"
   fi
+}
+
+###############################
+# Do not allow rootless login #
+###############################
+# Note: Commented out since I am not sure if we need to do this on the office MBP or not
+# section_header 'Verifying rootless status'
+# [[ "$(/usr/bin/csrutil status | awk '/status/ {print $5}' | sed 's/\.$//')" == "enabled" ]] && error "csrutil ('rootless') is enabled. Please disable in boot screen and run again!"
+
+############################
+# Disable macos gatekeeper #
+############################
+# section_header 'Disabling macos gatekeeper'
+# sudo spectl --master-disable
+
+setup_jio_dns
+
+download_and_source_shellrc
+
+keep_sudo_alive
+
+ensure_filevault_is_on
+
+install_xcode_command_line_tools
+
+set_ssh_folder_permissions
+
+ensure_directories_exist
+
+install_oh_my_zsh_and_custom_plugins
+
+clone_dot_files_repo_and_install
+
+# Load all zsh config files for PATH and other env vars to take effect
+FIRST_INSTALL=true load_zsh_configs
+
+# Setup any sudo access password from cmd-line to also invoke the gui touchId prompt
+approve-fingerprint-sudo.sh
+
+install_homebrew
+
+if is_non_zero_string "${KEYBASE_USERNAME}"; then
+  ! command_exists keybase && error 'Keybase not found in the PATH. Aborting!!!'
+
+  ######################
+  # Login into keybase #
+  ######################
+  section_header 'Logging into keybase'
+  ! keybase login && error 'Could not login into keybase. Retry after logging in.'
+
+  clone_home_repo
+
+  clone_profiles_repo
 else
   warn "skipping cloning of any keybase repo since '$(yellow 'KEYBASE_USERNAME')' has not been set"
 fi
