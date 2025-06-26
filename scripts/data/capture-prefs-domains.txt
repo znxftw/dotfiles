@@ -316,6 +316,7 @@ com.docker.docker
 com.electron.ollama
 com.generalarcade.flycut
 com.github.Electron
+com.github.IngmarStein.Monolingual
 com.google.Chrome
 com.google.Chrome.beta
 com.google.Chrome.canary

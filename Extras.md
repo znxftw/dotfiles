@@ -12,13 +12,6 @@ Basically, to get started with the dotfiles, you just need to run the `${DOTFILE
 
 This script can be used to quickly add a new upstream remote to the specified git repo. The name of the new remote is hardcoded to `upstream`. The rest of the url remains the same with just the username switched to the specified username.
 
-## approve-fingerprint-sudo.sh
-
-This script is useful in macos to enable TouchId as an authentication mechanism even while running command-line tools. Before running this script, the usual mechanism is for a prompt to appear in the terminal window itself where one has to type in the whole long password. After this script is run, the user is prompted by the touchId modal dialog instead of having to type a really long password.
-Note:
-
-* This script is idempotent ie it can be run any number of times safely, it will not corrrupt the system.
-
 ## capture-prefs.sh
 
 This script is useful to capture the preferences of the known applications (both system-installed and custom-installed applications) using the `defaults read` command. It can be used to both export the preferences/settings (from the old system) or import them (into the new system). As of version 2.0.4, added a new shell function to help with the above called: `find_and_append_prefs`.

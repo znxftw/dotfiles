@@ -50,6 +50,34 @@ download_and_source_shellrc() {
   fi
 }
 
+################################################################################################
+# Setup the 'sudo' command in terminal to prompt the mac touchbar for authorizing the user     #
+# This will persist through software updates unlike changes directly made to '/etc/pam.d/sudo' #
+# Copied from: https://apple.stackexchange.com/a/466029                                        #
+################################################################################################
+approve_fingerprint_sudo() {
+  section_header "Setting up touchId for sudo access in terminal shells"
+
+  if ! ioreg -c AppleBiometricSensor | \grep -q AppleBiometricSensor; then
+    warn 'Touch ID hardware is not detected. Skipping configuration.'
+    return 0 # Exit successfully as no action is needed
+  fi
+
+  local template_file="/etc/pam.d/sudo_local.template"
+  ! is_file "${template_file}" && warn "Template file '$(yellow "${template_file}")' not found! Skipping!"
+
+  local target_file="/etc/pam.d/sudo_local"
+  if ! is_file "${target_file}"; then
+    # Using sh -c 'sed...' is fine here
+    sudo sh -c "sed 's/^#auth/auth/' ${template_file} > ${target_file}" || error "Failed to create ${target_file}"
+    success "Created new file: '$(yellow "${target_file}")'"
+  else
+    warn "'$(yellow "${target_file}")' is already present - not creating again"
+  fi
+  unset target_file
+  unset template_file
+}
+
 #####################
 # Turn on FileVault #
 #####################
@@ -111,7 +139,7 @@ install_oh_my_zsh_and_custom_plugins() {
   clone_omz_plugin_if_not_present https://github.com/zsh-users/zsh-completions
 }
 
-clone_dot_files_repo_and_install() {
+clone_dot_files_repo() {
   ####################
   # Install dotfiles #
   ####################
@@ -130,8 +158,6 @@ clone_dot_files_repo_and_install() {
 
     # Setup the DOTFILES_DIR repo's upstream if it doesn't already point to UPSTREAM_GH_USERNAME's repo
     add-upstream-git-config.sh "${DOTFILES_DIR}" "${UPSTREAM_GH_USERNAME}"
-
-    install-dotfiles.rb
   else
     warn "skipping cloning the dotfiles repo since '$(yellow "${DOTFILES_DIR}")' is either not defined or is already a git repo"
   fi
@@ -247,6 +273,8 @@ download_and_source_shellrc
 
 keep_sudo_alive
 
+approve_fingerprint_sudo
+
 ensure_filevault_is_on
 
 install_xcode_command_line_tools
@@ -257,13 +285,14 @@ ensure_directories_exist
 
 install_oh_my_zsh_and_custom_plugins
 
-clone_dot_files_repo_and_install
+clone_dot_files_repo
+
+# run this outside of the clone function, since it needs to be run irrespective of whether the dotfiles repo was pre-existing or not
+append_to_path_if_dir_exists "${DOTFILES_DIR}/scripts"
+install-dotfiles.rb
 
 # Load all zsh config files for PATH and other env vars to take effect
 FIRST_INSTALL=true load_zsh_configs
-
-# Setup any sudo access password from cmd-line to also invoke the gui touchId prompt
-approve-fingerprint-sudo.sh
 
 install_homebrew
 
@@ -302,9 +331,9 @@ EOF
   fi
   unset file_name
 
-  ##################################################
-  # Resurrect repositories that I am interested in #
-  ##################################################
+  ##########################################################
+  # Resurrect repositories that are in the repo catalogues #
+  ##########################################################
   section_header 'Resurrecting repos'
   # Use zsh glob qualifier (N.) for nullglob and regular files
   for file in "${PERSONAL_CONFIGS_DIR}"/repositories-*.yml(N.); do
@@ -341,6 +370,7 @@ rm -rf "${HOME}/.ssh/known_hosts.old"
 #####################################################################################
 # Load the direnv config for the home folder so that it creates necessary sym-links #
 #####################################################################################
+# TODO: See if this can be merged into `allow_all_direnv_configs`
 section_header "Allowing direnv for ${HOME}"
 if command_exists direnv && is_directory "${HOME}" && is_file "${HOME}/.envrc"; then
   (cd "${HOME}" && direnv allow .) && success "Successfully allowed direnv for '$(yellow "${HOME}")'" || warn "Failed to allow direnv for '${HOME}'"
@@ -349,6 +379,7 @@ fi
 #########################################################################################
 # Load the direnv config for the profiles folder so that it creates necessary sym-links #
 #########################################################################################
+# TODO: See if this can be merged into `allow_all_direnv_configs`
 section_header "Allowing direnv for ${PERSONAL_PROFILES_DIR}"
 if command_exists direnv && is_directory "${PERSONAL_PROFILES_DIR}" && is_file "${PERSONAL_PROFILES_DIR}/.envrc"; then
   (cd "${PERSONAL_PROFILES_DIR}" && direnv allow .) && success "Successfully allowed direnv for '$(yellow "${PERSONAL_PROFILES_DIR}")'" || warn "Failed to allow direnv for '${PERSONAL_PROFILES_DIR}'"
@@ -394,6 +425,17 @@ fi
 # Cleanup temp functions, etc #
 ###############################
 unfunction clone_omz_plugin_if_not_present
+unfunction setup_jio_dns
+unfunction download_and_source_shellrc
+unfunction approve_fingerprint_sudo
+unfunction ensure_filevault_is_on
+unfunction install_xcode_command_line_tools
+unfunction ensure_directories_exist
+unfunction install_oh_my_zsh_and_custom_plugins
+unfunction clone_dot_files_repo
+unfunction install_homebrew
+unfunction clone_home_repo
+unfunction clone_profiles_repo
 
 # To install the latest versions of the hex, rebar and phoenix packages
 # mix local.hex --force && mix local.rebar --force

@@ -6,7 +6,9 @@
 !/*Profile/Profiles/DefaultProfile/**/bookmarks.html
 !/*Profile/Profiles/DefaultProfile/**/cert8.db
 !/*Profile/Profiles/DefaultProfile/**/cookies.sqlite
-!/*Profile/Profiles/DefaultProfile/**/key3.db
+!/*Profile/Profiles/DefaultProfile/**/key*.db
+!/*Profile/Profiles/DefaultProfile/**/localstorage.sqlite
+!/*Profile/Profiles/DefaultProfile/**/logins.json
 !/*Profile/Profiles/DefaultProfile/**/search.rdf
 !/*Profile/Profiles/DefaultProfile/**/searchplugins
 !/*Profile/Profiles/DefaultProfile/**/secmod.db

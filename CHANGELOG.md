@@ -2,6 +2,10 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.9
+
+* *[fresh-install-of-osx.sh]* `approve-fingerprint-sudo.sh` has now been converted from a standalone script into a function.
+
 ### 2.0.8
 
 * *[fresh-install-of-osx.sh]* Moved each logical block into a function so its easier to understand and maintain.

@@ -58,16 +58,12 @@ main() {
     host="${match[1]}"
     cloned_repo_owner="${match[2]}"
     repo_path="${match[3]}"
-    # Ensure .git suffix for consistency when reconstructing
-    [[ "${repo_path}" != *.git ]] && repo_path+=".git"
     new_repo_url="git@${host}:${upstream_repo_owner}/${repo_path}"
   elif [[ "${origin_remote_url}" =~ ^https?://([^/]+)/([^/]+)/(.+)$ ]]; then
     # HTTPS format: https://host/owner/repo.git or https://host/owner/repo
     host="${match[1]}"
     cloned_repo_owner="${match[2]}"
     repo_path="${match[3]}"
-    # Ensure .git suffix for consistency when reconstructing
-    [[ "${repo_path}" != *.git ]] && repo_path+=".git"
     # Preserve http vs https
     protocol="https"
     [[ "${origin_remote_url}" =~ ^http:// ]] && protocol="http"
@@ -75,6 +71,8 @@ main() {
   else
     error "Cannot parse origin remote URL format: $(yellow "${origin_remote_url}")"
   fi
+  # Ensure .git suffix for consistency when reconstructing
+  [[ "${new_repo_url}" != *.git ]] && new_repo_url+=".git"
 
   # Check if the owners are the same
   if [[ "${cloned_repo_owner}" == "${upstream_repo_owner}" ]]; then

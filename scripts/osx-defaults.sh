@@ -196,7 +196,7 @@ defaults write com.apple.systemuiserver "NSStatusItem Visible com.apple.menuextr
 defaults write com.apple.systemuiserver "NSStatusItem Visible com.apple.menuextra.bluetooth" -bool true
 defaults write com.apple.systemuiserver "NSStatusItem Visible com.apple.menuextra.volume" -bool true
 
-defaults write com.apple.menuextra.clock DateFormat -string "EEE d MMM  h:mm:ss a"
+defaults write com.apple.menuextra.clock DateFormat -string "EEE d MMM hh:mm:ss a"
 defaults write com.apple.menuextra.clock FlashDateSeparators -bool true
 defaults write com.apple.menuextra.clock IsAnalog -bool true  # Since I am using `The Clocker` app, turning this to analog
 defaults write com.apple.menuextra.clock Show24Hour -bool false
