@@ -7,6 +7,8 @@
 # Note: Even though this will show up twice in `git config -l` - it will still be overridden based on the order of the includeIf lines below (last matching configuration wins). Utility subcommand to find out which config wins: `git who`
 [includeIf "gitdir/i:~/"]
   path = ~/.gitconfig-oss.inc
+[advice]
+  statusHints = true
 [alias]
   # TODO: Need to check if aliases starting with '!' work with 'git -C' context if pwd is different from context-dir
 
@@ -197,6 +199,8 @@
 [checkout]
   defaultRemote = origin
   workers = 0
+[clean]
+  requireForce = true
 [color "diff"]
   commit = yellow bold
   frag = magenta bold
@@ -213,7 +217,10 @@
   autocrlf = input
   commentChar = *
   excludesFile = ~/.gitignore_global
+  fileMode = true
   fsMonitor = true
+  logAllRefUpdates = true
+  longPaths = true
   pager = diff-so-fancy | less --tabs=2 -RFX
   symlinks = false
   untrackedCache = true
@@ -256,12 +263,12 @@
   fullName = true
   lineNumber = true
 [gui]
-  matchtrackingbranch = true
-  pruneduringfetch = true
-  tabsize = 2
-  warndetachedcommit = true
+  matchTrackingBranch = true
+  pruneDuringFetch = true
+  tabSize = 2
+  warnDetachedCommit = true
 [help]
-  autocorrect = 1
+  autoCorrect = 1
 [http]
   postBuffer = 786432000
 [init]
@@ -273,13 +280,13 @@
   strategy = incremental
 [log]
   decorate = auto
-  # abbrevcommit = true
+  # abbrevCommit = true
 [merge]
   autoStash = true
-  # conflictstyle = diff3
+  # conflictStyle = diff3
   defaultToUpstream = true
   ff = only
-  renamelimit = 15000
+  renameLimit = 15000
 [pack]
   threads = 0
   writeReverseIndex = true
@@ -318,7 +325,7 @@
 [tag]
   sort = version:refname
 [transfer]
-  fsckobjects = false
+  fsckObjects = false
 [user]
   useConfigOnly = true
 [oh-my-zsh]

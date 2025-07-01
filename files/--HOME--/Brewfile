@@ -79,7 +79,7 @@ cask 'jordanbaird-ice', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-it
 cask 'keepassxc@beta'
 cask 'keycastr'
 cask 'keyclu' if is_arm
-cask 'ollama', restart_service: :changed
+cask 'ollama-app', restart_service: :changed
 cask 'onlyoffice'
 cask 'onyx' unless is_beta_os
 cask 'pearcleaner'
@@ -126,6 +126,7 @@ if is_vscode_installed
   vscode 'mechatroner.rainbow-csv'
   vscode 'mikestead.dotenv'
   vscode 'mkhl.direnv'
+  vscode 'ms-azuretools.vscode-containers'
   vscode 'ms-azuretools.vscode-docker'
   vscode 'ms-vscode.atom-keybindings'
   vscode 'ms-vscode.vscode-typescript-next'

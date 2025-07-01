@@ -2,6 +2,12 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.10
+
+* *[fresh-install-of-osx.sh]* Added command to add the checked-out ssh keys to the ssh-agent.
+* *[.gitconfig]* Added some more configurations.
+* *[Brewfile]* Use new name for ollama cask.
+
 ### 2.0.9
 
 * *[fresh-install-of-osx.sh]* `approve-fingerprint-sudo.sh` has now been converted from a standalone script into a function.

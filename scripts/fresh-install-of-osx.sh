@@ -207,6 +207,8 @@ clone_home_repo() {
     # Reset ssh keys' permissions so that git doesn't complain when using them
     set_ssh_folder_permissions
 
+    find "${HOME}/.ssh" -maxdepth 1 -name "id_*" ! -name '*.*' -type f -exec ssh-add "{}" \;
+
     # Fix /etc/hosts file to block facebook
     is_file "${PERSONAL_CONFIGS_DIR}/etc.hosts" && sudo cp "${PERSONAL_CONFIGS_DIR}/etc.hosts" /etc/hosts
   else
