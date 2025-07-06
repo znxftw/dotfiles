@@ -152,3 +152,10 @@ unset chrome_folders
 script_end_time=$(date +%s)
 section_header "Finished software updates at $(date)"
 success "Total execution time: $((script_end_time - script_start_time)) seconds"
+
+if command_exists bcg; then
+  outdated="$(bcg | \grep -v -iE 'homebrew|Downloading')"
+  is_non_zero_string "${outdated}" && error "Found some outdated softwares that need manual updating: $(red "${outdated}")"
+else
+  debug 'skipping updating brews & casks'
+fi
