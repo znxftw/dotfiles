@@ -30,7 +30,6 @@ puts "Only performing base installation!" if is_base_install
 at_exit { system('post-brew-install.sh') }
 
 tap 'romkatv/powerlevel10k'
-tap 'Picocrypt/picocrypt' if is_arm
 
 # formulae pulled in from homebrew to replace system equivalents to fix any security issues since the OS was released
 brew 'bash'
@@ -83,12 +82,10 @@ cask 'ollama-app', restart_service: :changed
 cask 'onlyoffice'
 cask 'onyx' unless is_beta_os
 cask 'pearcleaner'
-cask 'picocrypt' if is_arm
 cask 'protonvpn'
 cask 'rancher'
 cask 'raycast', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Raycast'"
 cask 'stats', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Stats'"
-cask 'the-unarchiver'
 cask 'vscodium@insiders'   # TODO: Doesn't handle 'Remote Containers' and GH-based auto-syncing when compared to VSCode
 cask 'zen@twilight'
 cask 'zoom'
@@ -97,7 +94,7 @@ brew 'mas'
 mas 'PDFgear', id: 6469021132
 
 # VSCode extensions
-# Note: I don't want brew to silently install VS Code (which is what it does currently if the following lines are present but it doesn't find code!)
+# Note: I don't want brew to silently install VS Code (which is what it does currently if the following lines are present but it doesn't find the executable 'code'!)
 is_vscode_installed = !`PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}" which code`.chomp.empty?  # explicitly set PATH since the shell being opened doesn't run the login configs
 if is_vscode_installed
   # This is failing on different machines
@@ -145,7 +142,11 @@ if is_vscode_installed
 end
 
 # ----------------------------------------------------------------------------------------------------------
-# Moved these brew and cask lines to clean up the noise from the above alphabetically sorted lists
+# Moved these brew and cask lines to clean up the noise from the above alphabetically-sorted lists
+
+# --- encrypted backup in case keybase is shut down in the future
+# tap 'Picocrypt/picocrypt' if is_arm
+# cask 'picocrypt' if is_arm
 
 # ---- zen-browser development
 # brew 'gnu-tar'
@@ -163,8 +164,8 @@ end
 # brew 'git-crypt'
 
 # ---- tmux utilities
-# brew 'tmux'
 # brew 'reattach-to-user-namespace' # Needed if using tmux (to be able to access the macos clipboard from within tmux)
+# brew 'tmux'
 
 # ---- general utilities
 # brew 'fzy'
@@ -195,5 +196,6 @@ end
 # cask 'notunes'
 # cask 'silicon' if is_arm
 # cask 'tempbox'
+# cask 'the-unarchiver'
 # cask 'thunderbird@daily'
 # cask 'utm'

@@ -49,9 +49,9 @@ elif is_directory '/Applications/VSCodium.app'; then
   replace_symlink_if_needed '/Applications/VSCodium.app/Contents/Resources/app/bin/codium' "${HOMEBREW_PREFIX}/bin/codium"
   # extra: also symlink for 'code'
   replace_symlink_if_needed "${HOMEBREW_PREFIX}/bin/codium" "${HOMEBREW_PREFIX}/bin/code"
-elif is_directory '/Applications/VSCode.app'; then
+elif is_directory '/Applications/Visual Studio Code.app'; then
   # Symlink from the embedded executable for code
-  replace_symlink_if_needed '/Applications/VSCode.app/Contents/Resources/app/bin/code' "${HOMEBREW_PREFIX}/bin/code"
+  replace_symlink_if_needed '/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code' "${HOMEBREW_PREFIX}/bin/code"
 else
   warn 'skipping symlinking vscode/vscodium for command-line invocation'
 fi

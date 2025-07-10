@@ -2,6 +2,11 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.12
+
+* *[post-brew-install.sh]* Fixed issue with app name for Visual Studio Code while crearing cmd-line executable.
+* *[Brewfile]* Removed Picocrypt and Unarchiver due to non-usage.
+
 ### 2.0.11
 
 * *[software-updates-cron.sh]* Runs the `bcg` alias as the last command and if there are any oudated softwares, it will error out. This serves as a simple mechanism to prompt the user that some softwares need manual updating.
