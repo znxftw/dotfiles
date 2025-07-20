@@ -2,6 +2,10 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.13
+
+* Fixed an issue where the homebrew's libraries were not picked up first in the PATH.
+
 ### 2.0.12
 
 * *[post-brew-install.sh]* Fixed issue with app name for Visual Studio Code while crearing cmd-line executable.

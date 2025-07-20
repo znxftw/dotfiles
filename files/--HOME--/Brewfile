@@ -74,6 +74,7 @@ cask 'brave-browser'
 cask 'clocker', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Clocker'"
 cask 'firefox@nightly' #, greedy: true
 cask 'fliqlo'
+cask 'floorp'
 cask 'jordanbaird-ice', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Ice'" if OS::Mac::version >= 14
 cask 'keepassxc@beta'
 cask 'keycastr'
@@ -149,8 +150,9 @@ end
 # cask 'picocrypt' if is_arm
 
 # ---- zen-browser development
-# brew 'gnu-tar'
-# brew 'mercurial'
+brew 'cairo'
+brew 'gnu-tar'
+brew 'mercurial'
 
 # ---- docker utilities
 # brew 'dive'   # docker layers inspection on steroids

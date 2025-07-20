@@ -112,7 +112,10 @@ export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 # Custom plugins may be added to ${ZSH_CUSTOM}/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(brew direnv eza fast-syntax-highlighting git iterm2 mise sudo zbell zsh-autosuggestions)
+plugins=(direnv eza fast-syntax-highlighting git iterm2 mise sudo zbell zsh-autosuggestions)
+
+# Note: Using 'brew' as an oh-my-zsh plugin causes the PATH to be incorrect. For eg, 'bash' gets resolved to '/bin/bash' (which comes default with the OS) rather than the one from homebrew.
+eval $("${HOMEBREW_PREFIX}/bin/brew" shellenv)
 
 # according to https://github.com/zsh-users/zsh-completions/issues/603#issue-373185486, this can't be added as a plugin to omz for the fpath to work correctly
 append_to_fpath_if_dir_exists "${ZSH_CUSTOM}/plugins/zsh-completions/src"

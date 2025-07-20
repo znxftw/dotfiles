@@ -360,11 +360,13 @@ MobileMeAccounts
 net.sourceforge.Monolingual
 NSGlobalDomain
 org.cups.PrintingPrefs
+org.jkiss.dbeaver.core.product
 org.kde.KDiff3
 org.keepassxc.keepassxc
 org.mozilla.betterbird
 org.mozilla.com.zen.browser
 org.mozilla.firefox
+org.mozilla.floorp
 org.mozilla.nightly
 org.mozilla.thunderbird
 org.mozilla.thunderbird-daily
