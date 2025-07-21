@@ -2,6 +2,11 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.14
+
+* Removed `ZenProfile` from being processed to inject Natsumi for user chrome.
+* Updated documentation for catching up with multiple commits from upstream.
+
 ### 2.0.13
 
 * Fixed an issue where the homebrew's libraries were not picked up first in the PATH.

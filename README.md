@@ -37,8 +37,18 @@ In your forked repo, make the following changes, commit and push _via the Github
 ## How to upgrade / catch-up to new changes
 
 1. My recommendation is to _always_ have all your customizations as a single commit on top of the upstream. This allows to easily rebase and adopt new changes in the future.
-2. Run the `git -C "${DOTFILES_DIR}" fetch --all; git -C "${DOTFILES_DIR}" upreb` command. Most of the times, this should simply rebase your changes on top of the latest upstream master
-   - _Hint:_ Before pushing your changes to your remote, if you want to ensure (diff) that your old changes are retained (for eg in `Brewfile`) and no new/unnecessary changes are present, you can run the following 2 commands and review the diffs manually
+2. Run the `git -C "${DOTFILES_DIR}" fetch --all` command.
+   - Run the `git -C "${DOTFILES_DIR}" upreb` command. Most of the times, this should simply rebase your changes on top of the latest upstream master.
+   - As an alternative to the above step, if there are too many commits to catch-up to, AND your fork had only 1 commit on top of any of my historical commits, then you can quickly re-apply your changes (remember: single commit) using the following script:
+
+      ```bash
+      latest_head="$(git -C "${DOTFILES_DIR}" rev-parse HEAD)"
+      git -C "${DOTFILES_DIR}" reset --hard upstream/master
+      git -C "${DOTFILES_DIR}" cherrypick ${latest_head}
+      # TODO: manually fix any conflicts
+      ```
+
+3. _Hint:_ Before pushing your changes to your remote, if you want to ensure (diff) that your old changes are retained (for eg in `Brewfile`) and no new/unnecessary changes are present, you can run the following 2 commands and review the diffs manually
 
    ```bash
     git -C "${DOTFILES_DIR}" diff @{u}  # will diff your local HEAD against the remote HEAD of your own fork. Please remember that this diff will show new changes that I have made in my repo, and which are now going-to-be-adopted into yours. It's a good idea to remove entries in Brewfile that you won't need
@@ -46,10 +56,10 @@ In your forked repo, make the following changes, commit and push _via the Github
     git -C "${DOTFILES_DIR}" diff upstream/`git branch --show-current`  # will diff your local HEAD against the remote HEAD of the parent repo. These changes should be exactly the changes that you had done previously (most likely only in GettingStarted-Basic.md, files/--HOME--/.shellrc and files/--HOME--/Brewfile)
    ```
 
-3. You will have to force-push to your fork's remote after the above step. To accomplish this, I recommend using `git -C "${DOTFILES_DIR}" push --force-with-lease`
-4. After the above step, it is always recommended to run the `install-dotfiles.rb` script once to ensure all (non symlinked) changes are setup on your machine correctly.
-5. In case there are any other changes that might be needed after updating, these steps will be detailed in the [changelog](./CHANGELOG.md). In such rare cases, you might have to run the appropriate steps in sequence as detailed out in that section.
-6. After updating/catching-up, it is recommended to quit and restart the terminal so that all "in session memory" aliases, etc are up-to-date so that the files are sourced correctly.
+4. You will have to force-push to your fork's remote after the above step. To accomplish this, I recommend using `git -C "${DOTFILES_DIR}" push --force-with-lease`
+5. After the above step, it is always recommended to run the `install-dotfiles.rb` script once to ensure all (non symlinked) changes are setup on your machine correctly.
+6. In case there are any other changes that might be needed after updating, these steps will be detailed in the [changelog](./CHANGELOG.md). In such rare cases, you might have to run the appropriate steps in sequence as detailed out in that section.
+7. After updating/catching-up, it is recommended to quit and restart the terminal so that all "in session memory" aliases, etc are up-to-date so that the files are sourced correctly.
 
 ## How to test changes in your fork before raising a Pull Request
 

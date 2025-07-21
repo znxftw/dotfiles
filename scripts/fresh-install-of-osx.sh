@@ -224,8 +224,8 @@ clone_profiles_repo() {
   if is_non_zero_string "${KEYBASE_PROFILES_REPO_NAME}" && is_non_zero_string "${PERSONAL_PROFILES_DIR}"; then
     clone_repo_into "$(build_keybase_repo_url "${KEYBASE_PROFILES_REPO_NAME}")" "${PERSONAL_PROFILES_DIR}"
 
-    # Clone the natsumi-browser repo into the FirefoxProfile and ZenProfile chrome folders and switch to the 'dev' branch
-    local -a browsers=(FirefoxProfile ZenProfile)
+    # Clone the natsumi-browser repo into the FirefoxProfile chrome folders and switch to the 'dev' branch
+    local -a browsers=(FirefoxProfile)
     for browser in "${(@kv)browsers}"; do
       local folder="${PERSONAL_PROFILES_DIR}/${browser}"
       if is_directory "${folder}"; then
