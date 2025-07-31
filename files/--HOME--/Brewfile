@@ -74,8 +74,8 @@ cask 'brave-browser'
 cask 'clocker', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Clocker'"
 cask 'firefox@nightly' #, greedy: true
 cask 'fliqlo'
-cask 'floorp'
-cask 'jordanbaird-ice', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Ice'" if OS::Mac::version >= 14
+cask 'google-chrome@beta'
+cask 'jordanbaird-ice@beta', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Ice'" if OS::Mac::version >= 14
 cask 'keepassxc@beta'
 cask 'keycastr'
 cask 'keyclu' if is_arm
@@ -153,6 +153,9 @@ end
 brew 'cairo'
 brew 'gnu-tar'
 brew 'mercurial'
+brew 'nvm'
+brew 'p7zip'
+brew 'sccache'
 
 # ---- docker utilities
 # brew 'dive'   # docker layers inspection on steroids
@@ -188,6 +191,7 @@ brew 'mercurial'
 # cask 'intellij-idea-ce'
 # cask 'kdiff3'
 # cask 'knockknock'
+# cask 'floorp' # Doesn't have keyboard shortcuts to switch across workspaces
 # cask 'licecap'
 # cask 'lulu'
 # cask 'microsoft-remote-desktop'
