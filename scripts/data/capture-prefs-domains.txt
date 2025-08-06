@@ -374,6 +374,7 @@ pbs
 screencapture
 sharedfilelistd
 systemgroup.com.apple.icloud.searchpartyd.sharedsettings
+theboringteam.boringnotch
 us.zoom.updater
 us.zoom.updater.config
 us.zoom.xos

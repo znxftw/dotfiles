@@ -30,6 +30,7 @@ puts "Only performing base installation!" if is_base_install
 at_exit { system('post-brew-install.sh') }
 
 tap 'romkatv/powerlevel10k'
+tap 'TheBoredTeam/boring-notch' if OS::Mac::version >= 14
 
 # formulae pulled in from homebrew to replace system equivalents to fix any security issues since the OS was released
 brew 'bash'
@@ -70,6 +71,7 @@ brew 'syncthing'
 brew 'tldr'
 
 cask 'aldente', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'AlDente'"
+cask 'boring-notch', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'boringNotch'" if OS::Mac::version >= 14
 cask 'brave-browser'
 cask 'clocker', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Clocker'"
 cask 'firefox@nightly' #, greedy: true

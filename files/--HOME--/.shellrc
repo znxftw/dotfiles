@@ -304,9 +304,9 @@ clone_repo_into() {
     # Note: Do not use --depth while cloning since that messes up when using upstream to rebase from
     git -C "${tmp_folder}" clone -q "${1}" .
     mv "${tmp_folder}/.git" "${target_folder}"
+    rm -rf "${tmp_folder}"
     git -C "${target_folder}" checkout .
     git -C "${target_folder}" submodule update --init --recursive --remote --rebase --force
-    rm -rf "${tmp_folder}"
     success "Successfully cloned '$(yellow "${1}")$(green "' into '")$(yellow "${target_folder}")$(green "'")"
 
     local target_branch="${3}"

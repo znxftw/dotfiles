@@ -201,6 +201,8 @@
   workers = 0
 [clean]
   requireForce = true
+[clone]
+  rejectShallow = true
 [color "diff"]
   commit = yellow bold
   frag = magenta bold
