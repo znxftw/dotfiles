@@ -2,6 +2,21 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.17
+
+* *[.gitignore_global]* Add all `.*keep` files to not be ignored.
+* Fix gitignore configs for profiles repo.
+
+#### Adopting these changes
+
+* Rebase from upstream, resolve conflicts, and then proceed with the following steps:
+
+  ```bash
+  cp "${DOTFILES_DIR}/files/--PERSONAL_PROFILES_DIR--/custom.gitignore" "${PERSONAL_PROFILES_DIR}/.gitignore"
+  cp "${DOTFILES_DIR}/files/--HOME--/custom.gitignore" "${HOME}/.gitignore"
+  install-dotfiles.rb
+  ```
+
 ### 2.0.16
 
 * *[.gitconfig]* Enable `clone.rejectShallow`.

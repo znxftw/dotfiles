@@ -1294,5 +1294,7 @@ zsdoc/data
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,dart,eclipse,emacs,homebrew,intellij,java,linux,macos,node,pycharm,python,rust,vim,visualstudiocode,webstorm,windows,zsh
 
+# Do NOT ignore the following files/directories (put these at the end)
+!.*keep
 !/personal/**/bin/
 !/personal/**/*.tgz

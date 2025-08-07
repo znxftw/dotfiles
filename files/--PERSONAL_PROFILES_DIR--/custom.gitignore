@@ -1,18 +1,23 @@
 # file location: ${PERSONAL_PROFILES_DIR}/.gitignore
 
-# Do NOT ignore the following files/directories
+# Do NOT ignore the following files/directories (put these at the beginning)
 !.bundle/config
-!.keep
+!/*Profile/Profiles/DefaultProfile/*.sqlite
+!/*Profile/Profiles/DefaultProfile/**/*.sqlite
 !/*Profile/Profiles/DefaultProfile/**/bookmarks.html
-!/*Profile/Profiles/DefaultProfile/**/cert8.db
-!/*Profile/Profiles/DefaultProfile/**/cookies.sqlite
+!/*Profile/Profiles/DefaultProfile/**/cert*.db
 !/*Profile/Profiles/DefaultProfile/**/key*.db
-!/*Profile/Profiles/DefaultProfile/**/localstorage.sqlite
-!/*Profile/Profiles/DefaultProfile/**/logins.json
+!/*Profile/Profiles/DefaultProfile/**/search.json.mozlz*
 !/*Profile/Profiles/DefaultProfile/**/search.rdf
 !/*Profile/Profiles/DefaultProfile/**/searchplugins
 !/*Profile/Profiles/DefaultProfile/**/secmod.db
-!/*Profile/Profiles/DefaultProfile/**/signons.txt
+!/*Profile/Profiles/DefaultProfile/bookmarks.html
+!/*Profile/Profiles/DefaultProfile/cert*.db
+!/*Profile/Profiles/DefaultProfile/extension-store/
+!/*Profile/Profiles/DefaultProfile/key*.db
+!/*Profile/Profiles/DefaultProfile/search.json.mozlz*
+!/*Profile/Profiles/DefaultProfile/search.rdf
+!/*Profile/Profiles/DefaultProfile/secmod.db
 !/*Profile/Profiles/DefaultProfile/storage/default/**
 !/*Profile/Profiles/DefaultProfile/storage/permanent/**
 
@@ -22,12 +27,12 @@
 .thumbnails
 .Trash
 *-journal
+*.bak-rebuild
 *.iso
 *.log
 *.sqlite-shm
 *.sqlite-wal
 *.sw[nop]
-*.zwc
 *db-shm
 *db-wal
 Cache/
@@ -98,13 +103,19 @@ TransportSecurity
 /*Profile/**/tmp
 /*Profile/**/weave
 
-# ignore git repo present in the browser's chrome directory
-/*Profile/Profiles/DefaultProfile/**/chrome
-
-/Raycast/extensions/
-/Raycast/NodeJS/runtime/
-/Raycast/posthog.queueFolder/
+# ignore git repos present in the browser's chrome directory
+/*Profile/Profiles/DefaultProfile/chrome/
 
 # files that are symlinked from the dotfiles repo
 /.envrc
 /.gitignore
+
+# Do NOT ignore the following files/directories (put these at the end)
+!/*Profile/Profiles/DefaultProfile/**/cookies.sqlite
+!/*Profile/Profiles/DefaultProfile/**/signons.txt
+!/*Profile/Profiles/DefaultProfile/cookies.sqlite
+!/*Profile/Profiles/DefaultProfile/logins.json
+!/*Profile/Profiles/DefaultProfile/signons.txt
+
+# For Zen alone, do not ignore the chrome folder - since that's not a git repo, and I have customizations there which I don't want to lose
+!/ZenProfile/Profiles/DefaultProfile/chrome/

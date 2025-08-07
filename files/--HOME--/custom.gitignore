@@ -1,8 +1,5 @@
 # file location: ${HOME}/.gitignore
 
-!.bundle/config
-!.keep
-
 .~lock*#
 .babel.json
 .boxfuse/
@@ -291,3 +288,6 @@ tmp/
 /.zshenv
 /.zshrc
 /Brewfile
+
+# Do NOT ignore the following files/directories (put these at the end)
+!.bundle/config
