@@ -68,7 +68,7 @@ brew 'ncdu'
 brew 'prettyping'
 brew 'ripgrep'
 brew 'syncthing'
-brew 'tldr'
+brew 'tlrc'
 
 cask 'aldente', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'AlDente'"
 cask 'boring-notch', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'boringNotch'" if OS::Mac::version >= 14

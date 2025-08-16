@@ -334,8 +334,9 @@ set_ssh_folder_permissions() {
   # Set directory permissions first
   chmod 700 "${target_folder}"
   if dir_has_children "${target_folder}"; then
-    find "${target_folder}" -type f -exec chmod 600 {} \;
-    success "Ensured correct permissions for '$(yellow "${target_folder}")' and files within it."
+    find "${target_folder}" -type f -exec chmod 600 {} \; && success "Ensured correct permissions for '$(yellow "${target_folder}")' and files within it."
+
+    find "${target_folder}" -maxdepth 1 -name "id_*" ! -name '*.*' -type f -exec ssh-add "{}" \; && success "Added ssh identity files from '$(yellow "${target_folder}")'."
   else
     warn "'$(yellow "${target_folder}")' exists but is empty. No file permissions to set."
   fi
