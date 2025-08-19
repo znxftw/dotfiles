@@ -65,7 +65,7 @@ fi
 local firefox_profiles="${PERSONAL_PROFILES_DIR}/FirefoxProfile/Profiles/DefaultProfile"
 if is_directory "${firefox_profiles}"; then
   section_header "Update betterfox user.js in ${firefox_profiles}"
-  curl -fsSL https://raw.githubusercontent.com/yokoffing/Betterfox/main/user.js -o "${firefox_profiles}/user.js" && success "Updated betterfox user.js" || warn "Failed to update betterfox user.js"
+  curl --retry 3 --retry-delay 5 --retry-all-errors -fsSL https://raw.githubusercontent.com/yokoffing/Betterfox/main/user.js -o "${firefox_profiles}/user.js" && success "Updated betterfox user.js" || warn "Failed to update betterfox user.js"
 else
   debug "Skipping betterfox user.js update, directory not found: ${firefox_profiles}"
 fi
@@ -74,7 +74,7 @@ unset firefox_profiles
 local zen_profiles="${PERSONAL_PROFILES_DIR}/ZenProfile/Profiles/DefaultProfile"
 if is_directory "${zen_profiles}"; then
   section_header "Update betterzen user.js in ${zen_profiles}"
-  curl -fsSL https://raw.githubusercontent.com/yokoffing/Betterfox/main/zen/user.js -o "${zen_profiles}/user.js" && success "Updated betterzen user.js" || warn "Failed to update betterzen user.js"
+  curl --retry 3 --retry-delay 5 --retry-all-errors -fsSL https://raw.githubusercontent.com/yokoffing/Betterfox/main/zen/user.js -o "${zen_profiles}/user.js" && success "Updated betterzen user.js" || warn "Failed to update betterzen user.js"
 else
   debug "Skipping betterzen user.js update, directory not found: ${zen_profiles}"
 fi

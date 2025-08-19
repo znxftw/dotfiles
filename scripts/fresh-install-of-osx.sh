@@ -43,7 +43,7 @@ download_and_source_shellrc() {
   echo "==> Download the '${HOME}/.shellrc' for loading the utility functions"
   # Check for one key function defined in .shellrc to see if sourcing is needed
   if ! type keep_sudo_alive &> /dev/null 2>&1; then
-    [[ ! -f "${HOME}/.shellrc" ]] && curl -fsSL "https://raw.githubusercontent.com/${GH_USERNAME}/dotfiles/refs/heads/${DOTFILES_BRANCH}/files/--HOME--/.shellrc" -o "${HOME}/.shellrc"
+    [[ ! -f "${HOME}/.shellrc" ]] && curl --retry 3 --retry-delay 5 --retry-all-errors -fsSL "https://raw.githubusercontent.com/${GH_USERNAME}/dotfiles/refs/heads/${DOTFILES_BRANCH}/files/--HOME--/.shellrc" -o "${HOME}/.shellrc"
     FIRST_INSTALL=true source "${HOME}/.shellrc"
   else
     warn "skipping downloading and sourcing '$(yellow "${HOME}/.shellrc")' since its already loaded"
@@ -121,7 +121,7 @@ install_oh_my_zsh_and_custom_plugins() {
   #####################
   section_header "Installing oh-my-zsh into '$(yellow "${HOME}/.oh-my-zsh")'"
   if ! is_directory "${HOME}/.oh-my-zsh"; then
-    sh -c "$(ZSH= curl -fsSL https://install.ohmyz.sh/)" "" --unattended
+    sh -c "$(ZSH= curl --retry 3 --retry-delay 5 --retry-all-errors -fsSL https://install.ohmyz.sh/)" "" --unattended
     success "Successfully installed oh-my-zsh into '$(yellow "${HOME}/.oh-my-zsh")'"
   else
     warn "skipping installation of oh-my-zsh since '$(yellow "${HOME}/.oh-my-zsh")' is already present"
@@ -176,7 +176,7 @@ install_homebrew()  {
     sudo chown -fR "$(whoami)":admin "${HOMEBREW_PREFIX}"
     chmod u+w "${HOMEBREW_PREFIX}"
 
-    NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    NONINTERACTIVE=1 bash -c "$(curl --retry 3 --retry-delay 5 --retry-all-errors -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     success 'Successfully installed homebrew'
 
     eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"

@@ -2,6 +2,12 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.19
+
+* Enhanced `curl` configurations and enable retry even for first time setup.
+* Turn on compression for ssh connections.
+* Use `repack.MIDXMustContainCruft` in git config to optimize repo size.
+
 ### 2.0.18
 
 * *[Brewfile]* Replace deprecated `tldr` with `tlrc`.

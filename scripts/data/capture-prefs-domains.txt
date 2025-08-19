@@ -102,6 +102,7 @@ com.apple.GameOverlayViewService
 com.apple.generativepartnerservicesettings
 com.apple.gms.availability
 com.apple.helpd
+com.apple.HIToolbox
 com.apple.homed
 com.apple.homed.notbackedup
 com.apple.homeenergyd

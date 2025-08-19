@@ -310,6 +310,8 @@
   autoStash = true
   missingCommitsCheck = error
   updateRefs = true
+[repack]
+  MIDXMustContainCruft = true
 [rerere]
   autoUpdate = true
   enabled = true
