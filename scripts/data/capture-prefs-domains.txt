@@ -147,6 +147,7 @@ com.apple.loginwindow
 com.apple.madrid
 com.apple.mail
 com.apple.MCX
+com.apple.mediaaccessibility
 com.apple.mediaanalysisd
 com.apple.MediaPlayer.RemotePlayerService
 com.apple.menuextra.battery

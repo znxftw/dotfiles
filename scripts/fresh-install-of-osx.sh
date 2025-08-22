@@ -403,6 +403,10 @@ else
   warn "skipping importing of preferences since '$(yellow 'capture-prefs.sh')' couldn't be found in the PATH; Please set it up manually"
 fi
 
+if is_directory '/Applications/Raycast.app'; then
+  open /Applications/Raycast.app
+fi
+
 ################################
 # Recreate the zsh completions #
 ################################
