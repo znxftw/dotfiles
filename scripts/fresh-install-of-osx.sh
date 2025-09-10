@@ -97,6 +97,8 @@ install_xcode_command_line_tools() {
     touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
     sudo softwareupdate -ia --agree-to-license --force
     rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+    ! xcode-select -p &> /dev/null && error "Couldn't install xcode command-line tools; Aborting"
+
     success 'Successfully installed xcode command-line tools'
   else
     warn 'skipping installation of xcode command-line tools since its already present'

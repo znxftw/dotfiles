@@ -303,6 +303,7 @@ com.apple.voicetrigger
 com.apple.voicetrigger.notbackedup
 com.apple.wallpaper
 com.apple.Wallpaper-Settings.extension
+com.apple.wallpaper.aerial
 com.apple.weather.sensitive
 com.apple.widgets
 com.apple.wifi-settings-extension
