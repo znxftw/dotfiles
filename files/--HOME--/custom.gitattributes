@@ -5,3 +5,5 @@
 .zshrc.*        text
 *.kdbx          -text
 *.key           -text
+*.odt           diff=pandoc
+*.docx          diff=pandoc

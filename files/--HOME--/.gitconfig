@@ -236,6 +236,8 @@
   renameLimit = 1000
   renames = true
   submodule = diff
+[diff "pandoc"]
+  textconv = pandoc --sandbox --to=markdown
 [diff-so-fancy]
   # changeHunkIndicators = false
   # markEmptyLines = false
