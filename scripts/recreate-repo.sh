@@ -8,7 +8,7 @@
 
 # Do not exit immediately if a command exits with a non-zero status since this is run even if there's no cron entry
 
-# Source shell helpers if they aren't already loaded (check for one representative function)
+# Source shell helpers if they aren't already loaded
 if ! type red &> /dev/null 2>&1 || ! type strip_trailing_slash &> /dev/null 2>&1; then
   source "${HOME}/.shellrc"
 fi
@@ -71,10 +71,6 @@ if [[ "${force}" == 'Y' ]]; then
   git -C "${folder}" remote add origin "${git_url}"
   git -C "${folder}" config user.name "${git_user_name}"
   git -C "${folder}" config user.email "${git_user_email}"
-
-  # touch .gitmodules
-  # rm -rf "${folder}/FirefoxProfile/Profiles/DefaultProfile/chrome"
-  # git -C "${folder}" submodule -q add -f git@github.com:drannex42/FirefoxSidebar.git "${folder}/FirefoxProfile/Profiles/DefaultProfile/chrome"
 
   git -C "${folder}" add -A .
   git -C "${folder}" commit -qm "Initial commit: $(date)"

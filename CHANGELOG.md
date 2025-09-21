@@ -2,6 +2,11 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.23
+
+* De-duplicate `upreb` script to handle all locally checked out branches in a generic manner using a universal script rather than duplicating for each folder.
+* *[.shellrc]* Updated the `section_header` function to be smart about viewport column width and center the text as optimally as possible.
+
 ### 2.0.22
 
 * Introduce configuration in `git` to use `pandoc` for diffing word documents.

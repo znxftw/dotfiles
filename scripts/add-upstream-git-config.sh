@@ -27,7 +27,7 @@ main() {
   local target_folder="${1}"
   local upstream_repo_owner="${2}"
 
-  section_header "Adding new upstream to: '$(yellow "${target_folder}")'"
+  section_header "$(yellow 'Adding new upstream to'): '$(purple "${target_folder}")'"
 
   ! is_git_repo "${target_folder}" && error "'$(yellow "${target_folder}")' is not a git repo; Aborting!!!"
 

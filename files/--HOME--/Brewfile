@@ -30,7 +30,7 @@ puts "Only performing base installation!" if is_base_install
 at_exit { system('post-brew-install.sh') }
 
 tap 'romkatv/powerlevel10k'
-tap 'TheBoredTeam/boring-notch' if OS::Mac::version >= 14
+tap 'TheBoredTeam/boring-notch' if ::OS::Mac::version >= 14
 
 # formulae pulled in from homebrew to replace system equivalents to fix any security issues since the OS was released
 brew 'bash'
@@ -72,20 +72,20 @@ brew 'syncthing'
 brew 'tlrc'
 
 cask 'aldente', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'AlDente'"
-cask 'boring-notch', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'boringNotch'" if OS::Mac::version >= 14
+cask 'boring-notch', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'boringNotch'" if ::OS::Mac::version >= 14
 cask 'brave-browser'
 cask 'clocker', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Clocker'"
 cask 'firefox@nightly' #, greedy: true
 cask 'fliqlo'
 cask 'google-chrome@beta'
 cask 'grayjay'
-cask 'jordanbaird-ice@beta', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Ice'" if OS::Mac::version >= 14
+cask 'jordanbaird-ice@beta', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Ice'" if ::OS::Mac::version >= 14
 cask 'keepassxc@beta'
 cask 'keycastr'
 cask 'keyclu' if is_arm
 cask 'ollama-app', restart_service: :changed
 cask 'onlyoffice'
-cask 'onyx' unless is_beta_os
+cask 'onyx' # if !is_beta_os && ::OS::Mac::version < 26
 cask 'pearcleaner'
 cask 'protonvpn'
 cask 'rancher'
@@ -154,12 +154,12 @@ end
 # cask 'picocrypt' if is_arm
 
 # ---- zen-browser development
-brew 'cairo'
-brew 'gnu-tar'
-brew 'mercurial'
-brew 'nvm'
-brew 'p7zip'
-brew 'sccache'
+# brew 'cairo'
+# brew 'gnu-tar'
+# brew 'mercurial'
+# brew 'nvm'
+# brew 'p7zip'
+# brew 'sccache'
 
 # ---- docker utilities
 # brew 'dive'   # docker layers inspection on steroids

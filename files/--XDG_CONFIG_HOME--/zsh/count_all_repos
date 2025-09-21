@@ -3,6 +3,9 @@
 
 # vim:filetype=zsh syntax=zsh tabstop=2 shiftwidth=2 softtabstop=2 expandtab autoindent fileencoding=utf-8
 
+# Source shell helpers if they aren't already loaded
+type is_git_repo &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+
 # Counts the number of commits in the specified repo
 # internal function: not to be called separately
 _count_repo() {

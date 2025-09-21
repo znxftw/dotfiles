@@ -4,10 +4,14 @@
 # vim:filetype=zsh syntax=zsh tabstop=2 shiftwidth=2 softtabstop=2 expandtab autoindent fileencoding=utf-8
 
 # git command: push
+
+# Source shell helpers if they aren't already loaded
+type section_header &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+
 # Note: Use a function so that it can accept parameters
 push() {
   local folder="${1:-$(pwd)}"
-  section_header "Processing ${folder}"
+  section_header "$(yellow 'Pushing') $(purple "${folder}")"
   git -C "${folder}" push
 }
 

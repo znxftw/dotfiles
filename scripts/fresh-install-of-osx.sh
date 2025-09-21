@@ -12,7 +12,8 @@
 # 2. Brightness on battery
 # 3. Keyboard brightness
 
-local start_time_seconds=$(date +%s)
+# Note: Cannot load from shellrc since that file won't be present in a new machine (vanilla OS)
+local script_start_time=$(date +%s)
 echo "Script started at: $(date '+%Y-%m-%d %H:%M:%S')"
 
 #############################################################
@@ -56,7 +57,7 @@ download_and_source_shellrc() {
 # Copied from: https://apple.stackexchange.com/a/466029                                        #
 ################################################################################################
 approve_fingerprint_sudo() {
-  section_header "Setting up touchId for sudo access in terminal shells"
+  section_header "$(yellow 'Setting up touchId for sudo access in terminal shells')"
 
   if ! ioreg -c AppleBiometricSensor | \grep -q AppleBiometricSensor; then
     warn 'Touch ID hardware is not detected. Skipping configuration.'
@@ -82,7 +83,7 @@ approve_fingerprint_sudo() {
 # Turn on FileVault #
 #####################
 ensure_filevault_is_on() {
-  section_header 'Verifying FileVault status'
+  section_header "$(yellow 'Verifying FileVault status')"
   [[ "$(fdesetup isactive)" != 'true' ]] && error 'FileVault is not turned on. Please encrypt your hard disk!'
 }
 
@@ -90,7 +91,7 @@ ensure_filevault_is_on() {
 # Install command line dev tools #
 ##################################
 install_xcode_command_line_tools() {
-  section_header 'Installing xcode command-line tools'
+  section_header "$(yellow 'Installing xcode command-line tools')"
   # Check if Xcode Command Line Tools are installed
   if ! xcode-select -p &> /dev/null; then
     # install using the non-gui cmd-line alone
@@ -109,7 +110,7 @@ install_xcode_command_line_tools() {
 # Ensure that some of the directories corresponding to the env vars are created #
 #################################################################################
 ensure_directories_exist() {
-  section_header 'Creating directories defined by various env vars'
+  section_header "$(yellow 'Creating directories defined by various env vars')"
   local -a folders=("${DOTFILES_DIR}" "${PROJECTS_BASE_DIR}" "${PERSONAL_BIN_DIR}" "${PERSONAL_CONFIGS_DIR}" "${PERSONAL_PROFILES_DIR}" "${XDG_CACHE_HOME}" "${XDG_CONFIG_HOME}" "${XDG_DATA_HOME}" "${XDG_STATE_HOME}")
     for folder in "${(@kv)folders}"; do
       ensure_dir_exists "${folder}"
@@ -121,7 +122,7 @@ install_oh_my_zsh_and_custom_plugins() {
   #####################
   # Install oh-my-zsh #
   #####################
-  section_header "Installing oh-my-zsh into '$(yellow "${HOME}/.oh-my-zsh")'"
+  section_header "$(yellow 'Installing oh-my-zsh') into '$(purple "${HOME}/.oh-my-zsh")'"
   if ! is_directory "${HOME}/.oh-my-zsh"; then
     sh -c "$(ZSH= curl --retry 3 --retry-delay 5 --retry-all-errors -fsSL https://install.ohmyz.sh/)" "" --unattended
     success "Successfully installed oh-my-zsh into '$(yellow "${HOME}/.oh-my-zsh")'"
@@ -133,7 +134,7 @@ install_oh_my_zsh_and_custom_plugins() {
   # Install custom omz plugins #
   ##############################
   # Note: Some of these are available via brew, but enabling them will take an additional step and the only other benefit (of keeping them up-to-date using brew can still be achieved by updating the git repos directly)
-  section_header 'Installing custom omz plugins'
+  section_header "$(yellow 'Installing custom omz plugins')"
   # Note: These are not installed using homebrew since sourcing of the files needs to be explicit in .zshrc
   # Also, the order of these being referenced in the zsh session startup (for vanilla OS) will cause a warning to be printed though the rest of the shell startup sequence is still performed. Ultimately, until they become included by default into omz, keep them here as custom plugins
   clone_omz_plugin_if_not_present https://github.com/zdharma-continuum/fast-syntax-highlighting
@@ -145,7 +146,7 @@ clone_dot_files_repo() {
   ####################
   # Install dotfiles #
   ####################
-  section_header "Installing dotfiles into '$(yellow "${DOTFILES_DIR}")'"
+  section_header "$(yellow 'Installing dotfiles') into '$(purple "${DOTFILES_DIR}")'"
   if is_non_zero_string "${DOTFILES_DIR}" && ! is_git_repo "${DOTFILES_DIR}"; then
     # Delete the auto-generated .zshrc since that needs to be replaced by the one in the DOTFILES_DIR repo
     rm -rf "${ZDOTDIR}/.zshrc"
@@ -169,7 +170,7 @@ install_homebrew()  {
   ####################
   # Install homebrew #
   ####################
-  section_header "Installing homebrew into '$(yellow "${HOMEBREW_PREFIX}")'"
+  section_header "$(yellow 'Installing homebrew') into '$(yellow "${HOMEBREW_PREFIX}")'"
   ! is_non_zero_string "${HOMEBREW_PREFIX}" && error "'HOMEBREW_PREFIX' env var is not set; something is wrong. Please correct before retrying!"
 
   if ! command_exists brew; then
@@ -202,7 +203,7 @@ clone_home_repo() {
   #######################
   # Clone the home repo #
   #######################
-  section_header 'Cloning home repo'
+  section_header "$(yellow 'Cloning') $(purple 'home') repo"
   if is_non_zero_string "${KEYBASE_HOME_REPO_NAME}"; then
     clone_repo_into "$(build_keybase_repo_url "${KEYBASE_HOME_REPO_NAME}")" "${HOME}"
 
@@ -220,7 +221,7 @@ clone_profiles_repo() {
   ###########################
   # Clone the profiles repo #
   ###########################
-  section_header 'Cloning profiles repo'
+  section_header "$(yellow 'Cloning') $(purple 'profiles') repo"
   if is_non_zero_string "${KEYBASE_PROFILES_REPO_NAME}" && is_non_zero_string "${PERSONAL_PROFILES_DIR}"; then
     clone_repo_into "$(build_keybase_repo_url "${KEYBASE_PROFILES_REPO_NAME}")" "${PERSONAL_PROFILES_DIR}"
 
@@ -260,13 +261,13 @@ clone_profiles_repo() {
 # Do not allow rootless login #
 ###############################
 # Note: Commented out since I am not sure if we need to do this on the office MBP or not
-# section_header 'Verifying rootless status'
+# section_header "$(yellow 'Verifying rootless status')"
 # [[ "$(/usr/bin/csrutil status | awk '/status/ {print $5}' | sed 's/\.$//')" == "enabled" ]] && error "csrutil ('rootless') is enabled. Please disable in boot screen and run again!"
 
 ############################
 # Disable macos gatekeeper #
 ############################
-# section_header 'Disabling macos gatekeeper'
+# section_header "$(yellow 'Disabling macos gatekeeper')"
 # sudo spectl --master-disable
 
 setup_jio_dns
@@ -304,7 +305,7 @@ if is_non_zero_string "${KEYBASE_USERNAME}"; then
   ######################
   # Login into keybase #
   ######################
-  section_header 'Logging into keybase'
+  section_header "$(yellow 'Logging into keybase')"
   ! keybase login && error 'Could not login into keybase. Retry after logging in.'
 
   clone_home_repo
@@ -319,7 +320,7 @@ if is_non_zero_string "${PERSONAL_CONFIGS_DIR}"; then
   # Generate the repositories-oss.yml fie if not present #
   ########################################################
   file_name="${PERSONAL_CONFIGS_DIR}/repositories-oss.yml"
-  section_header "Generating ${file_name}"
+  section_header "$(yellow 'Generating') $(purple "${file_name}")"
   if ! is_file "${file_name}"; then
     ensure_dir_exists "$(dirname "${file_name}")"
     cat <<EOF > "${file_name}"
@@ -336,7 +337,7 @@ EOF
   ##########################################################
   # Resurrect repositories that are in the repo catalogues #
   ##########################################################
-  section_header 'Resurrecting repos'
+  section_header "$(yellow 'Resurrecting repos')"
   # Use zsh glob qualifier (N.) for nullglob and regular files
   for file in "${PERSONAL_CONFIGS_DIR}"/repositories-*.yml(N.); do
     resurrect-repositories.rb -r "${file}"
@@ -350,7 +351,7 @@ fi
 ############################################################
 # post-clone operations for installing system dependencies #
 ############################################################
-section_header 'Running post-clone operations'
+section_header "$(yellow 'Running post-clone operations')"
 if command_exists all; then
   all restore-mtime -c
   all maintenance register --config-file "${HOME}/.gitconfig-oss.inc"
@@ -373,7 +374,7 @@ rm -rf "${HOME}/.ssh/known_hosts.old"
 # Load the direnv config for the home folder so that it creates necessary sym-links #
 #####################################################################################
 # TODO: See if this can be merged into `allow_all_direnv_configs`
-section_header "Allowing direnv for ${HOME}"
+section_header "$(yellow 'Allowing direnv') for $(purple "${HOME}")"
 if command_exists direnv && is_directory "${HOME}" && is_file "${HOME}/.envrc"; then
   (cd "${HOME}" && direnv allow .) && success "Successfully allowed direnv for '$(yellow "${HOME}")'" || warn "Failed to allow direnv for '${HOME}'"
 fi
@@ -382,7 +383,7 @@ fi
 # Load the direnv config for the profiles folder so that it creates necessary sym-links #
 #########################################################################################
 # TODO: See if this can be merged into `allow_all_direnv_configs`
-section_header "Allowing direnv for ${PERSONAL_PROFILES_DIR}"
+section_header "$(yellow 'Allowing direnv') for $(purple "${PERSONAL_PROFILES_DIR}")"
 if command_exists direnv && is_directory "${PERSONAL_PROFILES_DIR}" && is_file "${PERSONAL_PROFILES_DIR}/.envrc"; then
   (cd "${PERSONAL_PROFILES_DIR}" && direnv allow .) && success "Successfully allowed direnv for '$(yellow "${PERSONAL_PROFILES_DIR}")'" || warn "Failed to allow direnv for '${PERSONAL_PROFILES_DIR}'"
 fi
@@ -390,7 +391,7 @@ fi
 ###################################################################
 # Restore the preferences from the older machine into the new one #
 ###################################################################
-section_header 'Restore preferences'
+section_header "$(yellow 'Restore preferences')"
 if command_exists 'osx-defaults.sh'; then
   osx-defaults.sh -s
   success 'Successfully baselines preferences'
@@ -412,14 +413,14 @@ fi
 ################################
 # Recreate the zsh completions #
 ################################
-section_header 'Recreate zsh completions'
+section_header "$(yellow 'Recreate zsh completions')"
 rm -rf "${XDG_CACHE_HOME}/zcompdump-${ZSH_VERSION}"
 autoload -Uz compinit && compinit -C -d "${XDG_CACHE_HOME}/zcompdump-${ZSH_VERSION}"
 
 ###################
 # Setup cron jobs #
 ###################
-section_header 'Setup cron jobs'
+section_header "$(yellow 'Setup cron jobs')"
 if command_exists recron; then
   recron
   success 'Successfully setup cron jobs'
@@ -470,13 +471,4 @@ echo "$(yellow "1. set the 'RAYCAST_SETTINGS_PASSWORD' env var, and then run the
 echo "$(yellow "2. Run the 'bupc' alias to finish setting up all other applications managed by homebrew")"
 echo "$(yellow "3. MANUALLY QUIT AND RESTART iTerm2 and Terminal apps")"
 
-# Record end time and calculate duration
-local end_time_seconds end_time_human duration duration_human
-end_time_seconds=$(date +%s)
-end_time_human=$(date '+%Y-%m-%d %H:%M:%S')
-duration=$((end_time_seconds - start_time_seconds))
-
-# Simple duration formatting (you could make this fancier if needed)
-duration_human=$(printf '%02dh:%02dm:%02ds' $((duration/3600)) $((duration%3600/60)) $((duration%60)))
-
-echo "Script finished at: ${end_time_human}. Total duration: ${duration_human} (${duration} seconds)."
+print_script_duration "${script_start_time}"

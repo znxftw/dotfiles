@@ -3,6 +3,9 @@
 
 # vim:filetype=zsh syntax=zsh tabstop=2 shiftwidth=2 softtabstop=2 expandtab autoindent fileencoding=utf-8
 
+# Source shell helpers if they aren't already loaded
+type is_git_repo &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+
 # Updates the specified repo (ie creates a local commit of changed files that I am not interested in verifying, but which need to be committed into that repo)
 # internal function: not to be called separately
 _update_repo() {
@@ -14,7 +17,7 @@ _update_repo() {
   relative_path="${relative_path:-.}"
 
   # shellcheck disable=SC2005
-  section_header "Updating '${folder}'"
+  section_header "$(yellow 'Updating') $(purple "${folder}")"
   rm -rfv "${folder}/.git/index.lock" "${folder}/.git/hooks"
 
   git -C "${folder}" add "${relative_path}"

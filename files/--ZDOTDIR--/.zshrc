@@ -162,36 +162,37 @@ load_file_if_exists "${HOME}/.aliases"
 # export ERL_AFLAGS="-kernel shell_history enabled -kernel shell_history_file_bytes 1024000"
 
 if is_macos; then
-  # setopt glob_dots                # no special treatment for file names with a leading dot
-  # setopt no_auto_menu             # require an extra TAB press to open the completion menu
-  # setopt auto_menu                # automatically use menu completion
-  # setopt list_beep
-  # setopt correct_all              # autocorrect commands
   # setopt always_to_end            # move cursor to end if word had one match
+  # setopt auto_menu                # automatically use menu completion
+  # setopt correct_all              # autocorrect commands
+  # setopt glob_dots                # no special treatment for file names with a leading dot
+  # setopt list_beep
+  # setopt no_auto_menu             # require an extra TAB press to open the completion menu
+  # setopt no_clobber               # Prevent overwriting existing files with '> filename', use '>| filename' (or >!) instead.
 
   setopt append_history           # append history list to the history file
-  setopt share_history            # share history between different instances of the shell
-  setopt inc_append_history       # append command to history file immediately after execution
-  setopt extended_history         # save each command's beginning timestamp and the duration to the history file
-  setopt hist_ignore_all_dups     # do not put duplicated command into history list
-  setopt hist_ignore_dups         # do not store duplications
-  setopt hist_allow_clobber
-  setopt hist_reduce_blanks       # remove unnecessary blanks
-  setopt hist_save_no_dups        # do not save duplicated command
   setopt auto_cd                  # cd into directory if the name is not an alias or function, but matches a directory
-  setopt auto_pushd               # make cd push the old directory onto the directory stack
-  setopt pushd_silent             # do not print the directory stack after pushd or popd
-  setopt pushd_ignore_dups        # don’t push multiple copies of the same directory
-  setopt beep                     # beep on error or on completion of long commands
-  setopt extended_glob
-  setopt local_options
   setopt auto_list                # automatically list choices on an ambiguous completion.
-  setopt list_ambiguous
-  setopt list_types               # if the file being listed is a directory, show a trailing slash
-  setopt no_case_glob             # case-insensitive globbing
+  setopt auto_pushd               # make cd push the old directory onto the directory stack
+  setopt beep                     # beep on error or on completion of long commands
+  setopt extended_glob            # Enable zsh's extended glob abilities.
+  setopt extended_history         # save each command's beginning timestamp and the duration to the history file
+  setopt hist_allow_clobber
   setopt hist_expire_dups_first   # expire duplicates first
   setopt hist_find_no_dups        # ignore duplicates when searching
+  setopt hist_ignore_all_dups     # do not put duplicated command into history list
+  setopt hist_ignore_dups         # do not store duplications
+  setopt hist_reduce_blanks       # remove unnecessary blanks
+  setopt hist_save_no_dups        # do not save duplicated command
+  setopt inc_append_history       # append command to history file immediately after execution
+  setopt list_ambiguous
+  setopt list_types               # if the file being listed is a directory, show a trailing slash
+  setopt local_options
+  setopt no_case_glob             # case-insensitive globbing
   setopt null_glob                # ignore errors when file globs don't match anything
+  setopt pushd_ignore_dups        # don’t push multiple copies of the same directory
+  setopt pushd_silent             # do not print the directory stack after pushd or popd
+  setopt share_history            # share history between different instances of the shell
 
   # console colors
   autoload -Uz colors && colors

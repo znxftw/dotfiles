@@ -9,7 +9,10 @@ set -e
 
 # Source shellrc only once if any required function is missing
 # Check for one key function defined in .shellrc to see if sourcing is needed
-type is_file &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+type print_script_start &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+
+local script_start_time=$(date +%s)
+print_script_start
 
 vacuum_browser_profile_folder() {
   local browser_name="${1}"   # Passed browser name
@@ -23,7 +26,7 @@ vacuum_browser_profile_folder() {
 
   ! is_directory "${profile_folder}" && warn "skipping processing of '$(yellow "${profile_folder}")' since it doesn't exist" && return
 
-  section_header "Vacuuming '${browser_name}' in '${profile_folder}'..."
+  section_header "$(yellow 'Vacuuming') '$(purple "${browser_name}")' in '$(yellow "${profile_folder}")'..."
   echo "--> Size before: $(folder_size "${profile_folder}")"
 
   if command_exists sqlite3; then
@@ -40,7 +43,7 @@ vacuum_browser_profile_folder() {
       done
     ' _ || vacuum_failed=1 # Capture if any xargs command failed; use '_' as $0 placeholder
 
-    if [[ $vacuum_failed -ne 0 ]]; then
+    if [[ ${vacuum_failed} -ne 0 ]]; then
       warn "One or more sqlite vacuum/reindex operations failed in ${profile_folder}"
     fi
   fi
@@ -80,7 +83,7 @@ vacuum_browser_profile_folder() {
   fi
 
   # Add -delete action and execute only if conditions were specified
-  if [[ $has_conditions -eq 1 ]]; then
+  if [[ ${has_conditions} -eq 1 ]]; then
       combined_find_cmd+=('-delete')
       echo "Deleting files and directories matching patterns..."
       if ! "${combined_find_cmd[@]}"; then warn "Combined find/delete operation failed (code: $?) in '${profile_folder}'."; fi
@@ -89,10 +92,6 @@ vacuum_browser_profile_folder() {
   echo "--> Size after: $(folder_size "${profile_folder}")"
   success "Successfully processed profile folder for '$(yellow "${browser_name}")'"
 }
-
-# Record start time
-local start_time_seconds=$(date +%s)
-echo "Script started at: $(date '+%Y-%m-%d %H:%M:%S')"
 
 # Pre-read patterns from files
 local -a file_patterns dir_patterns
@@ -121,10 +120,8 @@ num_cores=$(sysctl -n hw.ncpu 2>/dev/null) || num_cores=4 # Default to 4 if dete
 # Value: Absolute path to the profile folder
 typeset -A browser_profiles
 browser_profiles=(
-  # TODO: Uncomment Arc/Chrome if testing confirms safety
-  # arc         "${PERSONAL_PROFILES_DIR}/ArcProfile"
   brave       "${PERSONAL_PROFILES_DIR}/BraveProfile"
-  # chrome      "${PERSONAL_PROFILES_DIR}/ChromeProfile"
+  chrome      "${PERSONAL_PROFILES_DIR}/ChromeProfile"
   firefox     "${PERSONAL_PROFILES_DIR}/FirefoxProfile"
   thunderbird "${PERSONAL_PROFILES_DIR}/ThunderbirdProfile"
   zen         "${PERSONAL_PROFILES_DIR}/ZenProfile"
@@ -136,13 +133,4 @@ for browser_name profile_folder in "${(@kv)browser_profiles}"; do
   vacuum_browser_profile_folder "${browser_name}" "${profile_folder}" "${num_cores}"
 done
 
-# Record end time and calculate duration
-local end_time_seconds end_time_human duration duration_human
-end_time_seconds=$(date +%s)
-end_time_human=$(date '+%Y-%m-%d %H:%M:%S')
-duration=$((end_time_seconds - start_time_seconds))
-
-# Simple duration formatting (you could make this fancier if needed)
-duration_human=$(printf '%02dh:%02dm:%02ds' $((duration/3600)) $((duration%3600/60)) $((duration%60)))
-
-echo "Script finished at: ${end_time_human}. Total duration: ${duration_human} (${duration} seconds)."
+print_script_duration "${script_start_time}"

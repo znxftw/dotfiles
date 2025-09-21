@@ -151,9 +151,35 @@ error() {
   exit 1
 }
 
+print_chars_for_length() {
+  local char="${1:--}"  # default to using '-'
+  local final_length=${2:-$(($(tput cols)/4))}
+  printf "${char}%.0s" {1..${final_length}}
+}
+
 section_header() {
-  echo "$(red '---------------------')"
-  echo "$(blue '==>') $(purple "${1}")"
+  local header="${1}"
+  local viewport_length=$(tput cols)
+  local header_length=${#header}
+  local final_length=$(($(($((${viewport_length} - ${header_length})) / 2)) - 10))
+
+  echo "$(light_blue $(print_chars_for_length '=' ${final_length})) ${header} $(light_blue $(print_chars_for_length '=' ${final_length}))"
+}
+
+print_script_start() {
+  echo "$(purple '==>') $(yellow 'Script started at:') $(light_blue "$(date '+%Y-%m-%d %H:%M:%S')")"
+}
+
+print_script_duration() {
+  local start_time_seconds="${1}"
+  local end_time_seconds=$(date +%s)
+  local end_time_human=$(date '+%Y-%m-%d %H:%M:%S')
+  local duration=$((end_time_seconds - start_time_seconds))
+
+  # Simple duration formatting (you could make this fancier if needed)
+  local duration_human=$(printf '%02dh:%02dm:%02ds' $((duration/3600)) $((duration%3600/60)) $((duration%60)))
+
+  echo "$(purple '==>') $(yellow 'Script finished at:') $(light_blue "${end_time_human}") ($(yellow 'Total duration:') $(light_blue "${duration_human}") $(yellow 'seconds'))."
 }
 
 is_non_zero_string() {
@@ -281,7 +307,7 @@ is_windows() {
 # Ask for the administrator password upfront and keep it alive until this script has finished #
 ###############################################################################################
 keep_sudo_alive() {
-  section_header 'Keeping sudo alive till this script has finished'
+  section_header "$(yellow 'Keeping sudo alive till this script has finished')"
   sudo -v
   while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 }
@@ -328,7 +354,7 @@ clone_repo_into() {
 # Setup ssh scripts/directories #
 #################################
 set_ssh_folder_permissions() {
-  section_header 'Setting ssh config file permissions'
+  section_header "$(yellow 'Setting ssh config file permissions')"
   local target_folder="${HOME}/.ssh"
   ensure_dir_exists "${target_folder}"
   # Set directory permissions first

@@ -26,7 +26,7 @@ replace_symlink_if_needed() {
 rm -rf "${HOMEBREW_REPOSITORY}/share/zsh/site-functions/_git" &> /dev/null
 
 # Link programs to open from the cmd-line
-section_header 'Linking keybase for command-line invocation'
+section_header "$(yellow 'Linking') $(purple 'keybase') $(yellow 'for command-line invocation')"
 if is_directory '/Applications/Keybase.app'; then
   replace_symlink_if_needed '/Applications/Keybase.app/Contents/SharedSupport/bin/keybase' "${HOMEBREW_PREFIX}/bin/keybase"
   replace_symlink_if_needed '/Applications/Keybase.app/Contents/SharedSupport/bin/git-remote-keybase' "${HOMEBREW_PREFIX}/bin/git-remote-keybase"
@@ -36,7 +36,7 @@ else
   warn 'skipping symlinking keybase for command-line invocation'
 fi
 
-section_header 'Linking VSCode/VSCodium for command-line invocation'
+section_header "$(yellow 'Linking') $(purple 'VSCode/VSCodium') $(yellow 'for command-line invocation')"
 if is_directory '/Applications/VSCodium - Insiders.app'; then
   # Symlink from the embedded executable for codium-insiders
   replace_symlink_if_needed '/Applications/VSCodium - Insiders.app/Contents/Resources/app/bin/codium-insiders' "${HOMEBREW_PREFIX}/bin/codium-insiders"
@@ -56,14 +56,14 @@ else
   warn 'skipping symlinking vscode/vscodium for command-line invocation'
 fi
 
-section_header 'Linking rider for command-line invocation'
+section_header "$(yellow 'Linking') $(purple 'rider') $(yellow 'for command-line invocation')"
 if is_directory '/Applications/Rider.app'; then
   replace_symlink_if_needed '/Applications/Rider.app/Contents/MacOS/rider' "${HOMEBREW_PREFIX}/bin/rider"
 else
   warn 'skipping symlinking rider for command-line invocation'
 fi
 
-section_header 'Linking idea/idea-ce for command-line invocation'
+section_header "$(yellow 'Linking') $(purple 'idea/idea-ce') $(yellow 'for command-line invocation')"
 if is_directory '/Applications/IntelliJ IDEA CE.app'; then
   replace_symlink_if_needed '/Applications/IntelliJ IDEA CE.app/Contents/MacOS/idea' "${HOMEBREW_PREFIX}/bin/idea"
 elif is_directory '/Applications/IntelliJ IDEA.app'; then
@@ -72,7 +72,7 @@ else
   warn 'skipping symlinking idea/idea-ce for command-line invocation'
 fi
 
-section_header 'Linking zed for command-line invocation'
+section_header "$(yellow 'Linking') $(purple 'zed') $(yellow 'for command-line invocation')"
 if is_directory '/Applications/Zed Preview.app'; then
   replace_symlink_if_needed "${HOMEBREW_PREFIX}/bin/zed-preview" "${HOMEBREW_PREFIX}/bin/zed"
   replace_symlink_if_needed '/Applications/Zed Preview.app/Contents/MacOS/cli' "${HOMEBREW_PREFIX}/bin/zed-preview"
