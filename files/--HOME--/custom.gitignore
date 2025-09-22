@@ -246,8 +246,10 @@ tmp/
 /.bashrc
 /.config/bat/config
 /.config/btop/btop.conf
+/.config/ghostty/config
 /.config/mise/config.toml
 /.config/rubocop/config.yml
+/.config/zsh/*
 /.cshrc
 /.curlrc
 /.default-gems

@@ -2,6 +2,19 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.24
+
+* *[Brewfile]* Introduce `ghostty` and capture its configuration.
+
+#### Adopting these changes
+
+* Rebase from upstream, resolve conflicts, and then proceed with the following steps:
+
+  ```bash
+  cp "${DOTFILES_DIR}/files/--HOME--/custom.gitignore" "${HOME}/.gitignore"
+  install-dotfiles.rb
+  ```
+
 ### 2.0.23
 
 * De-duplicate `upreb` script to handle all locally checked out branches in a generic manner using a universal script rather than duplicating for each folder.
