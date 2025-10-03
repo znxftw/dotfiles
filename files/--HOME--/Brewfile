@@ -190,7 +190,7 @@ end
 # ---- casks
 # cask 'cloudflare-warp'
 # cask 'dbeaver-community'
-cask 'ghostty@tip'
+# cask 'ghostty@tip' # Not using since it doesn't have many features (like broadcasting keystrokes to panels; using iTerm instead)
 # cask 'git-credential-manager'   # https://docs.github.com/en/get-started/getting-started-with-git/caching-your-github-credentials-in-git
 # cask 'intellij-idea-ce'
 # cask 'kdiff3'

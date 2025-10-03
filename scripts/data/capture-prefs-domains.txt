@@ -40,6 +40,7 @@ com.apple.bluetoothuserd
 com.apple.bookstoreagent
 com.apple.businessservicesd
 com.apple.calaccessd
+com.apple.chronod
 com.apple.classroom
 com.apple.cloud.quota
 com.apple.CloudDocs.iCloudDriveFileProvider
@@ -193,6 +194,7 @@ com.apple.Profiles-Settings.extension
 com.apple.protectedcloudstorage.protectedcloudkeysyncing
 com.apple.quicklook.QuickLookUIService
 com.apple.remotedesktop
+com.apple.remotemanagement.ManagedSettingsSubscriber
 com.apple.replayd
 com.apple.routined
 com.apple.Safari

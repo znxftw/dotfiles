@@ -2,6 +2,10 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.25
+
+* *[Brewfile]* Removed `ghostty` since there are some features that make iTerm better suited for my usecase.
+
 ### 2.0.24
 
 * *[Brewfile]* Introduce `ghostty` and capture its configuration.
