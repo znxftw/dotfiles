@@ -44,7 +44,7 @@ download_and_source_shellrc() {
   echo "==> Download the '${HOME}/.shellrc' for loading the utility functions"
   # Check for one key function defined in .shellrc to see if sourcing is needed
   if ! type keep_sudo_alive &> /dev/null 2>&1; then
-    [[ ! -f "${HOME}/.shellrc" ]] && curl --retry 3 --retry-delay 5 --retry-all-errors -fsSL "https://raw.githubusercontent.com/${GH_USERNAME}/dotfiles/refs/heads/${DOTFILES_BRANCH}/files/--HOME--/.shellrc" -o "${HOME}/.shellrc"
+    [[ ! -f "${HOME}/.shellrc" ]] && curl --retry 3 --retry-delay 5 -fsSL "https://raw.githubusercontent.com/${GH_USERNAME}/dotfiles/refs/heads/${DOTFILES_BRANCH}/files/--HOME--/.shellrc" -o "${HOME}/.shellrc"
     FIRST_INSTALL=true source "${HOME}/.shellrc"
   else
     warn "skipping downloading and sourcing '$(yellow "${HOME}/.shellrc")' since its already loaded"
@@ -124,7 +124,7 @@ install_oh_my_zsh_and_custom_plugins() {
   #####################
   section_header "$(yellow 'Installing oh-my-zsh') into '$(purple "${HOME}/.oh-my-zsh")'"
   if ! is_directory "${HOME}/.oh-my-zsh"; then
-    sh -c "$(ZSH= curl --retry 3 --retry-delay 5 --retry-all-errors -fsSL https://install.ohmyz.sh/)" "" --unattended
+    sh -c "$(ZSH= curl --retry 3 --retry-delay 5 -fsSL https://install.ohmyz.sh/)" "" --unattended
     success "Successfully installed oh-my-zsh into '$(yellow "${HOME}/.oh-my-zsh")'"
   else
     warn "skipping installation of oh-my-zsh since '$(yellow "${HOME}/.oh-my-zsh")' is already present"
@@ -179,7 +179,7 @@ install_homebrew()  {
     sudo chown -fR "$(whoami)":admin "${HOMEBREW_PREFIX}"
     chmod u+w "${HOMEBREW_PREFIX}"
 
-    NONINTERACTIVE=1 bash -c "$(curl --retry 3 --retry-delay 5 --retry-all-errors -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    NONINTERACTIVE=1 bash -c "$(curl --retry 3 --retry-delay 5 -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     success 'Successfully installed homebrew'
 
     eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
@@ -225,14 +225,14 @@ clone_profiles_repo() {
   if is_non_zero_string "${KEYBASE_PROFILES_REPO_NAME}" && is_non_zero_string "${PERSONAL_PROFILES_DIR}"; then
     clone_repo_into "$(build_keybase_repo_url "${KEYBASE_PROFILES_REPO_NAME}")" "${PERSONAL_PROFILES_DIR}"
 
-    # Clone the natsumi-browser repo into the FirefoxProfile chrome folders and switch to the 'dev' branch
+    # Clone the natsumi-browser repo into specified browser profile chrome folders and switch to the 'dev' branch
     local -a browsers=(FirefoxProfile)
     for browser in "${(@kv)browsers}"; do
       local folder="${PERSONAL_PROFILES_DIR}/${browser}"
       if is_directory "${folder}"; then
         clone_repo_into "git@github.com:${UPSTREAM_GH_USERNAME}/natsumi-browser" "${folder}/Profiles/DefaultProfile/chrome" dev
       else
-        warn "skipping cloning of natsumi repo into the '$(yellow "${browser}")' folder since the folder '$(yellow "${folder}/Profiles/DefaultProfile/chrome")' doesn't exist"
+        warn "skipping cloning of natsumi repo for '$(yellow "${browser}")' as its profile directory structure is not present."
       fi
       unset folder
     done

@@ -1671,7 +1671,7 @@ defaults write com.apple.screencapture location -string "${HOME}/Desktop"
 defaults write com.apple.screencapture type -string "png"
 
 # Disable shadow in screenshots
-# defaults write com.apple.screencapture disable-shadow -bool true
+defaults write com.apple.screencapture disable-shadow -bool true
 
 # Screenshot thumbnail expires in 15 secs
 defaults write com.apple.screencaptureui thumbnailExpiration -float 15
