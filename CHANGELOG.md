@@ -2,6 +2,22 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.27
+
+* *[.aliases]* Removed `upreb_me` alias and `upreb-universal.sh` and combined both into a single zsh autoloaded script. This also allows to override it with a folder-specific implementation that can handle pre- and post- (or full override) steps as needed.
+* *[.shellrc]* Reduce line length when invoking the `section_header` function by replacing the value of `HOME` env var with `~`.
+* Introduced `.terraformrc` file for configuring terraform.
+
+#### Adopting these changes
+
+* Rebase from upstream, resolve conflicts, and then proceed with the following steps:
+
+  ```bash
+  install-dotfiles.rb
+  ```
+
+* Quit and restart your Terminal application for these changes to take effect.
+
 ### 2.0.26
 
 * Fixed an issue where running `fresh-install-of-osx.sh` caused the whole terminal app to quit at the end.

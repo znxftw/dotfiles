@@ -36,6 +36,7 @@
 .templateengine/Visual\ Studio/
 .terraform.d/checkpoint_cache
 .terraform.d/checkpoint_signature
+.terraform.d/plugin-cache
 .vnc/ViewerStore
 *-journal
 *.db-wal
@@ -284,6 +285,7 @@ tmp/
 /.sqliterc
 /.ssh/global_config
 /.tcshrc
+/.terraformrc
 /.vim/autoload/plug.vim
 /.vimrc
 /.zlogin
