@@ -72,11 +72,13 @@ if [[ "${force}" == 'Y' ]]; then
   git -C "${folder}" config user.name "${git_user_name}"
   git -C "${folder}" config user.email "${git_user_email}"
 
+  rm -f "${folder}/.git/index.lock"
   git -C "${folder}" add -A .
   git -C "${folder}" commit -qm "Initial commit: $(date)"
 fi
 
 # Retry the commit in case it failed the first time
+rm -f "${folder}/.git/index.lock"
 git -C "${folder}" add -A .
 git -C "${folder}" amq
 

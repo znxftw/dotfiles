@@ -61,6 +61,7 @@ return 0 if is_base_install
 # formulae pulled in for advanced configs (these are optional, but still recommended)
 brew 'bat'
 brew 'btop'
+brew 'dua-cli'
 brew 'git-gui'
 brew 'jq'
 brew 'moreutils'
@@ -76,7 +77,6 @@ cask 'boring-notch', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.
 cask 'brave-browser'
 cask 'clocker', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Clocker'"
 cask 'firefox@nightly' #, greedy: true
-cask 'fliqlo'
 cask 'google-chrome@beta'
 cask 'grayjay'
 cask 'jordanbaird-ice@beta', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Ice'" if ::OS::Mac::version >= 14
@@ -95,8 +95,8 @@ cask 'vscodium@insiders'   # TODO: Doesn't handle 'Remote Containers' and GH-bas
 cask 'zen@twilight'
 cask 'zoom'
 
-brew 'mas'
-mas 'PDFgear', id: 6469021132
+# brew 'mas'
+# mas 'PDFgear', id: 6469021132
 
 # VSCode extensions
 # Note: I don't want brew to silently install VS Code (which is what it does currently if the following lines are present but it doesn't find the executable 'code'!)
@@ -190,6 +190,7 @@ end
 # ---- casks
 # cask 'cloudflare-warp'
 # cask 'dbeaver-community'
+# cask 'fliqlo'
 # cask 'ghostty@tip' # Not using since it doesn't have many features (like broadcasting keystrokes to panels; using iTerm instead)
 # cask 'git-credential-manager'   # https://docs.github.com/en/get-started/getting-started-with-git/caching-your-github-credentials-in-git
 # cask 'intellij-idea-ce'
