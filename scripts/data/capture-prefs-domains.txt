@@ -375,6 +375,8 @@ org.mozilla.floorp
 org.mozilla.nightly
 org.mozilla.thunderbird
 org.mozilla.thunderbird-daily
+org.torproject.torbrowser
+org.torproject.torbrowseralpha
 pbs
 screencapture
 sharedfilelistd

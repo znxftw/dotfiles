@@ -6,6 +6,9 @@ On your local machine:
 2. Open the `System Preferences` application.
    * Search for 'Full Disk Access' and add 'Terminal' (if not, the setup script will error out in between)
    * Search for 'File Vault' and turn it on (if not, then the setup script will exit in the beginning itself)
+3. If you are going to use Raycast, open the `System Preferences` application.
+   * Search for 'Privacy & Security > Accessibility', and enable/approve for iTerm and Terminal apps.
+   * Search for 'Privacy & Security > Automation', and enable/approve for 'System Events' for iTerm and Terminal apps.
 
 The meta script to setup the macos machine from a vanilla OS can be run using the following command:
 

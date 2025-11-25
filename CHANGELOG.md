@@ -2,6 +2,11 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.29
+
+* Added Tor Browser.
+* Added some instructions for exporting/importing Raycast configurations.
+
 ### 2.0.28
 
 * Fixed issue with `upreb` and `cc` scripts since they were not evaluating the current working directory at the time of invocation. Instead, they were evaluating at the time of shell startup.
@@ -20,6 +25,8 @@ For those who follow this repo, here's the changelog for ease of adoption:
   ```bash
   install-dotfiles.rb
   ```
+
+  After running the above script, there might be changes that show up in the dotfiles repo, which again need to be reconciled. While doing so, please keep in mind how this will need to work when running on a vanilla OS (even in cases where the prior machine is not working/accessible). So, ensure that any logic that you add should work in that scenario.
 
 * Quit and restart your Terminal application for these changes to take effect.
 

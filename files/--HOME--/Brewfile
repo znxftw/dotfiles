@@ -91,6 +91,7 @@ cask 'protonvpn'
 cask 'rancher'
 cask 'raycast', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Raycast'"
 cask 'stats', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Stats'"
+cask 'tor-browser@alpha'
 cask 'vscodium@insiders'   # TODO: Doesn't handle 'Remote Containers' and GH-based auto-syncing when compared to VSCode
 cask 'zen@twilight'
 cask 'zoom'
@@ -131,6 +132,7 @@ if is_vscode_installed
   vscode 'ms-azuretools.vscode-containers'
   vscode 'ms-azuretools.vscode-docker'
   vscode 'ms-vscode.atom-keybindings'
+  vscode 'ms-vscode.copilot-mermaid-diagram'
   vscode 'ms-vscode.vscode-typescript-next'
   vscode 'oderwat.indent-rainbow'
   vscode 'orta.vscode-jest'
