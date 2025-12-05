@@ -61,6 +61,7 @@ return 0 if is_base_install
 # formulae pulled in for advanced configs (these are optional, but still recommended)
 brew 'bat'
 brew 'btop'
+# brew 'container', restart_service: :changed if ::OS::Mac::version >= 26
 brew 'dua-cli'
 brew 'git-gui'
 brew 'jq'
@@ -88,7 +89,7 @@ cask 'onlyoffice'
 cask 'onyx' # if !is_beta_os && ::OS::Mac::version < 26
 cask 'pearcleaner'
 cask 'protonvpn'
-cask 'rancher'
+cask 'rancher' # if ::OS::Mac::version < 26
 cask 'raycast', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Raycast'"
 cask 'stats', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Stats'"
 cask 'tor-browser@alpha'
@@ -132,7 +133,6 @@ if is_vscode_installed
   vscode 'ms-azuretools.vscode-containers'
   vscode 'ms-azuretools.vscode-docker'
   vscode 'ms-vscode.atom-keybindings'
-  vscode 'ms-vscode.copilot-mermaid-diagram'
   vscode 'ms-vscode.vscode-typescript-next'
   vscode 'oderwat.indent-rainbow'
   vscode 'orta.vscode-jest'
