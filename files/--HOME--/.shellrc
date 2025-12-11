@@ -147,7 +147,8 @@ debug() {
 }
 
 error() {
-  echo "$(red '**ERROR**') ${1}"
+  echo "$(red '**ERROR**') ${1} 🤓"
+  osascript -e "display notification \"${1} 🤓\""
   exit 1
 }
 

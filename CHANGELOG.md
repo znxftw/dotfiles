@@ -2,6 +2,20 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.31
+
+* Unignore `$HOME/.ssh/known_hosts` so that the repository resurrection process is done without user interaction.
+* When using the `error` function, a visual notification is also raised in the Notifications area so that the user need not monitor the `mail` command if there are any outdated GUI apps that need upgrading using `bcug`.
+
+#### Adopting these changes
+
+* Rebase from upstream, resolve conflicts, and then proceed with the following steps:
+
+  ```bash
+  cp "${DOTFILES_DIR}/files/--HOME--/custom.gitignore" "${HOME}/.gitignore"
+  install-dotfiles.rb
+  ```
+
 ### 2.0.30
 
 * Updated documentation to clearly call out where references to my username (`vraravam`) should NOT be changed when forking for your usage.

@@ -334,6 +334,9 @@ EOF
   fi
   unset file_name
 
+  # TODO: Add the github.com host to the known_hosts file so that the script is not blocked for user input
+  # ssh-keyscan -H -t ED25519 github.com >> ~/.ssh/known_hosts
+
   ##########################################################
   # Resurrect repositories that are in the repo catalogues #
   ##########################################################
