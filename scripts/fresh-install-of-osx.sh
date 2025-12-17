@@ -19,7 +19,9 @@ echo "Script started at: $(date '+%Y-%m-%d %H:%M:%S')"
 #############################################################
 # Utility scripts and env vars used only within this script #
 #############################################################
-export ZSH_CUSTOM="${ZSH_CUSTOM:-"${ZSH:-"${HOME}/.oh-my-zsh"}/custom"}"
+export ZDOTDIR="${ZDOTDIR:-"${HOME}"}"
+export ZSH="${ZSH:-"${ZDOTDIR}/.oh-my-zsh"}"
+export ZSH_CUSTOM="${ZSH_CUSTOM:-"${ZSH}/custom"}"
 
 # These repos can be alternatively tracked using git submodules, but by doing so, any new change in the submodule, will show up as a new commit in the main (home) repo. To avoid this "noise", I prefer to decouple them
 clone_omz_plugin_if_not_present() {
@@ -31,8 +33,8 @@ clone_omz_plugin_if_not_present() {
 ######################################################################################################################
 setup_jio_dns() {
   # Fetch only organization and grep quietly (-q) and case-insensitively (-i) for Jio ISP
-  if curl -fsS ipinfo.io/org | \grep -qi 'jio'; then
-    echo '==> Setting DNS for WiFi'
+  if curl -fsS https://ipinfo.io/org | \grep -qi 'jio'; then
+    echo '==> Setting DNS for WiFi from Jio ISP'
     sudo networksetup -setdnsservers Wi-Fi 8.8.8.8
   fi
 }
@@ -122,12 +124,12 @@ install_oh_my_zsh_and_custom_plugins() {
   #####################
   # Install oh-my-zsh #
   #####################
-  section_header "$(yellow 'Installing oh-my-zsh') into '$(purple "${HOME}/.oh-my-zsh")'"
-  if ! is_directory "${HOME}/.oh-my-zsh"; then
+  section_header "$(yellow 'Installing oh-my-zsh') into '$(purple "${ZSH}")'"
+  if ! is_directory "${ZSH}"; then
     sh -c "$(ZSH= curl --retry 3 --retry-delay 5 -fsSL https://install.ohmyz.sh/)" "" --unattended
-    success "Successfully installed oh-my-zsh into '$(yellow "${HOME}/.oh-my-zsh")'"
+    success "Successfully installed oh-my-zsh into '$(yellow "${ZSH}")'"
   else
-    warn "skipping installation of oh-my-zsh since '$(yellow "${HOME}/.oh-my-zsh")' is already present"
+    warn "skipping installation of oh-my-zsh since '$(yellow "${ZSH}")' is already present"
   fi
 
   ##############################
@@ -147,6 +149,7 @@ clone_dot_files_repo() {
   # Install dotfiles #
   ####################
   section_header "$(yellow 'Installing dotfiles') into '$(purple "${DOTFILES_DIR}")'"
+  rm -rfv "${ZDOTDIR}/.zshrc.pre-oh-my-zsh"
   if is_non_zero_string "${DOTFILES_DIR}" && ! is_git_repo "${DOTFILES_DIR}"; then
     # Delete the auto-generated .zshrc since that needs to be replaced by the one in the DOTFILES_DIR repo
     rm -rf "${ZDOTDIR}/.zshrc"

@@ -33,7 +33,9 @@ load_file_if_exists "${HOME}/.p10k.zsh"
 load_file_if_exists "${HOMEBREW_PREFIX}/share/powerlevel10k/powerlevel10k.zsh-theme"
 
 # Path to your Oh My Zsh installation.
-export ZSH="${ZDOTDIR:-${HOME}}/.oh-my-zsh"
+export ZDOTDIR="${ZDOTDIR:-"${HOME}"}"
+export ZSH="${ZSH:-"${ZDOTDIR}/.oh-my-zsh"}"
+export ZSH_CUSTOM="${ZSH_CUSTOM:-"${ZSH}/custom"}"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
@@ -100,9 +102,6 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 # or set a custom format using the strftime function format specifications,
 # see 'man strftime' for details.
 # HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than ${ZSH}/custom?
-export ZSH_CUSTOM="${ZSH_CUSTOM:-"${ZSH:-"${HOME}/.oh-my-zsh"}/custom"}"
 
 # https://github.com/zsh-users/zsh-autosuggestions?tab=readme-ov-file#suggestion-strategy
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)

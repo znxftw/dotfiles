@@ -20,14 +20,14 @@ export LANG='en_US.UTF-8'
 export LC_ALL='en_US.UTF-8'
 export LESSCHARSET='utf-8'
 
-export ZDOTDIR="${ZDOTDIR:-${HOME}}"
-export XDG_CACHE_HOME="${XDG_CACHE_HOME:-${HOME}/.cache}"
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
-export XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
-export XDG_STATE_HOME="${XDG_STATE_HOME:-${HOME}/.local/state}"
+export ZDOTDIR="${ZDOTDIR:-"${HOME}"}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-"${HOME}/.cache"}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-"${HOME}/.config"}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-"${HOME}/.local/share"}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-"${HOME}/.local/state"}"
 
 # Cache the architecture check to avoid calling `uname` repeatedly
-[[ -z "${ARCH}" ]] && export ARCH="$(uname -m)"
+export ARCH="${ARCH:-"$(uname -m)"}"
 export ARCHFLAGS="-arch ${ARCH}"
 
 # Note: Change these as per your settings. Deleting/commenting them will essentially unset the var(s) after the shell session is restarted and thus any aliases/backup-operations/etc will not be processed for those deleted variable(s)

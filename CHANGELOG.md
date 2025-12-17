@@ -2,6 +2,10 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.32
+
+* Minor fixes for using `ZSH` env variable instead of hardcoding `$HOME/.oh-my-zsh` in multiple places.
+
 ### 2.0.31
 
 * Unignore `$HOME/.ssh/known_hosts` so that the repository resurrection process is done without user interaction.

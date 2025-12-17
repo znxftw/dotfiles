@@ -86,8 +86,8 @@ if is_git_repo "${natsumi_codebase}"; then
   section_header "$(yellow 'Update locally checked-out copy of my fork of the natsumi codebase')" # so as to get a clean pull in the Zen profile chrome directory
   git -C "${natsumi_codebase}" upreb
   # Check if the working directory is clean and the branch is up-to-date with its upstream
-  if [[ -z "$(git -C "${natsumi_codebase}" status --porcelain)" && \
-        "$(git -C "${natsumi_codebase}" rev-parse @)" == "$(git -C "${natsumi_codebase}" rev-parse '@{u}')" ]]; then
+  if ! is_non_zero_string "$(git -C "${natsumi_codebase}" status --porcelain)" && \
+        [[ "$(git -C "${natsumi_codebase}" rev-parse @)" == "$(git -C "${natsumi_codebase}" rev-parse '@{u}')" ]]; then
     success "Natsumi codebase '${natsumi_codebase}' is clean and up-to-date."
   else
     # Warn instead of erroring out, allowing the cron job to continue
@@ -111,7 +111,7 @@ if command_exists ollama; then
   ollama pull deepseek-r1
 fi
 
-echo "==> Finished independent updates."
+echo '==> Finished independent updates.'
 
 section_header "$(yellow 'Update repos in home folder')"
 home pull
