@@ -127,7 +127,7 @@ load_file_if_exists "${ZSH}/oh-my-zsh.sh"
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
-# Preferred editor for remote sessions
+# Preferred editor for local and remote sessions
 is_non_zero_string "${SSH_CONNECTION}" && export EDITOR="vi"
 # Use code if its installed (both Mac OSX and Linux)
 command_exists code && ! is_non_zero_string "${EDITOR}" && export EDITOR="code --wait"
@@ -310,8 +310,8 @@ export WORDCHARS="${WORDCHARS:s#/#}"
 export WORDCHARS="${WORDCHARS:s#.#}"
 
 # rspec and cucumber
-export CUCUMBER_COLORS="pending_param=magenta:failed_param=magenta:passed_param=magenta:skipped_param=magenta"
-export RSPEC="true"
+# export CUCUMBER_COLORS="pending_param=magenta:failed_param=magenta:passed_param=magenta:skipped_param=magenta"
+# export RSPEC="true"
 
 # fzy
 # load_file_if_exists "${HOME}/.fzy-key-bindings.zsh"

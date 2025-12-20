@@ -125,6 +125,7 @@ if is_vscode_installed
   vscode 'editorconfig.editorconfig'
   vscode 'esbenp.prettier-vscode'
   vscode 'genuitecllc.codetogether'
+  vscode 'github.vscode-github-actions'
   vscode 'google.geminicodeassist'
   vscode 'ibm.output-colorizer'
   vscode 'mechatroner.rainbow-csv'

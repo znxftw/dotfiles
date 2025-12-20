@@ -467,6 +467,9 @@
     # in this case.
     (( VCS_STATUS_HAS_UNSTAGED == -1 )) && res+=" ${modified}─"
 
+    # Custom: Add the repo size in human readable format to the prompt on the LHS
+    res+="${clean} $(\du -sh "$(git root)/.git" >/dev/null 2>&1 | cut -f1)"
+
     typeset -g my_git_format=$res
   }
   functions -M my_git_formatter 2>/dev/null
