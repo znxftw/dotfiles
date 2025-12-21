@@ -42,6 +42,8 @@
 *.db-wal
 *.fish
 *.iso
+*.lock
+*.log
 *.sqlite-shm
 *.sqlite-wal
 *.sw[nop]
@@ -230,7 +232,6 @@ bookmarkbackups/
 Cache/
 CachedData/
 GPUCache/
-log/*.log
 logs
 Network\ Persistent\ State
 node_modules

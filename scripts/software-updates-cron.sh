@@ -14,52 +14,37 @@ load_zsh_configs
 local script_start_time=$(date +%s)
 print_script_start
 
-if command_exists bupc; then
-  section_header "$(yellow 'Updating') $(purple 'brews')"
-  # brew doctor # Removed for cron job efficiency
-  bupc && success 'Successfully updated brews' || warn 'Brew update failed'
-else
-  debug 'skipping updating brews & casks'
-fi
+perform_update() {
+  local title="${1}"
+  local check_cmd="${2}"
+  local update_cmd="${3}"
 
-if command_exists mise; then
-  section_header "$(yellow 'Updating') $(purple 'mise')"
-  mise plugins update
-  # This is typically run only in the ${HOME} folder so as to upgrade the software versions in the "global" sense
-  mise upgrade --bump
-  mise prune -y && success 'Successfully updated mise plugins' || warn 'Mise update failed'
-else
-  debug 'skipping updating mise'
-fi
+  if command_exists "${check_cmd}"; then
+    section_header "$(yellow 'Updating') $(purple "${title}")"
+    if eval "${update_cmd}"; then
+      success "Successfully updated: '${title}'"
+    else
+      warn "Failed to update: '${title}'"
+    fi
+  else
+    debug "Command not found: '${check_cmd}'"
+  fi
+}
 
-if command_exists tldr; then
-  section_header "$(yellow 'Updating') $(purple 'tldr')"
-  tldr --update && success 'Successfully updated tldr database' || warn 'tldr update failed'
-else
-  debug 'skipping updating tldr'
-fi
+# brew doctor # Removed for cron job efficiency
+perform_update "bupc" "brews" "bupc"
 
-if command_exists git-ignore-io; then
-  section_header "$(yellow 'Updating') $(purple 'git-ignore')"
-  # 'ignore-io' updates the data from http://gitignore.io so that we can generate the '.gitignore' file contents from the cmd-line
-  git ignore-io --update-list && success 'Successfully updated gitignore database' || warn 'git-ignore update failed'
-else
-  debug 'skipping updating git-ignore'
-fi
+# This is typically run only in the ${HOME} folder so as to upgrade the software versions in the "global" sense
+perform_update "mise plugins" "mise" "mise plugins update && mise upgrade --bump && mise prune -y"
 
-if command_exists code; then
-  section_header "$(yellow 'Updating') $(purple 'VSCodium extensions')"
-  code --update-extensions && success 'Successfully updated VSCodium extensions' || warn 'VSCodium extension update failed'
-else
-  debug 'skipping updating code extensions'
-fi
+perform_update "tldr database" "tldr" "tldr --update"
 
-if command_exists omz; then
-  section_header "$(yellow 'Updating') $(purple 'omz')"
-  omz update && success 'Successfully updated oh-my-zsh' || warn 'omz update failed'
-else
-  debug 'skipping updating omz'
-fi
+# 'ignore-io' updates the data from http://gitignore.io so that we can generate the '.gitignore' file contents from the cmd-line
+perform_update "git-ignore database" "git-ignore-io" "git ignore-io --update-list"
+
+perform_update "VSCodium extensions" "code" "code --update-extensions"
+
+perform_update "oh-my-zsh" "omz" "omz update"
 
 # Commenting out since I have started using rapidfox user.js settings
 # local firefox_profiles="${PERSONAL_PROFILES_DIR}/FirefoxProfile/Profiles/DefaultProfile"
@@ -87,7 +72,7 @@ if is_git_repo "${natsumi_codebase}"; then
   git -C "${natsumi_codebase}" upreb
   # Check if the working directory is clean and the branch is up-to-date with its upstream
   if ! is_non_zero_string "$(git -C "${natsumi_codebase}" status --porcelain)" && \
-        [[ "$(git -C "${natsumi_codebase}" rev-parse @)" == "$(git -C "${natsumi_codebase}" rev-parse '@{u}')" ]]; then
+        [[ "$(git -C "${natsumi_codebase}" rev-parse @)" == "$(git -C "${natsumi_codebase}" rev-parse '@{u}' 2>/dev/null)" ]]; then
     success "Natsumi codebase '${natsumi_codebase}' is clean and up-to-date."
   else
     # Warn instead of erroring out, allowing the cron job to continue
@@ -101,7 +86,9 @@ unset natsumi_codebase
 local zen_browser_desktop_codebase="${PROJECTS_BASE_DIR}/oss/zen-browser-desktop"
 if is_git_repo "${zen_browser_desktop_codebase}"; then
   section_header "$(yellow "Remove 'twilight' tag from") $(purple 'zen-browser-desktop') repo"
-  git -C "${zen_browser_desktop_codebase}" delete-tag twilight || true # Ignore error if tag doesn't exist
+  if git -C "${zen_browser_desktop_codebase}" rev-parse -q --verify refs/tags/twilight >/dev/null; then
+    git -C "${zen_browser_desktop_codebase}" delete-tag twilight && success "Deleted 'twilight' tag."
+  fi
 fi
 unset zen_browser_desktop_codebase
 
@@ -127,7 +114,7 @@ capture-prefs.sh -e && success 'Finished capturing app preferences' || warn 'Fai
 section_header "$(yellow 'Update home and profiles repos')"
 update_all_repos && success 'Finished updating home and profiles repos' || warn 'Failed to update home and profiles repos'
 
-section_header "$(yellow 'Report status of home and profiles repos')"
+section_header "$(yellow 'Report status of all repos')"
 status_all_repos
 
 section_header "$(yellow 'Updating all browser profile chrome folders')"
@@ -149,6 +136,7 @@ if [[ ${#chrome_folders[@]} -gt 0 ]]; then
 fi
 unset chrome_folders
 
+section_header "$(yellow 'Checking if any greedy applications are outdated')"
 if command_exists bcg; then
   outdated="$(bcg | \grep -v -iE 'homebrew|Downloading')"
   is_non_zero_string "${outdated}" && error "Found some outdated softwares that need manual updating: $(red "${outdated}")"

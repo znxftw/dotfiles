@@ -5,7 +5,8 @@
 ################################################################################
 # This file is sourced only for login shells. It is used to define the bare
 # minimum shell functions and env vars that are needed during bootstrap of a
-# vanilla OS to bootstrap installation of all other config files.
+# vanilla OS to bootstrap installation of all other config files. Any functions
+# that are needed after the `.aliases` file is sourced need not be present here.
 #
 # file location: ${HOME}/.shellrc
 # load order: .zshenv [.shellrc], .zshrc [.shellrc, .aliases [.shellrc]], .zlogin

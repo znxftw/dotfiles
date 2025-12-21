@@ -169,7 +169,7 @@ clone_dot_files_repo() {
   fi
 }
 
-install_homebrew()  {
+install_homebrew() {
   ####################
   # Install homebrew #
   ####################
@@ -184,21 +184,23 @@ install_homebrew()  {
 
     NONINTERACTIVE=1 bash -c "$(curl --retry 3 --retry-delay 5 -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     success 'Successfully installed homebrew'
-
-    eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
   else
     warn "skipping installation of $(yellow 'homebrew') since it's already installed"
   fi
+
+  # Note: ensure that homebrew's environment variables are set correctly for this session (even if homebrew was not installed in this session)
+  eval "$("${HOMEBREW_PREFIX}/bin/brew" shellenv)"
+
   # TODO: Need to investigate why this step exits on a vanilla OS's first run of this script
   # Note: Do not set the 'HOMEBREW_BASE_INSTALL' in this script - since its supposed to run idempotently. Also, don't run the cleanup of pre-installed brews/casks (for the same reason)
   # Run brew bundle install if check fails. Let brew handle idempotency. Continue script even if bundle fails.
   brew bundle check || brew bundle
   success 'Successfully installed cmd-line and gui apps using homebrew'
 
-  # Note: Load all zsh config files for the 2nd time for PATH and other env vars to take effect (due to defensive programming)
+  # Note: load all zsh config files for the 2nd time for PATH and other env vars to take effect (due to defensive programming)
   load_zsh_configs
 
-  # Note: run the post-brew-install script once more (in case it wasn't run by the brew lifecycle due to some errors)
+  # Note: run the post-brew-install script once more (in case it wasn't run by the brew lifecycle due to any error)
   post-brew-install.sh
 }
 
@@ -375,24 +377,6 @@ else
   warn "skipping installation of languages since '$(yellow 'install_mise_versions')' couldn't be found in the PATH; Please run it manually"
 fi
 rm -rf "${HOME}/.ssh/known_hosts.old"
-
-#####################################################################################
-# Load the direnv config for the home folder so that it creates necessary sym-links #
-#####################################################################################
-# TODO: See if this can be merged into `allow_all_direnv_configs`
-section_header "$(yellow 'Allowing direnv') for $(purple "${HOME}")"
-if command_exists direnv && is_directory "${HOME}" && is_file "${HOME}/.envrc"; then
-  (cd "${HOME}" && direnv allow .) && success "Successfully allowed direnv for '$(yellow "${HOME}")'" || warn "Failed to allow direnv for '${HOME}'"
-fi
-
-#########################################################################################
-# Load the direnv config for the profiles folder so that it creates necessary sym-links #
-#########################################################################################
-# TODO: See if this can be merged into `allow_all_direnv_configs`
-section_header "$(yellow 'Allowing direnv') for $(purple "${PERSONAL_PROFILES_DIR}")"
-if command_exists direnv && is_directory "${PERSONAL_PROFILES_DIR}" && is_file "${PERSONAL_PROFILES_DIR}/.envrc"; then
-  (cd "${PERSONAL_PROFILES_DIR}" && direnv allow .) && success "Successfully allowed direnv for '$(yellow "${PERSONAL_PROFILES_DIR}")'" || warn "Failed to allow direnv for '${PERSONAL_PROFILES_DIR}'"
-fi
 
 ###################################################################
 # Restore the preferences from the older machine into the new one #

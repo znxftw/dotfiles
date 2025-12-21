@@ -74,14 +74,27 @@ install_mise_versions() {
   is_directory "${PROJECTS_BASE_DIR}" && find "${PROJECTS_BASE_DIR}" -name '.git' -type d -maxdepth 5 -exec echo "===> Installing for {}" \; -execdir mise install \;
 }
 
-# runs 'direnv allow' on all code repositories that are checked out
+# runs 'direnv allow' on all relevant folders
+_direnv_process() {
+  (cd "${1}" > /dev/null 2>&1 && direnv allow .) && success "Successfully allowed direnv for '$(yellow "${1}")'" || warn "Failed to allow direnv for '${1}'"
+}
+
 allow_all_direnv_configs() {
   ! command_exists direnv && warn "Couldn't find 'direnv' in the PATH; Skipping allowing all direnv configs" && return
 
-  local prune_paths=(-path '*/.git/*' -o -path '*/node_modules/*' -o -path '*/.mypy_cache/*' -o -path '*/__pycache__/*')
-  find "${HOME}" -maxdepth 1 -name '.envrc' -print -execdir direnv allow \;
-  is_directory "${PERSONAL_PROFILES_DIR}" && find "${PERSONAL_PROFILES_DIR}" -maxdepth 1 -name '.envrc' -print -execdir direnv allow \;
-  is_directory "${PROJECTS_BASE_DIR}" && find "${PROJECTS_BASE_DIR}" \( "${prune_paths[@]}" \) -prune -o -maxdepth 5 -name '.envrc' -print -execdir direnv allow \;
+  find "${HOME}" -maxdepth 1 -name '.envrc' -print0 | while IFS= read -r -d '' file; do
+    _direnv_process "${file:h}"
+  done
+  is_directory "${PERSONAL_PROFILES_DIR}" && find "${PERSONAL_PROFILES_DIR}" -maxdepth 1 -name '.envrc' -print0 | while IFS= read -r -d '' file; do
+    _direnv_process "${file:h}"
+  done
+
+  if is_directory "${PROJECTS_BASE_DIR}"; then
+    local prune_paths=(-path '*/.git/*' -o -path '*/node_modules/*' -o -path '*/.mypy_cache/*' -o -path '*/__pycache__/*')
+    find "${PROJECTS_BASE_DIR}" \( "${prune_paths[@]}" \) -prune -o -maxdepth 5 -name '.envrc' -print0 | while IFS= read -r -d '' file; do
+      _direnv_process "${file:h}"
+    done
+  fi
 }
 
 if is_macos; then

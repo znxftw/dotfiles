@@ -69,7 +69,13 @@ def find_and_replace_env_var(folder)
   return folder unless folder.is_a?(String) && folder.include?('${')
 
   folder.gsub(/\$\{(.*?)\}/) do |match|
-    ENV[$1] || match # $1 is the content between ${ and }, match is the full ${VAR}
+    key = $1
+    if ENV.key?(key)
+      ENV[key]
+    else
+      puts "WARNING: Environment variable '#{key}' not set. Keeping placeholder '#{match}'.".yellow
+      match
+    end
   end
 end
 
@@ -137,7 +143,8 @@ end
 # @return [Array<String>] A sorted array of paths to the Git repositories found.
 def find_git_repos_from_disk(path)
   # Using array form for command execution safety if path contains special characters
-  cmd = ['find', path.to_s, '-name', '.git', '-type', 'd', '-not', '-regex', '.*/\\..*/\\.git', '-prune', '-exec', 'dirname', '{}', ';']
+  # Optimization: Use -print0 and handle dirname in Ruby to avoid spawning a process for every match
+  cmd = ['find', path.to_s, '-name', '.git', '-type', 'd', '-not', '-regex', '.*/\\..*/\\.git', '-prune', '-print0']
   stdout_str, stderr_str, status = Open3.capture3(*cmd)
 
   unless stderr_str.empty?
@@ -151,7 +158,7 @@ def find_git_repos_from_disk(path)
   end
 
   if status.success? || !stdout_str.strip.empty? # Process output if command was successful or if there's any output despite error
-    stdout_str.lines.map(&:strip).sort
+    stdout_str.split("\0").map { |path| File.dirname(path) }.uniq.sort
   else
     # This case means find command failed AND produced no output, a more critical failure.
     puts "Error: `find` command failed (status #{status.exitstatus}) and produced no output.".red
@@ -317,8 +324,10 @@ def resurrect_each(repo, idx, total)
     Dir.chdir(folder) do
       Array(repo[POST_CLONE_KEY_NAME]).each do |command_str|
         puts "  Executing: #{command_str.dump}".blue
-        unless system(command_str)
-          puts "WARNING: Post-clone command #{command_str.dump} failed for repo '#{folder}' (exit status: #{$?.exitstatus})".yellow
+        _stdout, stderr, status = Open3.capture3(command_str)
+        unless status.success?
+          puts "WARNING: Post-clone command #{command_str.dump} failed for repo '#{folder}' (exit status: #{status.exitstatus})".yellow
+          puts "STDERR: #{stderr.strip}".red unless stderr.strip.empty?
         end
       end
     end

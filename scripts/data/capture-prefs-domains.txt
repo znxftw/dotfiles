@@ -43,9 +43,11 @@ com.apple.businessservicesd
 com.apple.calaccessd
 com.apple.chronod
 com.apple.classroom
+com.apple.clock
 com.apple.cloud.quota
 com.apple.CloudDocs.iCloudDriveFileProvider
 com.apple.cloudpaird
+com.apple.CloudSubscriptionFeatures.cache
 com.apple.CloudSubscriptionFeatures.config
 com.apple.CloudTelemetryService.xpc
 com.apple.ComfortSounds
@@ -187,6 +189,7 @@ com.apple.passd
 com.apple.passd.class-d
 com.apple.Passwords
 com.apple.PersonalAudio
+com.apple.photoanalysisd
 com.apple.photolibraryd
 com.apple.Photos.PhotosReliveWidget
 com.apple.photos.shareddefaults
@@ -208,6 +211,7 @@ com.apple.ProblemReporter
 com.apple.Profiles-Settings.extension
 com.apple.protectedcloudstorage.protectedcloudkeysyncing
 com.apple.quicklook.QuickLookUIService
+com.apple.QuickTimePlayerX
 com.apple.remindd
 com.apple.remotedesktop
 com.apple.remotemanagement.ManagedSettingsSubscriber
@@ -226,6 +230,7 @@ com.apple.screencapture
 com.apple.screencaptureui
 com.apple.screensaver
 com.apple.ScreenSaver-Settings.extension
+com.apple.ScreenTimeAgent
 com.apple.ScriptEditor2
 com.apple.scriptmenu
 com.apple.ScriptMenuApp
@@ -327,6 +332,9 @@ com.apple.voicetrigger.notbackedup
 com.apple.wallpaper
 com.apple.Wallpaper-Settings.extension
 com.apple.wallpaper.aerial
+com.apple.wallpaper.agent
+com.apple.wallpaper.extension.aerials
+com.apple.wallpaper.extension.image
 com.apple.weather.sensitive
 com.apple.widgets
 com.apple.wifi-settings-extension
@@ -373,6 +381,7 @@ com.utmapp.UTM
 com.visualstudio.code.oss
 com.vscodium.VSCodiumInsiders
 ContextStoreAgent
+dev.kiro.desktop
 eu.exelban.Stats
 familycircled
 icloudmailagent
@@ -397,6 +406,7 @@ org.mozilla.floorp
 org.mozilla.nightly
 org.mozilla.thunderbird
 org.mozilla.thunderbird-daily
+org.p0deje.Maccy
 org.torproject.torbrowser
 org.torproject.torbrowseralpha
 pbs

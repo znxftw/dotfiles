@@ -17,9 +17,8 @@ print_script_start
 vacuum_browser_profile_folder() {
   local browser_name="${1}"   # Passed browser name
   local profile_folder="${2}" # Profile folder path
-  local num_cores="${3}"      # Number of CPU cores for parallel tasks
 
-  if pgrep -q "${browser_name}"; then
+  if pgrep -i -f -q "${browser_name}"; then
     warn "Shutdown '$(yellow "${browser_name}")' first!; skipping processing of files for ${browser_name}"
     return
   fi
@@ -30,18 +29,14 @@ vacuum_browser_profile_folder() {
   echo "--> Size before: $(folder_size "${profile_folder}")"
 
   if command_exists sqlite3; then
-    # Use xargs to run sqlite3 vacuum/reindex in parallel, passing multiple files to each zsh instance
     local vacuum_failed=0
-    find "${profile_folder}" -type f -iname '*.sqlite' -print0 | xargs -0 -P "${num_cores}" zsh -c '
-      setopt local_options errexit # Exit subshell if sqlite3 fails
-      local exit_code=0
-      for db_file do
-        echo "Vacuuming: ${db_file}" # Add some progress indication
-        sqlite3 "$db_file" "PRAGMA journal_mode=WAL; VACUUM; REINDEX;" || { exit_code=$?; warn "sqlite3 failed (code: $exit_code) for '\''$db_file'\''"; }
-        # If we want the main script to know about failures, we need a way to communicate back
-        # For now, errexit in subshell + overall check below is okay
-      done
-    ' _ || vacuum_failed=1 # Capture if any xargs command failed; use '_' as $0 placeholder
+    while IFS= read -r -d '' db_file; do
+      echo "Vacuuming: ${db_file}" # Add some progress indication
+      if ! sqlite3 "$db_file" "PRAGMA journal_mode=WAL; VACUUM; REINDEX;"; then
+        warn "sqlite3 failed for '${db_file}'"
+        vacuum_failed=1
+      fi
+    done < <(find "${profile_folder}" -type f -iname '*.sqlite' -print0)
 
     if [[ ${vacuum_failed} -ne 0 ]]; then
       warn "One or more sqlite vacuum/reindex operations failed in ${profile_folder}"
@@ -110,11 +105,6 @@ else
   warn "Directory patterns file not found: '${dir_patterns_file}'"
 fi
 
-# Determine number of CPU cores for parallelism once
-local num_cores
-num_cores=$(sysctl -n hw.ncpu 2>/dev/null) || num_cores=4 # Default to 4 if detection fails
-[[ ! "${num_cores}" =~ ^[0-9]+$ || "${num_cores}" -eq 0 ]] && num_cores=4 # Ensure it's a positive integer
-
 # Define browsers and their profile folders
 # Key: Browser name (used for process check)
 # Value: Absolute path to the profile folder
@@ -130,7 +120,7 @@ browser_profiles=(
 # Loop through defined browsers and process them
 local browser_name profile_folder
 for browser_name profile_folder in "${(@kv)browser_profiles}"; do
-  vacuum_browser_profile_folder "${browser_name}" "${profile_folder}" "${num_cores}"
+  vacuum_browser_profile_folder "${browser_name}" "${profile_folder}"
 done
 
 print_script_duration "${script_start_time}"

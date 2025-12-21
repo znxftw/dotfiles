@@ -2,6 +2,23 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.34
+
+* *[fresh-install-of-osx.sh]* Move the custom handling of the `direnv` for the home and profiles folders into `allow_all_direnv_configs`.
+* *[cleanup-browser-profiles.sh]* Remove parallelization since the code seems cleaner.
+* General cleanup for maintainability and removing duplicate code.
+
+#### Adopting these changes
+
+* Rebase from upstream, resolve conflicts, and then proceed with the following steps:
+
+  ```bash
+  cp "${DOTFILES_DIR}/files/--HOME--/custom.gitignore" "${HOME}/.gitignore"
+  install-dotfiles.rb
+  ```
+
+* Quit and restart your Terminal application for these changes to take effect.
+
 ### 2.0.33
 
 * Show the git repo size in the p10k prompt.
