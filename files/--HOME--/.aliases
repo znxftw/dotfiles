@@ -13,7 +13,7 @@
 [[ -n "${FIRST_INSTALL+1}" ]] && echo "loading ${0}"
 
 # DUPLICATE! Copied over since we get an error if the .shellrc was not loaded
-type command_exists &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+type command_exists 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 # add flags to existing aliases
 alias less="${aliases[less]:-less} -RF"
@@ -76,7 +76,7 @@ install_mise_versions() {
 
 # runs 'direnv allow' on all relevant folders
 _direnv_process() {
-  (cd "${1}" > /dev/null 2>&1 && direnv allow .) && success "Successfully allowed direnv for '$(yellow "${1}")'" || warn "Failed to allow direnv for '${1}'"
+  (cd "${1}" 2>&1 &> /dev/null && direnv allow .) && success "Successfully allowed direnv for '$(yellow "${1}")'" || warn "Failed to allow direnv for '${1}'"
 }
 
 allow_all_direnv_configs() {
@@ -101,15 +101,15 @@ if is_macos; then
   if command_exists brew; then
     alias bcg='brew outdated --greedy'
     alias bcug='brew upgrade --greedy'
-    alias bupc='brew bundle check || brew bundle --all --cleanup || true; brew bundle cleanup -f || true; brew cleanup --prune=all || true; brew autoremove || true; brew upgrade || true'
+    alias bupc='brew bundle check || brew bundle --all --cleanup || true; brew bundle cleanup -f || true; brew cleanup --prune=all || true; brew autoremove || true; brew upgrade || true; post-brew-install.sh || true'
   fi
 fi
 
-alias findbrokenlinks='find . -xtype l -print' # Find links whose targets do not exist
-alias clearlogs='rm -rfv */log/*.log'
-alias clearcoverage='rm -rfv */coverage */coverage.data'
-alias killds="sudo find . -type f -name .DS_Store -print -delete"
-alias killloc="sudo find . -type f -name .localized -print -delete"
+alias find_broken_links='find . -xtype l -print' # Find links whose targets do not exist
+alias clear_logs='rm -rfv */log/*.log'
+alias clear_coverage='rm -rfv */coverage */coverage.data'
+alias kill_ds="sudo find . -type f -name .DS_Store -print -delete"
+alias kill_loc="sudo find . -type f -name .localized -print -delete"
 
 # Remove trailing spaces
 _remove_trailing_find_cmd="find . -type f \( -name '*.*cs*' -o -name '*.*less' -o -name '*.*js*' -o -name '*.*rb' -o -name '*.*ml' -o -name '*.rake' -o -name '*.java' -o -name '*.ts*' \) -print0"
@@ -129,9 +129,11 @@ _free_wifi() {
   (openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//' | xargs sudo ifconfig "${interface}" ether) && \
   (ifconfig "${interface}" | \grep ether)
 }
-if is_linux; then alias free-wifi='_free_wifi eth0'
-elif is_macos; then alias free-wifi='_free_wifi en0'
-  alias flush-dns="sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache;say MacOS DNS cache has been cleared"
+if is_linux; then
+  alias free_wifi='_free_wifi eth0'
+elif is_macos; then
+  alias free_wifi='_free_wifi en0'
+  alias flush_dns="sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache;say MacOS DNS cache has been cleared"
 fi
 
 if is_macos; then
@@ -139,7 +141,7 @@ if is_macos; then
   alias unquarantine='xattr -rd com.apple.quarantine'
 
   # MacOS: Clean up LaunchServices to remove duplicates in the “Open With” menu
-  alias lscleanup='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder'
+  alias cleanup_launch_services='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder'
 
   # Show/hide hidden files in Finder
   alias show_hidden_files='defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder'
@@ -218,12 +220,12 @@ command_exists "${EDITOR%% *}" && alias edit-gist='"${EDITOR%% *}" "${DOTFILES_D
 recron() {
   # shellcheck disable=SC2005
   section_header "$(yellow 'Old cron listing')"
-  crontab -l
+  crontab -l || true
 
   local cron_file="${PERSONAL_CONFIGS_DIR}/crontab.txt"
   ! is_file "${cron_file}" && warn "No '$(yellow "${cron_file}")' found; returning without any processing" && return
 
-  crontab -r &> /dev/null 2>&1
+  crontab -r 2>&1 &> /dev/null || true
   crontab "${cron_file}"
 
   # shellcheck disable=SC2005

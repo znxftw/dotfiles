@@ -45,7 +45,7 @@ This script is the erstwhile script to codify the macos setup. It can be used to
 
 ## post-brew-install.sh
 
-This script is a collection of commands that need to be run after `brew bundle` so as to setup proper command-line usage of some of the gui apps like VSCode, Rancher, etc. This script is also used to setup some applications as login items in the macOS system preferences.
+This script is a collection of commands that need to be run after `brew bundle` so as to setup proper command-line usage of some of the gui apps like VSCode, Rancher, etc.
 
 ## recreate-repo.sh
 

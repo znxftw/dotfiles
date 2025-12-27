@@ -7,6 +7,9 @@
 
 # file location: <anywhere; but advisable in the PATH>
 
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
 # TODO: Need to figure out the scriptable commands for the following settings:
 # 1. Auto-adjust Brightness
 # 2. Brightness on battery
@@ -25,7 +28,9 @@ export ZSH_CUSTOM="${ZSH_CUSTOM:-"${ZSH}/custom"}"
 
 # These repos can be alternatively tracked using git submodules, but by doing so, any new change in the submodule, will show up as a new commit in the main (home) repo. To avoid this "noise", I prefer to decouple them
 clone_omz_plugin_if_not_present() {
-  clone_repo_into "${1}" "${ZSH_CUSTOM}/plugins/$(extract_last_segment "${1}")"
+  local last_segment="$(extract_last_segment "${1}")"
+  clone_repo_into "${1}" "${ZSH_CUSTOM}/plugins/${last_segment}" || warn "Failed to install '$(yellow "${last_segment}")'"
+  unset last_segment
 }
 
 ######################################################################################################################
@@ -35,7 +40,7 @@ setup_jio_dns() {
   # Fetch only organization and grep quietly (-q) and case-insensitively (-i) for Jio ISP
   if curl -fsS https://ipinfo.io/org | \grep -qi 'jio'; then
     echo '==> Setting DNS for WiFi from Jio ISP'
-    sudo networksetup -setdnsservers Wi-Fi 8.8.8.8
+    networksetup -setdnsservers Wi-Fi 8.8.8.8 || echo 'Warning: Failed to set DNS for Wi-Fi'
   fi
 }
 
@@ -45,7 +50,7 @@ setup_jio_dns() {
 download_and_source_shellrc() {
   echo "==> Download the '${HOME}/.shellrc' for loading the utility functions"
   # Check for one key function defined in .shellrc to see if sourcing is needed
-  if ! type keep_sudo_alive &> /dev/null 2>&1; then
+  if ! type keep_sudo_alive 2>&1 &> /dev/null; then
     [[ ! -f "${HOME}/.shellrc" ]] && curl --retry 3 --retry-delay 5 -fsSL "https://raw.githubusercontent.com/${GH_USERNAME}/dotfiles/refs/heads/${DOTFILES_BRANCH}/files/--HOME--/.shellrc" -o "${HOME}/.shellrc"
     FIRST_INSTALL=true source "${HOME}/.shellrc"
   else
@@ -67,13 +72,19 @@ approve_fingerprint_sudo() {
   fi
 
   local template_file="/etc/pam.d/sudo_local.template"
-  ! is_file "${template_file}" && warn "Template file '$(yellow "${template_file}")' not found! Skipping!"
+  if ! is_file "${template_file}"; then
+    warn "Template file '$(yellow "${template_file}")' not found! Skipping!"
+    return
+  fi
 
   local target_file="/etc/pam.d/sudo_local"
   if ! is_file "${target_file}"; then
     # Using sh -c 'sed...' is fine here
-    sudo sh -c "sed 's/^#auth/auth/' ${template_file} > ${target_file}" || error "Failed to create ${target_file}"
-    success "Created new file: '$(yellow "${target_file}")'"
+    if sudo sh -c "sed 's/^#auth/auth/' ${template_file} > ${target_file}"; then
+      success "Created new file: '$(yellow "${target_file}")'"
+    else
+      error "Failed to create '${target_file}'"
+    fi
   else
     warn "'$(yellow "${target_file}")' is already present - not creating again"
   fi
@@ -86,7 +97,9 @@ approve_fingerprint_sudo() {
 #####################
 ensure_filevault_is_on() {
   section_header "$(yellow 'Verifying FileVault status')"
-  [[ "$(fdesetup isactive)" != 'true' ]] && error 'FileVault is not turned on. Please encrypt your hard disk!'
+  if [[ "$(fdesetup isactive)" != 'true' ]]; then
+    error 'FileVault is not turned on. Please encrypt your hard disk!'
+  fi
 }
 
 ##################################
@@ -98,14 +111,18 @@ install_xcode_command_line_tools() {
   if ! xcode-select -p &> /dev/null; then
     # install using the non-gui cmd-line alone
     touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
-    sudo softwareupdate -ia --agree-to-license --force
-    rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
-    ! xcode-select -p &> /dev/null && error "Couldn't install xcode command-line tools; Aborting"
+    sudo softwareupdate -ia --agree-to-license --force || warn 'softwareupdate encountered errors'
+    rm -f /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+    if ! xcode-select -p 2> /dev/null; then
+      error "Couldn't install xcode command-line tools; Aborting"
+    fi
 
     success 'Successfully installed xcode command-line tools'
   else
     warn 'skipping installation of xcode command-line tools since its already present'
   fi
+  # Note: Duplicate the cleanup if the installation was cancelled and continued via the gui
+  rm -f /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
 }
 
 #################################################################################
@@ -114,10 +131,10 @@ install_xcode_command_line_tools() {
 ensure_directories_exist() {
   section_header "$(yellow 'Creating directories defined by various env vars')"
   local -a folders=("${DOTFILES_DIR}" "${PROJECTS_BASE_DIR}" "${PERSONAL_BIN_DIR}" "${PERSONAL_CONFIGS_DIR}" "${PERSONAL_PROFILES_DIR}" "${XDG_CACHE_HOME}" "${XDG_CONFIG_HOME}" "${XDG_DATA_HOME}" "${XDG_STATE_HOME}")
-    for folder in "${(@kv)folders}"; do
-      ensure_dir_exists "${folder}"
-    done
-    unset folders
+  for folder in "${(@kv)folders}"; do
+    ensure_dir_exists "${folder}"
+  done
+  unset folders
 }
 
 install_oh_my_zsh_and_custom_plugins() {
@@ -155,15 +172,17 @@ clone_dot_files_repo() {
     rm -rf "${ZDOTDIR}/.zshrc"
 
     # Note: Cloning with https since the ssh keys will not be present at this time
-    clone_repo_into "https://github.com/${GH_USERNAME}/dotfiles" "${DOTFILES_DIR}" "${DOTFILES_BRANCH}"
+    if clone_repo_into "https://github.com/${GH_USERNAME}/dotfiles" "${DOTFILES_DIR}" "${DOTFILES_BRANCH}"; then
+      # Use the https protocol for pull, but use ssh/git for push
+      git -C "${DOTFILES_DIR}" config url.ssh://git@github.com/.pushInsteadOf https://github.com/
 
-    # Use the https protocol for pull, but use ssh/git for push
-    git -C "${DOTFILES_DIR}" config url.ssh://git@github.com/.pushInsteadOf https://github.com/
+      append_to_path_if_dir_exists "${DOTFILES_DIR}/scripts"
 
-    append_to_path_if_dir_exists "${DOTFILES_DIR}/scripts"
-
-    # Setup the DOTFILES_DIR repo's upstream if it doesn't already point to UPSTREAM_GH_USERNAME's repo
-    add-upstream-git-config.sh "${DOTFILES_DIR}" "${UPSTREAM_GH_USERNAME}"
+      # Setup the DOTFILES_DIR repo's upstream if it doesn't already point to UPSTREAM_GH_USERNAME's repo
+      add-upstream-git-config.sh "${DOTFILES_DIR}" "${UPSTREAM_GH_USERNAME}" || warn 'Failed to add upstream git config for dotfiles repo'
+    else
+      error 'Failed to clone dotfiles repo'
+    fi
   else
     warn "skipping cloning the dotfiles repo since '$(yellow "${DOTFILES_DIR}")' is either not defined or is already a git repo"
   fi
@@ -182,20 +201,37 @@ install_homebrew() {
     sudo chown -fR "$(whoami)":admin "${HOMEBREW_PREFIX}"
     chmod u+w "${HOMEBREW_PREFIX}"
 
-    NONINTERACTIVE=1 bash -c "$(curl --retry 3 --retry-delay 5 -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    success 'Successfully installed homebrew'
+    local install_script_file="$(mktemp)"
+    if curl --retry 3 --retry-delay 5 -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "${install_script_file}"; then
+      NONINTERACTIVE=1 bash "${install_script_file}" || { rm -f "${install_script_file}"; error 'Homebrew installation failed'; }
+      rm -f "${install_script_file}"
+      success 'Successfully installed homebrew'
+    else
+      rm -f "${install_script_file}"
+      error 'Failed to download Homebrew installation script'
+    fi
+    unset install_script_file
   else
     warn "skipping installation of $(yellow 'homebrew') since it's already installed"
   fi
 
   # Note: ensure that homebrew's environment variables are set correctly for this session (even if homebrew was not installed in this session)
-  eval "$("${HOMEBREW_PREFIX}/bin/brew" shellenv)"
+  local brew_shellenv
+  if brew_shellenv="$("${HOMEBREW_PREFIX}/bin/brew" shellenv)"; then
+    eval "${brew_shellenv}"
+  else
+    warn 'Failed to load homebrew shellenv'
+  fi
+  unset brew_shellenv
 
   # TODO: Need to investigate why this step exits on a vanilla OS's first run of this script
   # Note: Do not set the 'HOMEBREW_BASE_INSTALL' in this script - since its supposed to run idempotently. Also, don't run the cleanup of pre-installed brews/casks (for the same reason)
   # Run brew bundle install if check fails. Let brew handle idempotency. Continue script even if bundle fails.
-  brew bundle check || brew bundle
-  success 'Successfully installed cmd-line and gui apps using homebrew'
+  if brew bundle check || brew bundle; then
+    success 'Successfully installed cmd-line and gui apps using homebrew'
+  else
+    warn 'Homebrew bundle install encountered errors; continuing...'
+  fi
 
   # Note: load all zsh config files for the 2nd time for PATH and other env vars to take effect (due to defensive programming)
   load_zsh_configs
@@ -210,13 +246,15 @@ clone_home_repo() {
   #######################
   section_header "$(yellow 'Cloning') $(purple 'home') repo"
   if is_non_zero_string "${KEYBASE_HOME_REPO_NAME}"; then
-    clone_repo_into "$(build_keybase_repo_url "${KEYBASE_HOME_REPO_NAME}")" "${HOME}"
+    if clone_repo_into "$(build_keybase_repo_url "${KEYBASE_HOME_REPO_NAME}")" "${HOME}"; then
+      # Reset ssh keys' permissions so that git doesn't complain when using them
+      set_ssh_folder_permissions
 
-    # Reset ssh keys' permissions so that git doesn't complain when using them
-    set_ssh_folder_permissions
-
-    # Fix /etc/hosts file to block facebook
-    is_file "${PERSONAL_CONFIGS_DIR}/etc.hosts" && sudo cp "${PERSONAL_CONFIGS_DIR}/etc.hosts" /etc/hosts
+      # Fix /etc/hosts file to block facebook
+      is_file "${PERSONAL_CONFIGS_DIR}/etc.hosts" && sudo cp "${PERSONAL_CONFIGS_DIR}/etc.hosts" /etc/hosts
+    else
+      warn 'Failed to clone home repo'
+    fi
   else
     warn "skipping cloning of home repo since the '$(yellow 'KEYBASE_HOME_REPO_NAME')' env var hasn't been set"
   fi
@@ -228,14 +266,17 @@ clone_profiles_repo() {
   ###########################
   section_header "$(yellow 'Cloning') $(purple 'profiles') repo"
   if is_non_zero_string "${KEYBASE_PROFILES_REPO_NAME}" && is_non_zero_string "${PERSONAL_PROFILES_DIR}"; then
-    clone_repo_into "$(build_keybase_repo_url "${KEYBASE_PROFILES_REPO_NAME}")" "${PERSONAL_PROFILES_DIR}"
+    if ! clone_repo_into "$(build_keybase_repo_url "${KEYBASE_PROFILES_REPO_NAME}")" "${PERSONAL_PROFILES_DIR}"; then
+      warn 'Failed to clone profiles repo; skipping dependent steps.'
+      return
+    fi
 
     # Clone the natsumi-browser repo into specified browser profile chrome folders and switch to the 'dev' branch
     local -a browsers=(FirefoxProfile)
     for browser in "${(@kv)browsers}"; do
       local folder="${PERSONAL_PROFILES_DIR}/${browser}"
       if is_directory "${folder}"; then
-        clone_repo_into "git@github.com:${UPSTREAM_GH_USERNAME}/natsumi-browser" "${folder}/Profiles/DefaultProfile/chrome" dev
+        clone_repo_into "git@github.com:${UPSTREAM_GH_USERNAME}/natsumi-browser" "${folder}/Profiles/DefaultProfile/chrome" dev || warn "Failed to clone natsumi-browser for '$(yellow "${browser}")'"
       else
         warn "skipping cloning of natsumi repo for '$(yellow "${browser}")' as its profile directory structure is not present."
       fi
@@ -250,7 +291,7 @@ clone_profiles_repo() {
     if [[ ${#chrome_folders[@]} -gt 0 ]]; then
       for folder in "${chrome_folders[@]}"; do
         # Setup the chrome repo's upstream if it doesn't already point to UPSTREAM_GH_USERNAME's repo
-        add-upstream-git-config.sh "${folder}" "${UPSTREAM_GH_USERNAME}"
+        add-upstream-git-config.sh "${folder}" "${UPSTREAM_GH_USERNAME}" || warn "Failed to add upstream git config for '$(yellow "${folder}")'"
       done
       unset folder
     else
@@ -276,6 +317,9 @@ clone_profiles_repo() {
 # sudo spectl --master-disable
 
 setup_jio_dns
+
+# if this is being run on a machine that's already configured, then remove the cron jobs
+crontab -r 2>&1 &> /dev/null || true
 
 download_and_source_shellrc
 

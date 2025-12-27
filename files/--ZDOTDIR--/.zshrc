@@ -21,7 +21,7 @@
 # execute 'ZSH_PROFILE_RC=true zsh -i -c exit' and run 'zprof' to get the details
 [[ -n "${ZSH_PROFILE_RC+1}" ]] && zmodload zsh/zprof
 
-type load_file_if_exists &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+type load_file_if_exists 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ${ZDOTDIR}/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -127,6 +127,7 @@ load_file_if_exists "${ZSH}/oh-my-zsh.sh"
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
+unset EDITOR
 # Preferred editor for local and remote sessions
 is_non_zero_string "${SSH_CONNECTION}" && export EDITOR="vi"
 # Use code if its installed (both Mac OSX and Linux)

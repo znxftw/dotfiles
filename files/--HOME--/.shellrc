@@ -232,13 +232,13 @@ ensure_dir_exists() {
 is_git_repo() {
   is_non_zero_string "${1}" && is_directory "${1}/.git"
   # Note: The above assumes that the parameter passed to this function is the repo's root folder. To work within any other nested sub-folders, this command works better. But, we are not changing to this since we specifically want to be in the context of the repo's root.
-  # git -C "${1}" rev-parse --is-inside-work-tree >/dev/null 2>&1
+  # git -C "${1}" rev-parse --is-inside-work-tree 2>&1 &> /dev/null
 }
 
 load_file_if_exists() {
   # shellcheck disable=SC2015
   # shellcheck disable=SC1090
-  is_file "${1}" && source "${1}"
+  is_file "${1}" && source "${1}" || warn "Couldn't load file: '${1}'"
 }
 
 # delete_directory_if_exists() {
@@ -246,7 +246,7 @@ load_file_if_exists() {
 # }
 
 command_exists() {
-  type "${1}" &> /dev/null 2>&1
+  (( $+commands[${1}] || $+functions[${1}] || $+aliases[${1}] || $+builtins[${1}] ))
 }
 
 is_zsh() {
@@ -364,11 +364,15 @@ set_ssh_folder_permissions() {
   local target_folder="${HOME}/.ssh"
   ensure_dir_exists "${target_folder}"
   # Set directory permissions first
-  chmod 700 "${target_folder}"
-  if dir_has_children "${target_folder}"; then
-    find "${target_folder}" -type f -exec chmod 600 {} \; && success "Ensured correct permissions for '$(yellow "${target_folder}")' and files within it."
+  if ! chmod 700 "${target_folder}"; then
+    warn "Failed to set permissions on '$(yellow "${target_folder}")'"
+    return
+  fi
 
-    find "${target_folder}" -maxdepth 1 -name "id_*" ! -name '*.*' -type f -exec ssh-add "{}" \; && success "Added ssh identity files from '$(yellow "${target_folder}")'."
+  if dir_has_children "${target_folder}"; then
+    find "${target_folder}" -type f -exec chmod 600 {} \; && success "Ensured correct permissions for '$(yellow "${target_folder}")' and files within it." || warn "Failed to set file permissions in '$(yellow "${target_folder}")'"
+
+    find "${target_folder}" -maxdepth 1 -name "id_*" ! -name '*.*' -type f -exec ssh-add "{}" \; && success "Added ssh identity files from '$(yellow "${target_folder}")'." || warn "Failed to add ssh identity files from '$(yellow "${target_folder}")'"
   else
     warn "'$(yellow "${target_folder}")' exists but is empty. No file permissions to set."
   fi

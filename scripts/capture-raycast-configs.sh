@@ -11,7 +11,7 @@
 set -e
 
 # Source shellrc only once if any required function is missing
-if ! type red &> /dev/null 2>&1 || ! type yellow &> /dev/null 2>&1 || ! type ensure_dir_exists &> /dev/null 2>&1 || ! type is_file &> /dev/null 2>&1 || ! type error &> /dev/null 2>&1 || ! type success &> /dev/null 2>&1 || ! type is_non_zero_string &> /dev/null 2>&1 ; then
+if ! type red 2>&1 &> /dev/null || ! type yellow 2>&1 &> /dev/null || ! type ensure_dir_exists 2>&1 &> /dev/null || ! type is_file 2>&1 &> /dev/null || ! type error 2>&1 &> /dev/null || ! type success 2>&1 &> /dev/null || ! type is_non_zero_string 2>&1 &> /dev/null ; then
   source "${HOME}/.shellrc"
 fi
 

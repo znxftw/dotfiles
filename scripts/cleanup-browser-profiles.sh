@@ -9,7 +9,7 @@ set -e
 
 # Source shellrc only once if any required function is missing
 # Check for one key function defined in .shellrc to see if sourcing is needed
-type print_script_start &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+type print_script_start 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 local script_start_time=$(date +%s)
 print_script_start

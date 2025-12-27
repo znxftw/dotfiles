@@ -4,7 +4,7 @@
 # vim:filetype=zsh syntax=zsh tabstop=2 shiftwidth=2 softtabstop=2 expandtab autoindent fileencoding=utf-8
 
 # Source shell helpers if they aren't already loaded
-type is_git_repo &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+type is_git_repo 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 # Pushes the specified repo
 # internal function: not to be called separately
@@ -23,7 +23,7 @@ _push_repo() {
 
 # Pushes the home and profiles repos to their respective remotes (disables and re-enables cron while doing this operation)
 push_all_repos() {
-  crontab -r &> /dev/null 2>&1
+  crontab -r 2>&1 &> /dev/null
 
   _push_repo "${HOME}"
   _push_repo "${PERSONAL_PROFILES_DIR}"

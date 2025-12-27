@@ -9,7 +9,7 @@
 set -e
 
 # Source shellrc only once if any required function is missing
-if ! type red &> /dev/null 2>&1 || ! type section_header &> /dev/null 2>&1 || ! type is_git_repo &> /dev/null 2>&1 || ! type warn &> /dev/null 2>&1 || ! type error &> /dev/null 2>&1 || ! type success &> /dev/null 2>&1 ; then
+if ! type red 2>&1 &> /dev/null || ! type section_header 2>&1 &> /dev/null || ! type is_git_repo 2>&1 &> /dev/null || ! type warn 2>&1 &> /dev/null || ! type error 2>&1 &> /dev/null || ! type success 2>&1 &> /dev/null ; then
   source "${HOME}/.shellrc"
 fi
 
@@ -33,7 +33,7 @@ main() {
 
   # Check if an 'upstream' remote already exists using 'git remote get-url'
   local existing_upstream
-  if existing_upstream=$(git -C "${target_folder}" remote get-url upstream 2>/dev/null); then
+  if existing_upstream=$(git -C "${target_folder}" remote get-url upstream 2> /dev/null); then
     # If get-url succeeded, the remote exists.
     warn "Remote 'upstream' already exists for the repo in '$(yellow "${target_folder}")': '$(yellow "${existing_upstream}")'"
     return 0 # Success, nothing to do
@@ -42,7 +42,7 @@ main() {
   # Get the URL of the 'origin' remote using 'git remote get-url'
   local origin_remote_url
   # Capture output and check exit status separately for clarity
-  origin_remote_url=$(git -C "${target_folder}" remote get-url origin 2>/dev/null)
+  origin_remote_url=$(git -C "${target_folder}" remote get-url origin 2> /dev/null)
   if [[ $? -ne 0 ]]; then
     error "Could not retrieve URL for remote 'origin' in '$(yellow "${target_folder}")'. Does the remote exist?"
   elif ! is_non_zero_string "${origin_remote_url}"; then

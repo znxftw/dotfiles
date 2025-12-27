@@ -8,7 +8,7 @@
 # Do not exit immediately if a command exits with a non-zero status since this is run within a cronjob
 
 # Since this script is invoked from cron (which uses bash shell), we need to explicitly load all zsh configs (not just shellrc)
-type load_zsh_configs &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+type load_zsh_configs 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 load_zsh_configs
 
 local script_start_time=$(date +%s)
@@ -32,7 +32,7 @@ perform_update() {
 }
 
 # brew doctor # Removed for cron job efficiency
-perform_update "bupc" "brews" "bupc"
+perform_update "brews" "brew" "brew bundle check || brew bundle"
 
 # This is typically run only in the ${HOME} folder so as to upgrade the software versions in the "global" sense
 perform_update "mise plugins" "mise" "mise plugins update && mise upgrade --bump && mise prune -y"
@@ -72,7 +72,7 @@ if is_git_repo "${natsumi_codebase}"; then
   git -C "${natsumi_codebase}" upreb
   # Check if the working directory is clean and the branch is up-to-date with its upstream
   if ! is_non_zero_string "$(git -C "${natsumi_codebase}" status --porcelain)" && \
-        [[ "$(git -C "${natsumi_codebase}" rev-parse @)" == "$(git -C "${natsumi_codebase}" rev-parse '@{u}' 2>/dev/null)" ]]; then
+        [[ "$(git -C "${natsumi_codebase}" rev-parse @)" == "$(git -C "${natsumi_codebase}" rev-parse '@{u}' 2> /dev/null)" ]]; then
     success "Natsumi codebase '${natsumi_codebase}' is clean and up-to-date."
   else
     # Warn instead of erroring out, allowing the cron job to continue
@@ -86,7 +86,7 @@ unset natsumi_codebase
 local zen_browser_desktop_codebase="${PROJECTS_BASE_DIR}/oss/zen-browser-desktop"
 if is_git_repo "${zen_browser_desktop_codebase}"; then
   section_header "$(yellow "Remove 'twilight' tag from") $(purple 'zen-browser-desktop') repo"
-  if git -C "${zen_browser_desktop_codebase}" rev-parse -q --verify refs/tags/twilight >/dev/null; then
+  if git -C "${zen_browser_desktop_codebase}" rev-parse -q --verify refs/tags/twilight 2>&1 &> /dev/null; then
     git -C "${zen_browser_desktop_codebase}" delete-tag twilight && success "Deleted 'twilight' tag."
   fi
 fi

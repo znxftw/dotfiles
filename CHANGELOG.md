@@ -2,6 +2,16 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.35
+
+* Make handling of stdout and stderr consistent across all usages.
+* Handle immediate exit from shell scripts with appropriate error messages.
+* **IMPORTANT:** The `post-brew-install.sh` script was not being invoked when running `brew bundle` command due to a path issue. Even if the path was hardcoded into the `Brewfile`, another issue (relating to that block being evaluated when the `Brewfile` was being read itself) is present. So, this invocation has been turned off.
+
+#### Adopting these changes
+
+* Quit and restart your Terminal application for these changes to take effect.
+
 ### 2.0.34
 
 * *[fresh-install-of-osx.sh]* Move the custom handling of the `direnv` for the home and profiles folders into `allow_all_direnv_configs`.

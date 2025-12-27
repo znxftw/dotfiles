@@ -6,11 +6,15 @@
 
 # This script will export or import the settings from the location specified in the target directory defined down below. You can backup the files to any cloud storage and retrieve into the new laptop to then get back all settings as per the original machine. The only word of caution is to use it with the same OS version (I haven't tried in any situations where the old and new machines had different OS versions - so I cannot guarantee if that might break the system in any way)
 
-# A trick to find the name of the app:
-# Run `defaults read` in an empty window of a terminal app, then use the search functionality to search for a known word related to that app (like eg app visible name, author, some setting that's unique to that app, etc). Once you find this, trace back to the left-most child (1st of the top-level parent) in the printed JSON to then get the real unique name of the app where its settings are stored. Please note that one app might have multiple such groups / names at the top-level (for eg zoom). If this is the case, you will need to capture each name individually.
+# A utility function to find the name of the app:
+# Run `find_and_append_prefs` and pass in a substring contained in the name of the preference that you want to add. This will automatically add it (if not already present) into the appropriate whitelist file.
+# Explanation: This runs the `defaults find` command and searches for any match, then it traces back to the left-most child (1st of the top-level parent) in the printed JSON to then get the real unique name of the app where its settings are stored and adds it to the file mentioned above.
+
+# Exit immediately if a command exits with a non-zero status.
+set -e
 
 # Check for one key function defined in .shellrc to see if sourcing is needed
-if ! type red &> /dev/null 2>&1 || ! type is_non_zero_string &> /dev/null 2>&1; then
+if ! type red 2>&1 &> /dev/null || ! type is_non_zero_string 2>&1 &> /dev/null; then
   source "${HOME}/.shellrc"
 fi
 
@@ -22,9 +26,6 @@ usage() {
 }
 
 [ $# -ne 1 ] && usage "${0}"
-
-# Exit immediately if a command exits with a non-zero status.
-set -e
 
 ! is_non_zero_string "${PERSONAL_CONFIGS_DIR}" && error "Required env var '$(yellow 'PERSONAL_CONFIGS_DIR')' is not defined."
 ! is_non_zero_string "${DOTFILES_DIR}" && error "Required env var '$(yellow 'DOTFILES_DIR')' is not defined."
@@ -55,7 +56,7 @@ esac
 local domains_file="${DOTFILES_DIR}/scripts/data/capture-prefs-domains.txt"
 ! is_file "${domains_file}" && error "Domains list file not found: ${domains_file}"
 
-local app_array=("${(@f)$(grep -vE '^\s*#|^\s*$' "${domains_file}")}")
+local app_array=("${(@f)$(grep -vE '^\s*#|^\s*$' "${domains_file}" || true)}")
 if [[ ${#app_array[@]} -eq 0 ]]; then
   warn "No domains found in ${domains_file}. Nothing to do."
   exit 0

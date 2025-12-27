@@ -6,7 +6,7 @@
 # git command: count
 
 # Source shell helpers if they aren't already loaded
-type section_header &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+type section_header 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 # Note: Use a function so that it can accept parameters
 count() {

@@ -20,7 +20,7 @@ case "${1}" in
 esac
 
 # Source helpers only once if any required function is missing
-type keep_sudo_alive &> /dev/null 2>&1 || source "${HOME}/.shellrc"
+type keep_sudo_alive 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 ###############################################################################################
 # Ask for the administrator password upfront and keep it alive until this script has finished #
@@ -154,12 +154,13 @@ fi
 ###############################################################################
 
 if ask "Set computer name (as done via System Preferences → Sharing)" Y; then
-  userNameInCamelCase=$(echo "$(whoami)" | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1')
+  username_in_camel_case=$(echo "$(whoami)" | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1')
+  human_date="$(date '+%Y-%m-%d-%H-%M')"
 
-  sudo scutil --set ComputerName "IND-CHN-${userNameInCamelCase}'s MBP-$(date)"
-  sudo scutil --set HostName "${userNameInCamelCase}"
-  sudo scutil --set LocalHostName "${userNameInCamelCase}"
-  sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "${userNameInCamelCase}"
+  sudo scutil --set ComputerName "IND-CHN-${username_in_camel_case}'s MBP-${human_date}"
+  sudo scutil --set HostName "${username_in_camel_case}-${human_date}"
+  sudo scutil --set LocalHostName "${username_in_camel_case}-${human_date}"
+  sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "${username_in_camel_case}-${human_date}"
 fi
 
 if ask "Set standby delay to 6 hours (default: 1 hour)" Y; then
@@ -575,7 +576,7 @@ sudo systemsetup -setrestartfreeze on
 # sudo pmset -a standbydelay 86400
 
 # Never go into computer sleep mode
-# sudo systemsetup -setcomputersleep Off > /dev/null
+# sudo systemsetup -setcomputersleep Off 2>&1 &> /dev/null
 
 # Hibernation mode
 # 0: Disable hibernation (speeds up entering sleep mode)
@@ -1103,7 +1104,7 @@ if ask "Change indexing order and disable some search results" Y; then
 fi
 
 if ask "Load new settings before rebuilding the index" Y; then
-  killall mds > /dev/null 2>&1
+  killall mds 2>&1 &> /dev/null
 fi
 
 ###############################################################################
@@ -1638,7 +1639,7 @@ defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
 
 # Disable local Time Machine backups
 # TODO: This causes an error to be printed to stdout - need to investigate if this is deprecated
-# hash tmutil &> /dev/null && sudo tmutil disablelocal
+# hash tmutil 2> /dev/null && sudo tmutil disablelocal
 
 # Auto backup:
 # defaults write com.apple.TimeMachine AutoBackup =1
@@ -1750,13 +1751,13 @@ app_array=(
   'SystemUIServer'
 )
 for app in "${app_array[@]}"; do
-  killall "${app}" &> /dev/null
+  killall "${app}" 2>&1 &> /dev/null
 done
 
 sudo softwareupdate --schedule ON
 
 # Re-index spotlight for the Mac volume (to pre-empt any issues with the system settings pane)
-sudo mdutil -E -i on / > /dev/null
+sudo mdutil -E -i on / 2>&1 &> /dev/null
 
 echo "Need to manually quit and restart 'Terminal' and 'iTerm' - since one of these might be running this script."
 echo "Done. Note that some of these changes require a logout/restart to take effect."

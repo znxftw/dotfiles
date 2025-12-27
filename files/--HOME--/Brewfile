@@ -21,13 +21,11 @@ cask_args appdir: '/Applications', fontdir: '/Library/Fonts', no_quarantine: tru
 is_arm = ::Hardware::CPU.arm?
 is_beta_os = ::OS::Mac::full_version.unsupported_release?
 
+# While re-imaging my laptop or setting up a new laptop, I want to install only the bare minimum of apps/utilities so that the rest of the restoration from backup can continue in a shorter time. I can then circle back to run the brew bundle command to install all the other missing softwares.
 is_base_install = ENV.has_key?('HOMEBREW_BASE_INSTALL')
 puts "Only performing base installation!" if is_base_install
 
-# ----------------------------------------------------------------------------------------------------------
-# Register the at_exit hook in the beginning itself
-# TODO: This doesn't solve the issue about performing a custom action when a specific formula/cask is (re)installed
-at_exit { system('post-brew-install.sh') }
+# TODO: Hardcoding of the dotfiles repo folder - since that env var is not available inside this env
 
 tap 'romkatv/powerlevel10k'
 tap 'TheBoredTeam/boring-notch' if ::OS::Mac::version >= 14
@@ -81,20 +79,15 @@ cask 'brave-browser'
 cask 'clocker', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Clocker'"
 cask 'firefox@nightly' #, greedy: true
 cask 'google-chrome@beta'
-cask 'grayjay'
 cask 'jordanbaird-ice@beta', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Ice'" if ::OS::Mac::version >= 14
 cask 'keepassxc@beta'
-cask 'keycastr'
-cask 'keyclu' if is_arm
 cask 'ollama-app', restart_service: :changed
 cask 'onlyoffice'
-cask 'onyx' # if !is_beta_os && ::OS::Mac::version < 26
 cask 'pearcleaner'
 cask 'protonvpn'
 cask 'rancher' # if ::OS::Mac::version < 26
 cask 'raycast', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Raycast'"
 cask 'stats', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Stats'"
-cask 'tor-browser@alpha'
 cask 'vscodium@insiders'   # TODO: Doesn't handle 'Remote Containers' and GH-based auto-syncing when compared to VSCode
 cask 'zen@twilight'
 cask 'zoom'
@@ -196,12 +189,15 @@ end
 # cask 'cloudflare-warp'
 # cask 'dbeaver-community'
 # cask 'fliqlo'
+# cask 'floorp' # Doesn't have keyboard shortcuts to switch across workspaces
 # cask 'ghostty@tip' # Not using since it doesn't have many features (like broadcasting keystrokes to panels; using iTerm instead)
 # cask 'git-credential-manager'   # https://docs.github.com/en/get-started/getting-started-with-git/caching-your-github-credentials-in-git
+# cask 'grayjay'
 # cask 'intellij-idea-ce'
 # cask 'kdiff3'
+# cask 'keycastr'
+# cask 'keyclu' if is_arm
 # cask 'knockknock'
-# cask 'floorp' # Doesn't have keyboard shortcuts to switch across workspaces
 # cask 'licecap'
 # cask 'lulu'
 # cask 'microsoft-remote-desktop'
@@ -210,8 +206,10 @@ end
 # cask 'netspot'
 # cask 'ngrok'
 # cask 'notunes'
+# cask 'onyx' # if !is_beta_os && ::OS::Mac::version < 26
 # cask 'silicon' if is_arm
 # cask 'tempbox'
 # cask 'the-unarchiver'
 # cask 'thunderbird@daily'
+# cask 'tor-browser@alpha'
 # cask 'utm'
