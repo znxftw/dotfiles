@@ -17,8 +17,8 @@ fi
 usage() {
   echo "$(red 'Usage'): $(yellow "${1} [-f] <repo folder>")"
   echo " $(yellow '-f'): force squashing into a single commit (profiles repo will automatically/always be forced anyways)"
-  echo "    eg: $(cyan "-f ${HOME}")                (will push to $(yellow "$(build_keybase_repo_url "${KEYBASE_HOME_REPO_NAME}")")"
-  echo "    eg: $(cyan "${PERSONAL_PROFILES_DIR}")  (will push to $(yellow "$(build_keybase_repo_url "${KEYBASE_PROFILES_REPO_NAME}")")"
+  echo "    eg: $(cyan "-f \${HOME}")                (will push to $(yellow "$(build_keybase_repo_url "${KEYBASE_HOME_REPO_NAME}")")"
+  echo "    eg: $(cyan "\${PERSONAL_PROFILES_DIR}")  (will push to $(yellow "$(build_keybase_repo_url "${KEYBASE_PROFILES_REPO_NAME}")")"
   exit 1
 }
 
@@ -111,7 +111,7 @@ if [[ "${git_url}" =~ 'keybase' ]]; then
 fi
 
 echo "$(blue 'Pushing') from $(yellow "${folder}") to $(yellow "${git_url}")"
-git -C "${folder}" push -fu origin "${git_branch_name}"
+git -C "${folder}" push --progress -fu origin "${git_branch_name}"
 
 rm -f "${folder}/.git/index.lock"
 

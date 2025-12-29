@@ -117,7 +117,7 @@
   br = branch --show-current
 
   # rebase from corresponding upstream branch if a remote named 'upstream' is present, silently quit if a remote is not present
-  upreb = !git branch -u origin/`git br` && git fo && ( git remote | grep upstream 2>&1 &> /dev/null ) && git rebase upstream/`git br` --no-verify && git fetch upstream --tags && git push --no-verify && git push --tags --no-verify && git siu && git dlb
+  upreb = !git branch -u origin/`git br` && git fo && ( git remote | grep upstream 2>&1 &> /dev/null ) && git rebase upstream/`git br` --no-verify && git fetch upstream --tags && git push --progress --no-verify && git push --progress --tags --no-verify && git siu && git dlb
 
   # prune local copy-of-remote to remove deleted branches
   rpo = remote prune origin
@@ -187,7 +187,7 @@
   sf = submodule foreach
 
   # push all submodules
-  pushsub = sf "git push"
+  pushsub = sf "git push --progress"
 
   # pull all submodules
   pullsub = sf "git pull"

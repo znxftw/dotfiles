@@ -150,7 +150,7 @@ debug() {
 error() {
   echo "$(red '**ERROR**') ${1} 🤓"
   osascript -e "display notification \"${1} 🤓\""
-  exit 1
+  return 1
 }
 
 print_chars_for_length() {

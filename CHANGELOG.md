@@ -2,6 +2,17 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.36
+
+* All `git push` invocations now have the explicit `--progress` flag.
+* *[.shellrc]* `error` function will no longer exit the process. It just returns a non-zero code which needs to be handled by the caller.
+* *[.aliases]* `kbgc` alias has been changed to a function, which now accepts parameters as to which repo to process.
+
+#### Adopting these changes
+
+* Rebase from upstream, resolve conflicts.
+* Quit and restart your Terminal application for these changes to take effect.
+
 ### 2.0.35
 
 * Make handling of stdout and stderr consistent across all usages.

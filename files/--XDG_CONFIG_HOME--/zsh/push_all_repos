@@ -13,7 +13,7 @@ _push_repo() {
 
   # shellcheck disable=SC2005
   section_header "$(yellow 'Pushing') $(purple "${1}")"
-  git -C "${1}" push --force-with-lease
+  git -C "${1}" push --progress --force-with-lease
   if [ $? -eq 0 ]; then
     success "Successfully pushed '$(yellow "${1}")'"
   else
