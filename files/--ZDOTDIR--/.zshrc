@@ -214,7 +214,7 @@ if is_macos; then
   zstyle ':completion:*:(rm|kill|diff):*' ignore-line yes
   # hosts completion for some commands
   # local knownhosts
-  # knownhosts=( ${${${${(f)"$(<${HOME}/.ssh/known_hosts)"}:#[0-9]*}%%\ *}%%,*} )
+  # knownhosts=( ${${${${(f)"$(<${SSH_CONFIGS_DIR}/known_hosts)"}:#[0-9]*}%%\ *}%%,*} )
   # zstyle ':completion:*:(ssh|scp|sftp):*' hosts $knownhosts
   compctl -k hosts ftp lftp ncftp ssh w3m lynx links elinks nc telnet rlogin host
   compctl -k hosts -P '@' finger

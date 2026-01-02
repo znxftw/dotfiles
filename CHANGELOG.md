@@ -2,6 +2,19 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.37
+
+* *[.shellrc]* Restructured the env var's section to be more explicit as to what section/vars need to be changed, and which ones can be optionally changed.
+* *[.shellrc]* Extracted usages of `${HOME}/.ssh` into a new env var defined in `.shellrc` so that custom locations can be easily changed in a single place.
+
+#### Adopting these changes
+
+* Rebase from upstream, resolve conflicts, and then proceed with the following steps:
+* *Quit and restart your Terminal application* for these changes to take effect.
+* Run `install-dotfiles.rb` in the new shell.
+* Manually edit `${HOME}/.ssh/config` to replace the reference to `~/.ssh/global_config` towards the last line with `${SSH_CONFIGS_DIR}/global_config`. If this results in a duplicate line, remove the duplicate line.
+* Verify the above changes in the `${HOME}/.ssh/config` file by running `git pull` in one of the cloned repos on your local machine.
+
 ### 2.0.36
 
 * All `git push` invocations now have the explicit `--progress` flag.

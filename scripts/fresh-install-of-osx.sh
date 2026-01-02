@@ -384,7 +384,7 @@ EOF
   unset file_name
 
   # TODO: Add the github.com host to the known_hosts file so that the script is not blocked for user input
-  # ssh-keyscan -H -t ED25519 github.com >> ~/.ssh/known_hosts
+  # ssh-keyscan -H -t ED25519 github.com >> "${SSH_CONFIGS_DIR}/known_hosts"
 
   ##########################################################
   # Resurrect repositories that are in the repo catalogues #
@@ -420,7 +420,7 @@ if command_exists install_mise_versions; then
 else
   warn "skipping installation of languages since '$(yellow 'install_mise_versions')' couldn't be found in the PATH; Please run it manually"
 fi
-rm -rf "${HOME}/.ssh/known_hosts.old"
+rm -rf "${SSH_CONFIGS_DIR}/known_hosts.old"
 
 ###################################################################
 # Restore the preferences from the older machine into the new one #

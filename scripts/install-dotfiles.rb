@@ -111,7 +111,7 @@ if global_config_link.symlink? && global_config_link.exist?
   default_ssh_config = ssh_folder + 'config'
   FileUtils.touch(default_ssh_config) unless default_ssh_config.exist?
 
-  include_line = 'Include "~/.ssh/global_config"'
+  include_line = 'Include "${SSH_CONFIGS_DIR}/global_config"'
   begin
     if default_ssh_config.each_line.any? { |l| l.strip == include_line }
       puts "'#{include_line}' already present in '#{default_ssh_config}'".green

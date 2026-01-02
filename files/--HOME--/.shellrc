@@ -15,31 +15,17 @@
 # execute 'FIRST_INSTALL=true zsh' to debug the load order of the custom zsh configuration files
 [[ -n "${FIRST_INSTALL+1}" ]] && echo "loading ${0}"
 
-export LANG='en_US.UTF-8'
-# Setting LC_ALL overrides all other LC_* variables.
-# LANG is kept as a fallback.
-export LC_ALL='en_US.UTF-8'
-export LESSCHARSET='utf-8'
-
-export ZDOTDIR="${ZDOTDIR:-"${HOME}"}"
-export XDG_CACHE_HOME="${XDG_CACHE_HOME:-"${HOME}/.cache"}"
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-"${HOME}/.config"}"
-export XDG_DATA_HOME="${XDG_DATA_HOME:-"${HOME}/.local/share"}"
-export XDG_STATE_HOME="${XDG_STATE_HOME:-"${HOME}/.local/state"}"
-
-# Cache the architecture check to avoid calling `uname` repeatedly
-export ARCH="${ARCH:-"$(uname -m)"}"
-export ARCHFLAGS="-arch ${ARCH}"
-
 # Note: Change these as per your settings. Deleting/commenting them will essentially unset the var(s) after the shell session is restarted and thus any aliases/backup-operations/etc will not be processed for those deleted variable(s)
 
-# ------------ Env vars for basic/common setup ------------
+# ------------ Customizable env vars (MUST BE CHANGED to your values) ------------
 # The github username where the setup scripts are downloaded from
 export GH_USERNAME='vraravam'
 
-# Vijay's github username for setting upstream remote
-export UPSTREAM_GH_USERNAME='vraravam' # Note: Do NOT change this
+# Keybase username
+export KEYBASE_USERNAME='avijayr'
+# --------------------------------------------------------------------------------
 
+# ------------ Env vars for basic/common setup (can be optionally changed) ------------
 # This repo is cloned into this location
 export DOTFILES_DIR="${HOME}/.dotfiles"
 
@@ -58,16 +44,35 @@ export PERSONAL_CONFIGS_DIR="${HOME}/personal/dev/configs"
 # All browser profiles are captured in this folder (might contain sensitive info like browsing history and so is considered private)
 export PERSONAL_PROFILES_DIR="${HOME}/personal/$(whoami)/profiles"
 
-# Keybase username
-export KEYBASE_USERNAME='avijayr'
-
 # Keybase home repo name
 export KEYBASE_HOME_REPO_NAME='home'
 
 # Keybase profiles repo name
 export KEYBASE_PROFILES_REPO_NAME='profiles'
 
-# -----------------------------------------------------
+# SSH folder
+export SSH_CONFIGS_DIR="${HOME}/.ssh"
+# -------------------------------------------------------------------------------------
+
+# Vijay's github username for setting upstream remote
+export UPSTREAM_GH_USERNAME='vraravam' # Note: DO NOT CHANGE THIS
+
+export LANG='en_US.UTF-8'
+# Setting LC_ALL overrides all other LC_* variables.
+# LANG is kept as a fallback.
+export LC_ALL='en_US.UTF-8'
+export LESSCHARSET='utf-8'
+
+export ZDOTDIR="${ZDOTDIR:-"${HOME}"}"
+export XDG_BIN_HOME="${XDG_BIN_HOME:-"${HOME}/.local/bin"}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-"${HOME}/.cache"}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-"${HOME}/.config"}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-"${HOME}/.local/share"}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-"${HOME}/.local/state"}"
+
+# Cache the architecture check to avoid calling `uname` repeatedly
+export ARCH="${ARCH:-"$(uname -m)"}"
+export ARCHFLAGS="-arch ${ARCH}"
 
 colorize() {
   printf "\x1b[${1}m"
@@ -361,22 +366,20 @@ clone_repo_into() {
 #################################
 set_ssh_folder_permissions() {
   section_header "$(yellow 'Setting ssh config file permissions')"
-  local target_folder="${HOME}/.ssh"
-  ensure_dir_exists "${target_folder}"
+  ensure_dir_exists "${SSH_CONFIGS_DIR}"
   # Set directory permissions first
-  if ! chmod 700 "${target_folder}"; then
-    warn "Failed to set permissions on '$(yellow "${target_folder}")'"
+  if ! chmod 700 "${SSH_CONFIGS_DIR}"; then
+    warn "Failed to set permissions on '$(yellow "${SSH_CONFIGS_DIR}")'"
     return
   fi
 
-  if dir_has_children "${target_folder}"; then
-    find "${target_folder}" -type f -exec chmod 600 {} \; && success "Ensured correct permissions for '$(yellow "${target_folder}")' and files within it." || warn "Failed to set file permissions in '$(yellow "${target_folder}")'"
+  if dir_has_children "${SSH_CONFIGS_DIR}"; then
+    find "${SSH_CONFIGS_DIR}" -type f -exec chmod 600 {} \; && success "Ensured correct permissions for '$(yellow "${SSH_CONFIGS_DIR}")' and files within it." || warn "Failed to set file permissions in '$(yellow "${SSH_CONFIGS_DIR}")'"
 
-    find "${target_folder}" -maxdepth 1 -name "id_*" ! -name '*.*' -type f -exec ssh-add "{}" \; && success "Added ssh identity files from '$(yellow "${target_folder}")'." || warn "Failed to add ssh identity files from '$(yellow "${target_folder}")'"
+    find "${SSH_CONFIGS_DIR}" -maxdepth 1 -name "id_*" ! -name '*.*' -type f -exec ssh-add "{}" \; && success "Added ssh identity files from '$(yellow "${SSH_CONFIGS_DIR}")'." || warn "Failed to add ssh identity files from '$(yellow "${SSH_CONFIGS_DIR}")'"
   else
-    warn "'$(yellow "${target_folder}")' exists but is empty. No file permissions to set."
+    warn "'$(yellow "${SSH_CONFIGS_DIR}")' exists but is empty. No file permissions to set."
   fi
-  unset target_folder
 }
 
 # Moving homebrew env vars here itself so that the initial homebrew installation on a vanilla OS can be done/applied into memory immediately
