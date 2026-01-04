@@ -60,9 +60,9 @@ end
 # Handles multiple ${VAR} patterns. If an environment variable is not set,
 # the placeholder ${VAR} is kept.
 #
-# @param folder [String, Object] The string in which to expand environment variables.
+# @param folder [String] The string in which to expand environment variables.
 #   If not a String, the object is returned unchanged.
-# @return [String, Object] The string with environment variables expanded,
+# @return [String] The string with environment variables expanded,
 #   or the original object if it was not a String or did not contain `${...}` patterns.
 def find_and_replace_env_var(folder)
   # Early exit if folder is not a string or doesn't contain the pattern
@@ -77,6 +77,21 @@ def find_and_replace_env_var(folder)
       match
     end
   end
+end
+
+# Replaces the occurrences of the pre-expanded env-var-values with the env-vars so that the generated yaml
+# references the env vars. This removes the need to manually edit the generated yaml to introduce/replace the
+# env vars for ease of maintenance
+# @param folder [String] The string in which to replace with environment variables' placeholder.
+# @return [String] The string with environment variables replaced,
+#   or the original string if the env variable was not present or was empty.
+def find_and_reverse_replace_env_var(folder)
+  # Note: If changing this array, remember that the deep-nested value should be replaced first, followed by the parent folder
+  env_vars = ['PROJECTS_BASE_DIR', 'HOME']
+  env_vars.each do |env_var|
+    return folder.sub(ENV[env_var], "${#{env_var}}").strip if ENV.has_key?(env_var) && !ENV[env_var].empty?
+  end
+  folder
 end
 
 # Builds the base command array for executing Git commands within a specific repository folder.
@@ -220,7 +235,7 @@ end
 # @return [Hash] A hash with repository details (folder, active, remote, other_remotes).
 #                The 'post_clone' key is intentionally not added here as per the script's design for generation.
 def generate_each(folder)
-  hash = { folder: folder, active: true }
+  hash = { folder: find_and_reverse_replace_env_var(folder), active: true }
   other_remotes = {}
   find_git_remotes(folder) do |name, url|
     other_remotes[name] = url
@@ -228,7 +243,7 @@ def generate_each(folder)
 
   unless other_remotes.empty?
     hash[:remote] = other_remotes.delete(ORIGIN_NAME)
-    hash[OTHER_REMOTES_KEY_NAME] = other_remotes
+    hash[OTHER_REMOTES_KEY_NAME] = other_remotes unless other_remotes.empty?
   end
 
   # Fallback for origin if not found or if the above command failed
@@ -237,7 +252,7 @@ def generate_each(folder)
   # Ensure :remote is set, even if it's an empty string (e.g. repo with no remotes)
   hash[:remote] ||= ''
 
-  hash
+  hash.transform_keys(&:to_s)
 end
 
 # Resurrects a single repository based on its configuration.

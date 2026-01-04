@@ -238,6 +238,8 @@ install_homebrew() {
 
   # Note: run the post-brew-install script once more (in case it wasn't run by the brew lifecycle due to any error)
   post-brew-install.sh
+
+  is_arm && sudo rm -rf /usr/local/bin/keybase /usr/local/bin/git-remote-keybase || true
 }
 
 clone_home_repo() {

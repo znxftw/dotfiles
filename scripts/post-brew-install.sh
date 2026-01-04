@@ -32,8 +32,6 @@ section_header "$(yellow 'Linking') $(purple 'keybase') $(yellow 'for command-li
 if is_directory '/Applications/Keybase.app'; then
   replace_symlink_if_needed '/Applications/Keybase.app/Contents/SharedSupport/bin/keybase' "${HOMEBREW_PREFIX}/bin/keybase"
   replace_symlink_if_needed '/Applications/Keybase.app/Contents/SharedSupport/bin/git-remote-keybase' "${HOMEBREW_PREFIX}/bin/git-remote-keybase"
-
-  is_arm && sudo rm -rf /usr/local/bin/keybase /usr/local/bin/git-remote-keybase || true
 else
   warn 'skipping symlinking keybase for command-line invocation'
 fi
