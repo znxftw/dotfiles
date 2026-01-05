@@ -2,6 +2,10 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.40
+
+* *[resurrect-repositories.rb]* Fixed an issue while cloning git repos where the script was silently proceeding further.
+
 ### 2.0.39
 
 * *[Brewfile]* Added common & essential OSS packages that are typically behind in macos (typically due to license issues).

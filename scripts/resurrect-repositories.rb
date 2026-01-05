@@ -285,7 +285,7 @@ def resurrect_each(repo, idx, total)
     clone_command = "source \"#{File.join(ENV['HOME'], '.shellrc')}\" && clone_repo_into \"#{repo[REMOTE_KEY_NAME]}\" \"#{folder}\""
     _stdout_str, stderr_str, status = Open3.capture3(clone_command)
 
-    unless status.success?
+    if !status.success? || (!stderr_str.empty? && stderr_str =~ /error/i)
       error_message = "Failed to clone '#{repo[REMOTE_KEY_NAME]}' into '#{folder}'; aborting (status: #{status.exitstatus})".red
       error_message += "\nClone command STDERR:\n#{stderr_str}".red unless stderr_str.strip.empty?
       abort(error_message)
