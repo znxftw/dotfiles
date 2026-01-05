@@ -35,11 +35,19 @@ cask 'font-meslo-lg-nerd-font'
 cask 'keybase', postinstall: "\"${HOME}/.dotfiles/scripts/setup-login-item.sh\" 'Keybase'"
 
 # formulae pulled in from homebrew to replace system equivalents to fix any security issues since the OS was released
+# This list is enhanced from https://macgnu.codewithshin.com/?id=gnu-programs-existing-in-macos-which-are-outdated
 brew 'bash'
 brew 'curl'
+brew 'emacs'
 brew 'git'
+brew 'gpatch'
+brew 'grep'
 brew 'less'
+brew 'make'
+brew 'nano'
+brew 'openssl'
 brew 'rsync'
+brew 'sqlite3'
 brew 'vim'
 brew 'wget'
 brew 'zsh'

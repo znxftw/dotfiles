@@ -289,7 +289,10 @@ if is_macos; then
 
     # override default openssl and use from homebrew installation
     local openssl_dir="${HOMEBREW_PREFIX}/opt/openssl@3"
-    is_directory "${openssl_dir}" && use_homebrew_installation_for "${openssl_dir}" && export RUBY_CONFIGURE_OPTS="--with-openssl-dir=${openssl_dir}"
+    if is_directory "${openssl_dir}"; then
+      use_homebrew_installation_for "${openssl_dir}"
+      export RUBY_CONFIGURE_OPTS="--with-openssl-dir=${openssl_dir}"
+    fi
     unset openssl_dir
   fi
 fi

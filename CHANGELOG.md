@@ -2,6 +2,11 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.39
+
+* *[Brewfile]* Added common & essential OSS packages that are typically behind in macos (typically due to license issues).
+* *[.zshrc]* Fixed issue with `RUBY_CONFIGURE_OPTS` not being set correctly when `openssl` is installed.
+
 ### 2.0.38
 
 * *[resurrect-repositories.rb]* Changed the repo-resurrection generation logic to reduce manual edits to the generated yaml structure. This now handles generating the yaml with references to the `PROJECTS_BASE_DIR` and `HOME` env variables to make it generic and not hardcode the user's login name/home folder.
