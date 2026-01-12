@@ -10,31 +10,43 @@
 set -e
 
 # Source shell helpers if they aren't already loaded
-if ! type red 2>&1 &> /dev/null || ! type strip_trailing_slash 2>&1 &> /dev/null; then
+if ! type red 2>&1 &> /dev/null || ! type is_zero_string 2>&1 &> /dev/null; then
   source "${HOME}/.shellrc"
 fi
 
 usage() {
-  echo "$(red 'Usage'): $(yellow "${0##*/}") [-f] <repo folder>"
-  echo " $(yellow '-f'): force squashing into a single commit (profiles repo will automatically/always be forced anyways)"
-  echo "    eg: $(cyan "-f \${HOME}")                (will push to $(yellow "$(build_keybase_repo_url "${KEYBASE_HOME_REPO_NAME}")")"
-  echo "    eg: $(cyan "\${PERSONAL_PROFILES_DIR}")  (will push to $(yellow "$(build_keybase_repo_url "${KEYBASE_PROFILES_REPO_NAME}")")"
+  echo "$(red 'Usage'): $(yellow "${1}") [-f] -d <repo-folder>"
+  echo " $(yellow '-f')               --> (optional) force squashing into a single commit (profiles repo will automatically/always be forced anyways)"
+  echo " $(yellow '-d <repo-folder>') --> (mandatory) The folder which has to be processed"
+  echo "    eg: $(cyan "-f -d \${HOME}")                (will push to $(yellow "$(build_keybase_repo_url "${KEYBASE_HOME_REPO_NAME}")"))"
+  echo "    eg: $(cyan "-d \${PERSONAL_PROFILES_DIR}")  (will push to $(yellow "$(build_keybase_repo_url "${KEYBASE_PROFILES_REPO_NAME}")"))"
   exit 1
 }
 
 local force=N
-while getopts ":f" opt; do
+local folder
+while getopts ":fd:" opt; do
   case ${opt} in
-    f ) force=Y ;;
-    \? ) usage "${0##*/}" ;;
+    f)
+      force=Y
+      ;;
+    d)
+      folder=$OPTARG
+      ;;
+    \?)
+      usage "${0##*/}"
+      ;;
+    :)
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      usage "${0##*/}"
+      ;;
   esac
 done
-shift $((OPTIND -1))
+shift $((OPTIND - 1))
 
-if [[ $# -ne 1 ]]; then
+if is_zero_string "${folder}"; then
   usage "${0##*/}"
 fi
-local folder="${1}"
 
 # Remove trailing slash if present
 folder="$(strip_trailing_slash "${folder}")"
@@ -55,7 +67,7 @@ extract_git_config_value() {
 local CRON_BACKUP_FILE
 CRON_BACKUP_FILE="$(mktemp)"
 # Save current crontab; ignore errors if it's empty.
-crontab -l > "${CRON_BACKUP_FILE}" 2>/dev/null || true
+crontab -l > "${CRON_BACKUP_FILE}" 2> /dev/null || true
 
 cleanup() {
   local exit_code=$?
@@ -80,7 +92,7 @@ local git_url="$(extract_git_config_value remote.origin.url)"
 local git_user_name="$(extract_git_config_value user.name)"
 local git_user_email="$(extract_git_config_value user.email)"
 local git_branch_name="$(git -C "${folder}" branch --show-current)"
-! is_non_zero_string "${git_branch_name}" && error 'Failed to determine current branch name'
+is_zero_string "${git_branch_name}" && error 'Failed to determine current branch name'
 
 echo "$(yellow 'Repo url'): '${git_url}'"
 echo "$(yellow 'User name'): '${git_user_name}'"

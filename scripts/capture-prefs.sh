@@ -14,41 +14,47 @@
 set -e
 
 # Check for one key function defined in .shellrc to see if sourcing is needed
-if ! type red 2>&1 &> /dev/null || ! type is_non_zero_string 2>&1 &> /dev/null; then
+if ! type red 2>&1 &> /dev/null || ! type is_zero_string 2>&1 &> /dev/null; then
   source "${HOME}/.shellrc"
 fi
 
 usage() {
-  echo "$(red 'Usage'): $(yellow "${1} -<e/i>")"
+  echo "$(red 'Usage'): $(yellow "${1}") [-e|-i]"
   echo "  $(yellow '-e')  --> Export from [old] system"
   echo "  $(yellow '-i')  --> Import into [new] system"
   exit 1
 }
 
-[ $# -ne 1 ] && usage "${0}"
+local operation
+while getopts ":ei" opt; do
+  case ${opt} in
+    e)
+      operation='export'
+      ;;
+    i)
+      operation='import'
+      ;;
+    \?)
+      usage "${0##*/}"
+      ;;
+  esac
+done
+shift $((OPTIND -1))
 
-! is_non_zero_string "${PERSONAL_CONFIGS_DIR}" && error "Required env var '$(yellow 'PERSONAL_CONFIGS_DIR')' is not defined."
-! is_non_zero_string "${DOTFILES_DIR}" && error "Required env var '$(yellow 'DOTFILES_DIR')' is not defined."
+if is_zero_string "${operation}"; then
+  usage "${0##*/}"
+fi
+
+is_zero_string "${PERSONAL_CONFIGS_DIR}" && error "Required env var '$(yellow 'PERSONAL_CONFIGS_DIR')' is not defined."
+is_zero_string "${DOTFILES_DIR}" && error "Required env var '$(yellow 'DOTFILES_DIR')' is not defined."
 
 local target_dir="${PERSONAL_CONFIGS_DIR}/defaults"
 ensure_dir_exists "${target_dir}"
 
-local operation # Declare as local before assignment
-case "${1}" in
-  "-e" )
-    operation='export'
-    # Clean up old files before exporting new ones (this also handles the case where some entry has been removed from the list of domains)
-    rm -f "${target_dir}"/*.defaults || true
-    ;;
-  "-i" )
-    operation='import'
-    # No cleanup needed for import
-    ;;
-  * )
-    echo "Unknown value entered: '${1}'"
-    usage "${0}"
-    ;;
-esac
+if [[ "${operation}" == "export" ]]; then
+  # Clean up old files before exporting new ones (this also handles the case where some entry has been removed from the list of domains)
+  rm -f "${target_dir}"/*.defaults || true
+fi
 
 # Note: A simple trick to find these names is to run `\ls -1 ~/Library/Preferences/*` in the command-line
 # Read domains from the file into the array, splitting by newline and filtering comments/blanks

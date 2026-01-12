@@ -228,7 +228,7 @@ clone_dot_files_repo() {
       append_to_path_if_dir_exists "${DOTFILES_DIR}/scripts"
 
       # Setup the DOTFILES_DIR repo's upstream if it doesn't already point to UPSTREAM_GH_USERNAME's repo
-      add-upstream-git-config.sh "${DOTFILES_DIR}" "${UPSTREAM_GH_USERNAME}" || warn 'Failed to add upstream git config for dotfiles repo'
+      add-upstream-git-config.sh -d "${DOTFILES_DIR}" -u "${UPSTREAM_GH_USERNAME}" || warn 'Failed to add upstream git config for dotfiles repo'
     else
       error 'Failed to clone dotfiles repo'
       exit 1
@@ -243,7 +243,7 @@ install_homebrew() {
   # Install homebrew #
   ####################
   section_header "$(yellow 'Installing homebrew') into '$(yellow "${HOMEBREW_PREFIX}")'"
-  if ! is_non_zero_string "${HOMEBREW_PREFIX}"; then
+  if is_zero_string "${HOMEBREW_PREFIX}"; then
     error "'HOMEBREW_PREFIX' env var is not set; something is wrong. Please correct before retrying!"
     exit 1 # Irrecoverable failure
   fi
@@ -347,7 +347,7 @@ clone_profiles_repo() {
     if [[ ${#chrome_folders[@]} -gt 0 ]]; then
       for folder in "${chrome_folders[@]}"; do
         # Setup the chrome repo's upstream if it doesn't already point to UPSTREAM_GH_USERNAME's repo
-        add-upstream-git-config.sh "${folder}" "${UPSTREAM_GH_USERNAME}" || warn "Failed to add upstream git config for '$(yellow "${folder}")'"
+        add-upstream-git-config.sh -d "${folder}" -u "${UPSTREAM_GH_USERNAME}" || warn "Failed to add upstream git config for '$(yellow "${folder}")'"
       done
       unset folder
     else

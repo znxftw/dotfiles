@@ -2,6 +2,12 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.42
+
+* Changed all shell scripts to use switches instead of positional arguments for more intuitive usage.
+* Removed the use of colors if there's no terminal (for eg for cron jobs).
+* Removed `boring-notch` cask since it was causing issues when installing on a fresh vanilla os.
+
 ### 2.0.41
 
 * Adopted Zed as the default editor and removed VSCodium.

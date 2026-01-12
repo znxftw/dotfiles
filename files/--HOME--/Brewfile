@@ -28,7 +28,7 @@ tap 'romkatv/powerlevel10k'
 
 # Moving these casks to tbe beginning since they are required in the beginning (for manual login) for a vanilla OS installation
 cask 'font-meslo-lg-nerd-font'
-cask 'keybase', postinstall: "\"#{setup_login_items_script}\" 'Keybase'"
+cask 'keybase', postinstall: "\"#{setup_login_items_script}\" -a 'Keybase'"
 
 # formulae pulled in from homebrew to replace system equivalents to fix any security issues since the OS was released
 # This list is enhanced from https://macgnu.codewithshin.com/?id=gnu-programs-existing-in-macos-which-are-outdated
@@ -66,8 +66,6 @@ if ENV.has_key?('HOMEBREW_BASE_INSTALL')
   return 0
 end
 
-tap 'TheBoredTeam/boring-notch'
-
 # formulae pulled in for advanced configs (these are optional, but still recommended)
 brew 'bat'
 brew 'btop'
@@ -84,21 +82,20 @@ brew 'shfmt'
 brew 'syncthing'
 brew 'tlrc'
 
-cask 'aldente', postinstall: "\"#{setup_login_items_script}\" 'AlDente'"
-cask 'boring-notch', postinstall: "\"#{setup_login_items_script}\" 'boringNotch'" if ::OS::Mac::version >= 14
+cask 'aldente', postinstall: "\"#{setup_login_items_script}\" -a 'AlDente'"
 cask 'brave-browser'
-cask 'clocker', postinstall: "\"#{setup_login_items_script}\" 'Clocker'"
+cask 'clocker', postinstall: "\"#{setup_login_items_script}\" -a 'Clocker'"
 cask 'firefox@nightly' #, greedy: true
 cask 'google-chrome@beta'
-cask 'jordanbaird-ice@beta', postinstall: "\"#{setup_login_items_script}\" 'Ice'" if ::OS::Mac::version >= 14
+cask 'jordanbaird-ice@beta', postinstall: "\"#{setup_login_items_script}\" -a 'Ice'" if ::OS::Mac::version >= 14
 cask 'keepassxc@beta'
 cask 'ollama-app', restart_service: :changed
 cask 'onlyoffice'
 cask 'pearcleaner'
 cask 'protonvpn'
 cask 'rancher' # if ::OS::Mac::version < 26
-cask 'raycast', postinstall: "\"#{setup_login_items_script}\" 'Raycast'"
-cask 'stats', postinstall: "\"#{setup_login_items_script}\" 'Stats'"
+cask 'raycast', postinstall: "\"#{setup_login_items_script}\" -a 'Raycast'"
+cask 'stats', postinstall: "\"#{setup_login_items_script}\" -a 'Stats'"
 cask 'zed@preview'
 cask 'zen@twilight'
 cask 'zoom'
@@ -185,6 +182,8 @@ cask 'zoom'
 # brew 'wifi-password'
 
 # ---- casks
+# tap 'TheBoredTeam/boring-notch'
+# cask 'boring-notch', postinstall: "\"#{setup_login_items_script}\" -a 'boringNotch'" if ::OS::Mac::version >= 14
 # cask 'cloudflare-warp'
 # cask 'dbeaver-community'
 # cask 'fliqlo'

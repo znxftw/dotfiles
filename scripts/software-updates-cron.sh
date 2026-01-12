@@ -69,7 +69,7 @@ if is_git_repo "${natsumi_codebase}"; then
   section_header "$(yellow 'Update locally checked-out copy of my fork of the natsumi codebase')" # so as to get a clean pull in the Zen profile chrome directory
   git -C "${natsumi_codebase}" upreb
   # Check if the working directory is clean and the branch is up-to-date with its upstream
-  if ! is_non_zero_string "$(git -C "${natsumi_codebase}" status --porcelain)" && \
+  if is_zero_string "$(git -C "${natsumi_codebase}" status --porcelain)" && \
         [[ "$(git -C "${natsumi_codebase}" rev-parse @)" == "$(git -C "${natsumi_codebase}" rev-parse '@{u}' 2> /dev/null)" ]]; then
     success "Natsumi codebase '${natsumi_codebase}' is clean and up-to-date."
   else

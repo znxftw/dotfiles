@@ -6,7 +6,9 @@ compdef upreb
 # git command: upreb
 
 # Source shell helpers if they aren't already loaded
-type is_executable 2>&1 &> /dev/null || source "${HOME}/.shellrc"
+if ! type is_executable 2>&1 &> /dev/null || ! type section_header 2>&1 &> /dev/null; then
+  source "${HOME}/.shellrc"
+fi
 
 # Note: Use a function so that it can accept parameters
 # This function is used to run the `git upreb` command for all the locally checked-out branches of the specified folder. If no folder is specified, the function defaults to using the current directory.

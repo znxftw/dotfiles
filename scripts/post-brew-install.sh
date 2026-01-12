@@ -83,7 +83,7 @@ else
 fi
 
 # Setup the login items once the full list of applications has been installed on the machine
-# "${DOTFILES_DIR}/scripts/setup-login-item.sh" 'ZoomHider'
+# "${DOTFILES_DIR}/scripts/setup-login-item.sh" -a 'ZoomHider'
 
 # Cleanup temp functions, etc
 unfunction replace_symlink_if_needed

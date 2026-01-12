@@ -344,10 +344,11 @@
     ],
     "JSONC": ["*.json"],
     "Shell Script": [
+      "**/zsh/*",
+      "*.env*",
+      "*.sh",
       ".env*",
       ".gitignore*",
-      "*.sh",
-      "**/zsh/*",
     ],
     "Dockerfile": ["Dockerfile*"],
     "Ruby": [

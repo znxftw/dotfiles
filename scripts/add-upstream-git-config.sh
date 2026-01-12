@@ -9,24 +9,44 @@
 set -e
 
 # Source shellrc only once if any required function is missing
-if ! type red 2>&1 &> /dev/null || ! type section_header 2>&1 &> /dev/null || ! type is_git_repo 2>&1 &> /dev/null || ! type warn 2>&1 &> /dev/null || ! type error 2>&1 &> /dev/null || ! type success 2>&1 &> /dev/null; then
+if ! type red 2>&1 &> /dev/null || ! type is_zero_string 2>&1 &> /dev/null; then
   source "${HOME}/.shellrc"
 fi
 
 usage() {
-  echo "$(red 'Usage'): $(yellow "${1} <target-folder> <upstream-repo-owner>")"
-  echo "  $(yellow 'target-folder')       --> The folder which has to be processed"
-  echo "  $(yellow 'upstream-repo-owner') --> The upstream repo's owner"
+  echo "$(red 'Usage'): $(yellow "${1}") -d <target-folder> -u <upstream-repo-owner>"
+  echo "  $(yellow '-d <target-folder>')       --> (mandatory) The folder which has to be processed"
+  echo "  $(yellow '-u <upstream-repo-owner>') --> (mandatory) The upstream repo's owner"
   exit 1
 }
 
+local target_folder
+local upstream_repo_owner
+
+while getopts ":d:u:" opt; do
+  case ${opt} in
+    d)
+      target_folder=$OPTARG
+      ;;
+    u)
+      upstream_repo_owner=$OPTARG
+      ;;
+    \?)
+      usage "${0##*/}"
+      ;;
+    :)
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      usage "${0##*/}"
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if is_zero_string "${target_folder}" || is_zero_string "${upstream_repo_owner}"; then
+  usage "${0##*/}"
+fi
+
 main() {
-  # Ensure exactly two arguments are passed to the main function
-  [ $# -ne 2 ] && usage "${0##*/}" # Use basename of script in usage
-
-  local target_folder="${1}"
-  local upstream_repo_owner="${2}"
-
   section_header "$(yellow 'Adding new upstream to'): '$(purple "${target_folder}")'"
 
   if ! is_git_repo "${target_folder}"; then
@@ -48,7 +68,7 @@ main() {
   origin_remote_url=$(git -C "${target_folder}" remote get-url origin 2> /dev/null)
   if [[ $? -ne 0 ]]; then
     error "Could not retrieve URL for remote 'origin' in '$(yellow "${target_folder}")'. Does the remote exist?"
-  elif ! is_non_zero_string "${origin_remote_url}"; then
+  elif is_zero_string "${origin_remote_url}"; then
     # This case is less likely with get-url but check anyway
     error "Retrieved empty URL for remote 'origin' in '$(yellow "${target_folder}")'."
   fi
@@ -97,4 +117,4 @@ main() {
 }
 
 # Execute the main function with all script arguments
-main "$@"
+main

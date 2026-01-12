@@ -11,30 +11,54 @@
 set -e
 
 # Source shellrc only once if any required function is missing
-if ! type red 2>&1 &> /dev/null || ! type yellow 2>&1 &> /dev/null || ! type ensure_dir_exists 2>&1 &> /dev/null || ! type is_file 2>&1 &> /dev/null || ! type error 2>&1 &> /dev/null || ! type success 2>&1 &> /dev/null || ! type is_non_zero_string 2>&1 &> /dev/null; then
+if ! type red 2>&1 &> /dev/null || ! type is_zero_string 2>&1 &> /dev/null; then
   source "${HOME}/.shellrc"
 fi
 
 usage() {
-  echo "$(red "Usage"): $(yellow "${1} -<e/i> <target-dir-location>")"
-  echo "  $(yellow '-e')  --> Export from [old] system"
-  echo "  $(yellow '-i')  --> Import into [new] system"
-  echo "  $(yellow 'target-dir-location') --> Directory name where the config has to be exported to/imported from"
+  echo "$(red "Usage"): $(yellow "${1}") -e|-i <target-dir-location>"
+  echo "  $(yellow '-e <target-dir-location>')  --> Export from [old] system"
+  echo "  $(yellow '-i <target-dir-location>')  --> Import into [new] system"
   exit 1
 }
 
-[ $# -ne 2 ] && usage "${0}"
+local operation
+local target_dir
 
-local target_dir="${2}"
+while getopts ":e:i:" opt; do
+  case ${opt} in
+    e)
+      operation='export'
+      target_dir=$OPTARG
+      ;;
+    i)
+      operation='import'
+      target_dir=$OPTARG
+      ;;
+    \?)
+      usage "${0##*/}"
+      ;;
+    :)
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      usage "${0##*/}"
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if is_zero_string "${operation}" || is_zero_string "${target_dir}"; then
+  usage "${0##*/}"
+fi
+
 local target_file="${target_dir}/Raycast.rayconfig"
 ensure_dir_exists "${target_dir}"
 
-! is_non_zero_string "${RAYCAST_SETTINGS_PASSWORD}" && error "Cannot proceed without the 'RAYCAST_SETTINGS_PASSWORD' env var set; Aborting!!!"
+is_zero_string "${RAYCAST_SETTINGS_PASSWORD}" && error "Cannot proceed without the 'RAYCAST_SETTINGS_PASSWORD' env var set; Aborting!!!"
 
 warn "This script uses osascript to enter your Raycast password. This is not secure. Please be aware of the risk."
 
-case "${1}" in
-  "-e")
+case "${operation}" in
+  "export")
     is_file "${target_dir}/Raycast.rayconfig" && rm -rf "${target_dir}/Raycast.rayconfig"
 
     open raycast://extensions/raycast/raycast/export-settings-data
@@ -77,7 +101,7 @@ EOF
     mv "${target_dir}"/Raycast*.rayconfig "${target_file}"
     success "Successfully exported raycast configs to: $(yellow "${target_file}")"
     ;;
-  "-i")
+  "import")
     ! is_file "${target_file}" && error "Couldn't find file: '$(yellow "${target_file}")' for import operation; Aborting!!!"
 
     open raycast://extensions/raycast/raycast/import-settings-data
@@ -116,11 +140,4 @@ EOF
 
     success "Successfully imported raycast configs from: $(yellow "${target_file}")"
     ;;
-  *)
-    echo "$(red 'Unknown value entered') for first argument: '${1}'"
-    usage "${0}"
-    ;;
 esac
-
-unset target_dir
-unset target_file

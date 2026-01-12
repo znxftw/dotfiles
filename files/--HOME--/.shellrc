@@ -80,23 +80,44 @@ colorize() {
   printf "\x1b[${1}m"
 }
 
-NC=$(colorize '0') # No Color
-BLACK=$(colorize '0;30')
-DARK_GRAY=$(colorize '1;30')
-RED=$(colorize '0;31')
-LIGHT_RED=$(colorize '1;31')
-GREEN=$(colorize '0;32')
-LIGHT_GREEN=$(colorize '1;32')
-ORANGE=$(colorize '0;33')
-YELLOW=$(colorize '1;33')
-BLUE=$(colorize '0;34')
-LIGHT_BLUE=$(colorize '1;34')
-PURPLE=$(colorize '0;35')
-LIGHT_PURPLE=$(colorize '1;35')
-CYAN=$(colorize '0;36')
-LIGHT_CYAN=$(colorize '1;36')
-LIGHT_GRAY=$(colorize '0;37')
-WHITE=$(colorize '1;37')
+# Do not use colors if there's no terminal
+if [ ! -t 0 ]; then
+  NC=''
+  BLACK=''
+  DARK_GRAY=''
+  RED=''
+  LIGHT_RED=''
+  GREEN=''
+  LIGHT_GREEN=''
+  ORANGE=''
+  YELLOW=''
+  BLUE=''
+  LIGHT_BLUE=''
+  PURPLE=''
+  LIGHT_PURPLE=''
+  CYAN=''
+  LIGHT_CYAN=''
+  LIGHT_GRAY=''
+  WHITE=''
+else
+  NC=$(colorize '0') # No Color
+  BLACK=$(colorize '0;30')
+  DARK_GRAY=$(colorize '1;30')
+  RED=$(colorize '0;31')
+  LIGHT_RED=$(colorize '1;31')
+  GREEN=$(colorize '0;32')
+  LIGHT_GREEN=$(colorize '1;32')
+  ORANGE=$(colorize '0;33')
+  YELLOW=$(colorize '1;33')
+  BLUE=$(colorize '0;34')
+  LIGHT_BLUE=$(colorize '1;34')
+  PURPLE=$(colorize '0;35')
+  LIGHT_PURPLE=$(colorize '1;35')
+  CYAN=$(colorize '0;36')
+  LIGHT_CYAN=$(colorize '1;36')
+  LIGHT_GRAY=$(colorize '0;37')
+  WHITE=$(colorize '1;37')
+fi
 
 blue() {
   printf "${BLUE}${1}${NC}"
@@ -191,6 +212,10 @@ print_script_duration() {
   local duration_human=$(printf '%02dh:%02dm:%02ds' $((duration/3600)) $((duration%3600/60)) $((duration%60)))
 
   echo "$(purple '==>') $(yellow 'Script finished at:') $(light_blue "${end_time_human}") ($(yellow 'Total duration:') $(light_blue "${duration_human}") $(yellow 'seconds'))."
+}
+
+is_zero_string() {
+  [[ -z "${1}" ]]
 }
 
 is_non_zero_string() {

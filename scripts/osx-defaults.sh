@@ -4,20 +4,25 @@
 # Please, share your tips by forking the repo and adding your customizations
 # Thanks to: @erikh, @DAddYE, @mathiasbynens
 
-case "${1}" in
-  "-s" | "--silent")
-    echo "Running in silent mode..."
-    auto=Y
-    shift 1
-    ;;
-  *)
-    auto=N
-    if [ ! -t 0 ]; then
-      echo "Interactive mode needs terminal!" >&2
+auto=N
+while getopts "s" opt; do
+  case ${opt} in
+    s)
+      echo "Running in silent mode..."
+      auto=Y
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
       exit 1
-    fi
-    ;;
-esac
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ "$auto" == "N" ] && [ ! -t 0 ]; then
+  echo "Interactive mode needs terminal!" >&2
+  exit 1
+fi
 
 # Source helpers only once if any required function is missing
 type keep_sudo_alive 2>&1 &> /dev/null || source "${HOME}/.shellrc"

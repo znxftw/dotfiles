@@ -12,6 +12,10 @@ Basically, to get started with the dotfiles, you just need to run the `${DOTFILE
 
 This script can be used to quickly add a new upstream remote to the specified git repo. The name of the new remote is hardcoded to `upstream`. The rest of the url remains the same with just the username switched to the specified username.
 
+  ```bash
+  add-upstream-git-config.sh -d <target-folder> -u <upstream-repo-owner>
+  ```
+
 ## capture-prefs.sh
 
 This script is useful to capture the preferences of the known applications (both system-installed and custom-installed applications) using the `defaults read` command. It can be used to both export the preferences/settings (from the old system) or import them (into the new system). As of version 2.0.4, added a new shell function to help with the above called: `find_and_append_prefs`.
@@ -50,6 +54,10 @@ This script is a collection of commands that need to be run after `brew bundle` 
 
 Usually, over time, if a repo has lots of branches that were deleted or became stale, and constant rebases done - it can lead to the repo bloating in size (both on local and remote). This is especially true of the profiles repo in my usage since I have a cron job setup to amend the repo with the new state files. To effectively reduce the size on the remote so that any future clone does not pull down dangling commits and other cruft, the simplest way that I have found is to recreate the remote (this does not mean that the history is lost!) after running the `git cc` command on the local.
 
+  ```bash
+  recreate-repo.sh [-f] -d <repo-folder>
+  ```
+
 ## resurrect-repositories.rb
 
 I usually reimage my laptop once every couple of months. This script is useful as a catalog of all repos that I have ever worked on, and some/most which are marked `active: true` in the yaml to resurrect back into the new machine/image. The yaml (described below) also allows to install the required languages and their versions in an automated manner so as to avoid having to read the `README.md` or the `CONTRIBUTING.md` file for each repo on each re-image!
@@ -83,6 +91,10 @@ The config file for this script is a yaml file that is passed into this script a
 ## setup-login-item.sh
 
 This script was originally present as a function within the `~/.aliases` file, but, since loading this became cumbersome within `bash` (as part of the post-installation step for specific casks), it made sense to extract it out as a standalone script. This script will be used to setup specific applications as login items in the macOS system preferences.
+
+  ```bash
+  setup-login-item.sh -a <app-name>
+  ```
 
 ## software-updates-cron.sh
 
