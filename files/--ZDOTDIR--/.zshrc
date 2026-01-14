@@ -21,7 +21,7 @@
 # execute 'ZSH_PROFILE_RC=true zsh -i -c exit' and run 'zprof' to get the details
 [[ -n "${ZSH_PROFILE_RC+1}" ]] && zmodload zsh/zprof
 
-type load_file_if_exists 2>&1 &> /dev/null || source "${HOME}/.shellrc"
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ${ZDOTDIR}/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -49,7 +49,7 @@ export ZSH_CUSTOM="${ZSH_CUSTOM:-"${ZSH}/custom"}"
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in ${ZSH}/themes/
 # If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+# ZSH_THEME_RANDOM_CANDIDATES=( 'robbyrussell' 'agnoster' )
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -82,7 +82,7 @@ zstyle :omz:plugins:iterm2 shell-integration yes
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-export ENABLE_CORRECTION="true"
+export ENABLE_CORRECTION='true'
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # You can also set it to another string to have that shown instead of the default red dots.
@@ -93,7 +93,7 @@ export ENABLE_CORRECTION="true"
 # Uncomment the following line if you want to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
 # much, much faster.
-DISABLE_UNTRACKED_FILES_DIRTY="true"
+DISABLE_UNTRACKED_FILES_DIRTY='true'
 
 # Uncomment the following line if you want to change the command execution time
 # stamp shown in the history command output.
@@ -130,7 +130,7 @@ load_file_if_exists "${ZSH}/oh-my-zsh.sh"
 unset EDITOR
 # Preferred editor for remote sessions
 if is_non_zero_string "${SSH_CONNECTION}"; then
-  export EDITOR="vi"
+  export EDITOR='vi'
 else
   # Preferred editor for local sessions
   local preferred_editors=('zed --wait' 'code --wait' 'vi')
@@ -163,6 +163,7 @@ append_to_path_if_dir_exists "${PROJECTS_BASE_DIR}/oss/git_scripts"
 # Note: Not sure if its a bug, but the first iterm tab alone has all the paths, but these are missing in subsequent tabs and new windows
 append_to_path_if_dir_exists '/usr/local/bin'
 append_to_path_if_dir_exists "${HOME}/.rd/bin"
+append_to_path_if_dir_exists "${HOME}/.cargo/bin"
 
 # Note: can't defer this since the first time install fails
 load_file_if_exists "${HOME}/.aliases"

@@ -11,9 +11,7 @@
 set -e
 
 # Source shellrc only once if any required function is missing
-if ! type red 2>&1 &> /dev/null || ! type is_zero_string 2>&1 &> /dev/null; then
-  source "${HOME}/.shellrc"
-fi
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 usage() {
   echo "$(red "Usage"): $(yellow "${1}") -e|-i <target-dir-location>"
@@ -29,17 +27,17 @@ while getopts ":e:i:" opt; do
   case ${opt} in
     e)
       operation='export'
-      target_dir=$OPTARG
+      target_dir="${OPTARG}"
       ;;
     i)
       operation='import'
-      target_dir=$OPTARG
+      target_dir="${OPTARG}"
       ;;
     \?)
       usage "${0##*/}"
       ;;
     :)
-      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      echo "Invalid option: -${OPTARG} requires an argument" 1>&2
       usage "${0##*/}"
       ;;
   esac
@@ -55,20 +53,20 @@ ensure_dir_exists "${target_dir}"
 
 is_zero_string "${RAYCAST_SETTINGS_PASSWORD}" && error "Cannot proceed without the 'RAYCAST_SETTINGS_PASSWORD' env var set; Aborting!!!"
 
-warn "This script uses osascript to enter your Raycast password. This is not secure. Please be aware of the risk."
+warn 'This script uses osascript to enter your Raycast password. This is not secure. Please be aware of the risk.'
 
 case "${operation}" in
-  "export")
+  'export')
     is_file "${target_dir}/Raycast.rayconfig" && rm -rf "${target_dir}/Raycast.rayconfig"
 
     open raycast://extensions/raycast/raycast/export-settings-data
 
     osascript << EOF
-      tell application "System Events"
+      tell application 'System Events'
         key code 36
         delay 0.3
 
-        if (static text "Enter password" of window 1 of application process "Raycast") exists then
+        if (static text 'Enter password' of window 1 of application process 'Raycast') exists then
           keystroke "${RAYCAST_SETTINGS_PASSWORD}"
           delay 0.3
 
@@ -101,13 +99,13 @@ EOF
     mv "${target_dir}"/Raycast*.rayconfig "${target_file}"
     success "Successfully exported raycast configs to: $(yellow "${target_file}")"
     ;;
-  "import")
+  'import')
     ! is_file "${target_file}" && error "Couldn't find file: '$(yellow "${target_file}")' for import operation; Aborting!!!"
 
     open raycast://extensions/raycast/raycast/import-settings-data
 
     osascript << EOF
-      tell application "System Events"
+      tell application 'System Events'
         key code 36
         delay 0.3
 

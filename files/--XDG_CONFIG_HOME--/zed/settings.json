@@ -7,14 +7,21 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "buffer_font_family": "MesloLGM Nerd Font",
   "icon_theme": "VSCode Icons for Zed (Dark)",
   "agent": {
+    "favorite_models": [
+      {
+        "provider": "ollama",
+        "model": "deepseek-coder-v2:latest"
+      }
+    ],
     "play_sound_when_agent_done": true,
     // "single_file_review": false,
     "model_parameters": [],
     "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-sonnet-4"
+      "provider": "ollama",
+      "model": "deepseek-coder-v2:latest",
     },
     "enabled": true,
     "button": true,
@@ -22,6 +29,10 @@
     "default_width": 640,
     "default_height": 320,
     "inline_alternatives": [
+      {
+        "provider": "zed.dev",
+        "model": "claude-sonnet-4"
+      },
       {
         "provider": "zed.dev",
         "model": "claude-sonnet-4"
@@ -41,7 +52,7 @@
       {
         "provider": "zed.dev",
         "model": "gemini-2.0-flash"
-      }
+      },
     ]
   },
   // "disable_ai": true,
@@ -372,5 +383,5 @@
       "Vagrantfile",
     ],
     "ERB": ["*.erb", "*.html.erb", "*.heex", "*.leex"],
-  }
+  },
 }

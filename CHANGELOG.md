@@ -2,6 +2,12 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.43
+
+* Added a new function `is_shellrc_sourced` to check if the shellrc file is sourced.
+* Changed all shell scripts to use single quotes where possible to ensure that we don't accidentally expand variables or execute commands.
+* *[osx-defaults.sh]* Converted to a zsh script.
+
 ### 2.0.42
 
 * Changed all shell scripts to use switches instead of positional arguments for more intuitive usage.

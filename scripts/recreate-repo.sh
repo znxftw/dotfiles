@@ -10,9 +10,7 @@
 set -e
 
 # Source shell helpers if they aren't already loaded
-if ! type red 2>&1 &> /dev/null || ! type is_zero_string 2>&1 &> /dev/null; then
-  source "${HOME}/.shellrc"
-fi
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 usage() {
   echo "$(red 'Usage'): $(yellow "${1}") [-f] -d <repo-folder>"
@@ -31,13 +29,13 @@ while getopts ":fd:" opt; do
       force=Y
       ;;
     d)
-      folder=$OPTARG
+      folder="${OPTARG}"
       ;;
     \?)
       usage "${0##*/}"
       ;;
     :)
-      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      echo "Invalid option: -${OPTARG} requires an argument" 1>&2
       usage "${0##*/}"
       ;;
   esac
@@ -75,7 +73,7 @@ cleanup() {
   if [[ ${exit_code} -ne 0 ]]; then
     warn "Script exited with error code ${exit_code}."
     if [[ -s "${CRON_BACKUP_FILE}" ]]; then
-      warn "Attempting to restore cron jobs from backup..."
+      warn 'Attempting to restore cron jobs from backup...'
       crontab "${CRON_BACKUP_FILE}" && success "Restored crontab from backup." || error "Failed to restore crontab."
     fi
   fi

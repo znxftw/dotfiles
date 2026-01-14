@@ -9,9 +9,7 @@
 set -e
 
 # Source shellrc only once if any required function is missing
-if ! type red 2>&1 &> /dev/null || ! type is_zero_string 2>&1 &> /dev/null; then
-  source "${HOME}/.shellrc"
-fi
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 usage() {
   echo "$(red 'Usage'): $(yellow "${1}") -d <target-folder> -u <upstream-repo-owner>"
@@ -26,16 +24,16 @@ local upstream_repo_owner
 while getopts ":d:u:" opt; do
   case ${opt} in
     d)
-      target_folder=$OPTARG
+      target_folder="${OPTARG}"
       ;;
     u)
-      upstream_repo_owner=$OPTARG
+      upstream_repo_owner="${OPTARG}"
       ;;
     \?)
       usage "${0##*/}"
       ;;
     :)
-      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      echo "Invalid option: -${OPTARG} requires an argument" 1>&2
       usage "${0##*/}"
       ;;
   esac
@@ -88,14 +86,14 @@ main() {
     cloned_repo_owner="${match[2]}"
     repo_path="${match[3]}"
     # Preserve http vs https
-    protocol="https"
-    [[ "${origin_remote_url}" =~ ^http:// ]] && protocol="http"
+    protocol='https'
+    [[ "${origin_remote_url}" =~ ^http:// ]] && protocol='http'
     new_repo_url="${protocol}://${host}/${upstream_repo_owner}/${repo_path}"
   else
     error "Cannot parse origin remote URL format: $(yellow "${origin_remote_url}")"
   fi
   # Ensure .git suffix for consistency when reconstructing
-  [[ "${new_repo_url}" != *.git ]] && new_repo_url+=".git"
+  [[ "${new_repo_url}" != *.git ]] && new_repo_url+='.git'
 
   # Check if the owners are the same
   if [[ "${cloned_repo_owner}" == "${upstream_repo_owner}" ]]; then

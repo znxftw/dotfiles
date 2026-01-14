@@ -8,9 +8,7 @@
 set -e
 
 # Source helpers only once if any required function is missing
-if ! type red 2>&1 &> /dev/null || ! type is_zero_string 2>&1 &> /dev/null; then
-  source "${HOME}/.shellrc"
-fi
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 usage() {
   echo "$(red 'Usage'): $(yellow "${1}") -a <app-name>"
@@ -22,13 +20,13 @@ local app_name
 while getopts ":a:" opt; do
   case ${opt} in
     a)
-      app_name=$OPTARG
+      app_name="${OPTARG}"
       ;;
     \?)
       usage "${0##*/}"
       ;;
     :)
-      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      echo "Invalid option: -${OPTARG} requires an argument" 1>&2
       usage "${0##*/}"
       ;;
   esac

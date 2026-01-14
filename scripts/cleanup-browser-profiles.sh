@@ -9,7 +9,7 @@ set -e
 
 # Source shellrc only once if any required function is missing
 # Check for one key function defined in .shellrc to see if sourcing is needed
-type print_script_start 2>&1 &> /dev/null || source "${HOME}/.shellrc"
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 local script_start_time=$(date +%s)
 print_script_start
@@ -35,7 +35,7 @@ vacuum_browser_profile_folder() {
     local vacuum_failed=0
     while IFS= read -r -d '' db_file; do
       echo "Vacuuming: ${db_file}" # Add some progress indication
-      if ! sqlite3 "$db_file" "PRAGMA journal_mode=WAL; VACUUM; REINDEX;"; then
+      if ! sqlite3 "${db_file}" 'PRAGMA journal_mode=WAL; VACUUM; REINDEX;'; then
         warn "sqlite3 failed for '${db_file}'"
         vacuum_failed=1
       fi
@@ -83,7 +83,7 @@ vacuum_browser_profile_folder() {
   # Add -delete action and execute only if conditions were specified
   if [[ ${has_conditions} -eq 1 ]]; then
       combined_find_cmd+=('-delete')
-      echo "Deleting files and directories matching patterns..."
+      echo 'Deleting files and directories matching patterns...'
       if ! "${combined_find_cmd[@]}"; then warn "Combined find/delete operation failed (code: $?) in '${profile_folder}'."; fi
   fi
 

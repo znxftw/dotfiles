@@ -8,7 +8,7 @@
 # Do not exit immediately if a command exits with a non-zero status since this is run within a cronjob
 
 # Since this script is invoked from cron (which uses bash shell), we need to explicitly load all zsh configs (not just shellrc)
-type load_zsh_configs 2>&1 &> /dev/null || source "${HOME}/.shellrc"
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 load_zsh_configs
 
 local script_start_time=$(date +%s)
@@ -32,17 +32,17 @@ perform_update() {
 }
 
 # brew doctor # Removed for cron job efficiency
-perform_update "brews" "brew" "brew bundle check || brew bundle"
+perform_update 'brews' 'brew' 'brew bundle check || brew bundle'
 
 # This is typically run only in the ${HOME} folder so as to upgrade the software versions in the "global" sense
-perform_update "mise plugins" "mise" "mise plugins update && mise upgrade --bump && mise prune -y"
+perform_update 'mise plugins' 'mise' 'mise plugins update && mise upgrade --bump && mise prune -y'
 
-perform_update "tldr database" "tldr" "tldr --update"
+perform_update 'tldr database' 'tldr' 'tldr --update'
 
 # 'ignore-io' updates the data from http://gitignore.io so that we can generate the '.gitignore' file contents from the cmd-line
-perform_update "git-ignore database" "git-ignore-io" "git ignore-io --update-list"
+perform_update 'git-ignore database' 'git-ignore-io' 'git ignore-io --update-list'
 
-perform_update "oh-my-zsh" "omz" "omz update"
+perform_update 'oh-my-zsh' 'omz' 'omz update'
 
 # Commenting out since I have started using rapidfox user.js settings
 # local firefox_profiles="${PERSONAL_PROFILES_DIR}/FirefoxProfile/Profiles/DefaultProfile"
@@ -94,7 +94,6 @@ if command_exists ollama; then
   section_header "$(yellow 'Pull ollama models')"
   local -a ollama_models=(
     codellama
-    deepseek-coder
     deepseek-coder-v2
     deepseek-coder:20b
     deepseek-r1

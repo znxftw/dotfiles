@@ -5,6 +5,8 @@
 .boxfuse/
 .bundle/cache
 .cisco/vpn/log
+.claude/
+.claude.json.backup
 .cocoapods/
 .cordova
 .dartServer/
@@ -87,6 +89,7 @@
 /.config/xbuild/pkgconfig-cache-2.xml
 /.config/zed/.tmp*
 /.config/zed/embeddings
+/.config/zed/settings_backup.json
 /.config/zsh/
 /.continue/calculator.py
 /.continue/config.py

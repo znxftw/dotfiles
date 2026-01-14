@@ -16,7 +16,7 @@
 # execute 'FIRST_INSTALL=true zsh' to debug the load order of the custom zsh configuration files
 [[ -n "${FIRST_INSTALL+1}" ]] && echo "loading ${0}"
 
-type is_directory 2>&1 &> /dev/null || source "${HOME}/.shellrc"
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 recompile_zsh_scripts() {
   if [[ -s "${1}" && (! -s "${1}.zwc" || "${1}" -nt "${1}.zwc") ]]; then
@@ -35,8 +35,8 @@ find_in_folder_and_recompile() {
   fi
 
   find "${dir_to_scan}" -maxdepth 5 \
-    \( \( -name "node_modules" -o -name ".pnpm" \) -type d -prune \) -o \
-    \( \( -name "*.sh" -o -name "*.zsh" \) -type f -print0 \) |
+    \( \( -name 'node_modules' -o -name '.pnpm' \) -type d -prune \) -o \
+    \( \( -name '*.sh' -o -name '*.zsh' \) -type f -print0 \) |
     while IFS= read -r -d $'\0' f; do
     recompile_zsh_scripts "${f}"
   done

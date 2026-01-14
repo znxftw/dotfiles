@@ -1,31 +1,40 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
+
+# vim:filetype=zsh syntax=zsh tabstop=2 shiftwidth=2 softtabstop=2 expandtab autoindent fileencoding=utf-8
 
 # This is a script with useful tips taken from: https://gist.github.com/DAddYE/2108403
 # Please, share your tips by forking the repo and adding your customizations
 # Thanks to: @erikh, @DAddYE, @mathiasbynens
 
-auto=N
-while getopts "s" opt; do
+# Exit immediately if a command exits with a non-zero status.
+# TODO: Disabled since this script errors out
+# set -e
+
+# Source shell helpers if they aren't already loaded
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
+
+local auto='N'
+while getopts 's' opt; do
   case ${opt} in
     s)
-      echo "Running in silent mode..."
-      auto=Y
+      debug 'Running in silent mode...'
+      auto='Y'
       ;;
     \?)
-      echo "Invalid option: -$OPTARG" >&2
+      error "Invalid option: -${OPTARG}" >&2
       exit 1
       ;;
   esac
 done
 shift $((OPTIND - 1))
 
-if [ "$auto" == "N" ] && [ ! -t 0 ]; then
-  echo "Interactive mode needs terminal!" >&2
+if [[ "${auto}" == 'N' ]] && ! is_running_in_tt'y'; then
+  error 'Interactive mode needs terminal!'
   exit 1
 fi
 
 # Source helpers only once if any required function is missing
-type keep_sudo_alive 2>&1 &> /dev/null || source "${HOME}/.shellrc"
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 ###############################################################################################
 # Ask for the administrator password upfront and keep it alive until this script has finished #
@@ -33,33 +42,34 @@ type keep_sudo_alive 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 keep_sudo_alive
 
 ask() {
+  local prompt default yn
   while true; do
-    if [ "${2}" == "Y" ]; then
+    if [[ "${2}" == 'Y' ]]; then
       prompt="$(green 'Y')/n"
-      default=Y
-    elif [ "${2}" == "N" ]; then
+      default='Y'
+    elif [[ "${2}" == 'N' ]]; then
       prompt="y/$(green 'N')"
-      default=N
+      default='N'
     else
-      prompt="y/n"
+      prompt='y/n'
       default=
     fi
 
-    printf "${1} [$prompt] "
+    printf "%s" "${1} [${prompt}] "
 
-    if [ "$auto" == "Y" ]; then
+    if [[ "${auto}" == 'Y' ]]; then
       echo
     else
-      read yn
+      read -r yn
     fi
 
-    if [ -z "$yn" ]; then
-      yn=$default
+    if is_zero_string "${yn}"; then
+      yn="${default}"
     fi
 
-    case $yn in
-      [Yy]*) return 0 ;;
-      [Nn]*) return 1 ;;
+    case ${yn} in
+      [Yy]) return 0 ;;
+      [Nn]) return 1 ;;
     esac
   done
 }
@@ -74,8 +84,7 @@ sudo softwareupdate --schedule OFF
 ###############################################################################
 # Couldn't find the following settings in macOS Mojave (10.14.3)              #
 ###############################################################################
-
-# Expand "save as..." dialog by default
+# Expand 'save as...' dialog by default
 # defaults write -g NSNavPanelExpandedStateForSaveMode -bool true
 # defaults write -g NSNavPanelExpandedStateForSaveMode2 -bool true
 
@@ -84,7 +93,7 @@ sudo softwareupdate --schedule OFF
 # defaults write -g PMPrintingExpandedStateForPrint2 -bool true
 
 # Automatically quit printer app once the print jobs complete
-# defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
+# defaults write com.apple.print.PrintingPrefs 'Quit When Finished' -bool true
 
 # Restore the 'Save As' menu item (Equivalent to adding a Keyboard shortcut in the System Preferences.app )
 # defaults write -g NSUserKeyEquivalents -dict-add 'Save As...' '@$S'
@@ -113,44 +122,42 @@ sudo softwareupdate --schedule OFF
 ###############################################################################
 # Login Window                                                                #
 ###############################################################################
-
-if ask "Disable guest login" Y; then
+if ask 'Disable guest login' 'Y'; then
   sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool false
 fi
 
 ###############################################################################
 # MenuBar                                                                     #
 ###############################################################################
-
 # Disable menu bar transparency - Couldn't find this in mac OS Mojave
 # defaults write -g AppleEnableMenuBarTransparency -bool false
 
-if ask "Show remaining battery time" N; then
-  defaults write com.apple.menuextra.battery ShowTime -string "YES"
+if ask 'Show remaining battery time' 'N'; then
+  defaults write com.apple.menuextra.battery ShowTime -string 'YES'
 fi
 
-if ask "Show remaining battery percentage" Y; then
-  defaults write com.apple.menuextra.battery ShowPercent -string "YES"
+if ask 'Show remaining battery percentage' 'Y'; then
+  defaults write com.apple.menuextra.battery ShowPercent -string 'YES'
 fi
 
-if ask "Show remaining battery percentage" Y; then
+if ask 'Show remaining battery percentage' 'Y'; then
   defaults -currentHost write com.apple.controlcenter BatteryShowPercentage -bool true
 fi
 
-if ask "Turn off Battery in menubar" Y; then
-  defaults write com.apple.controlcenter "NSStatusItem Visible Battery" 0
+if ask 'Turn off Battery in menubar' 'Y'; then
+  defaults write com.apple.controlcenter 'NSStatusItem Visible Battery' 0
 fi
 
-if ask "Show bluetooth in menubar" Y; then
-  defaults write com.apple.controlcenter "NSStatusItem Visible Bluetooth" 1
+if ask 'Show bluetooth in menubar' 'Y'; then
+  defaults write com.apple.controlcenter 'NSStatusItem Visible Bluetooth' 1
 fi
 
-if ask "Keep keyboard brightness at max value" Y; then
+if ask 'Keep keyboard brightness at max value' 'Y'; then
   defaults -currentHost write com.apple.controlcenter KeyboardBrightness 8
 fi
 
 # TODO: Doesn't seem to work (tried in sequoia 15.5)
-# if ask "Turn off keyboard backlight auto-dim" Y; then
+# if ask 'Turn off keyboard backlight auto-dim' 'Y'; then
 #   defaults write com.apple.CoreBrightness KeyboardBacklightAutoDim -bool false
 # fi
 
@@ -158,7 +165,7 @@ fi
 # General UI/UX                                                               #
 ###############################################################################
 
-if ask "Set computer name (as done via System Preferences → Sharing)" Y; then
+if ask 'Set computer name (as done via System Preferences → Sharing)' 'Y'; then
   username_in_camel_case=$(echo "$(whoami)" | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1')
   human_date="$(date '+%Y-%m-%d-%H-%M')"
 
@@ -168,41 +175,41 @@ if ask "Set computer name (as done via System Preferences → Sharing)" Y; then
   sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "${username_in_camel_case}-${human_date}"
 fi
 
-if ask "Set standby delay to 6 hours (default: 1 hour)" Y; then
+if ask 'Set standby delay to 6 hours (default: 1 hour)' 'Y'; then
   sudo pmset -a standbydelay 21600
 fi
 
 # Disable the sound effects on boot
-# sudo nvram SystemAudioVolume=" "
+# sudo nvram SystemAudioVolume=' '
 
 # Disable transparency in the menu bar and elsewhere on Yosemite
 # defaults write com.apple.universalaccess reduceTransparency -bool true
 
 # Set highlight color to green
-# defaults write NSGlobalDomain AppleHighlightColor -string "0.764700 0.976500 0.568600"
+# defaults write NSGlobalDomain AppleHighlightColor -string '0.764700 0.976500 0.568600'
 
 for domain in "${HOME}"/Library/Preferences/ByHost/com.apple.systemuiserver.*; do
   defaults write "${domain}" dontAutoLoad -array \
-    "/System/Library/CoreServices/Menu Extras/TimeMachine.menu" \
-    "/System/Library/CoreServices/Menu Extras/Volume.menu" \
-    "/System/Library/CoreServices/Menu Extras/User.menu"
+    '/System/Library/CoreServices/Menu Extras/TimeMachine.menu' \
+    '/System/Library/CoreServices/Menu Extras/Volume.menu' \
+    '/System/Library/CoreServices/Menu Extras/User.menu'
 done
 defaults write com.apple.systemuiserver menuExtras -array \
-  "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" \
-  "/System/Library/CoreServices/Menu Extras/AirPort.menu" \
-  "/System/Library/CoreServices/Menu Extras/Battery.menu" \
-  "/System/Library/CoreServices/Menu Extras/Clock.menu" \
-  "/System/Library/CoreServices/Menu Extras/User.menu" \
-  "/System/Library/CoreServices/Menu Extras/Volume.menu"
+  '/System/Library/CoreServices/Menu Extras/Bluetooth.menu' \
+  '/System/Library/CoreServices/Menu Extras/AirPort.menu' \
+  '/System/Library/CoreServices/Menu Extras/Battery.menu' \
+  '/System/Library/CoreServices/Menu Extras/Clock.menu' \
+  '/System/Library/CoreServices/Menu Extras/User.menu' \
+  '/System/Library/CoreServices/Menu Extras/Volume.menu'
 
-defaults write com.apple.systemuiserver "NSStatusItem Visible Siri" -bool false
-defaults write com.apple.systemuiserver "NSStatusItem Visible com.apple.menuextra.airport" -bool true
-defaults write com.apple.systemuiserver "NSStatusItem Visible com.apple.menuextra.appleuser" -bool true
-defaults write com.apple.systemuiserver "NSStatusItem Visible com.apple.menuextra.battery" -bool true
-defaults write com.apple.systemuiserver "NSStatusItem Visible com.apple.menuextra.bluetooth" -bool true
-defaults write com.apple.systemuiserver "NSStatusItem Visible com.apple.menuextra.volume" -bool true
+defaults write com.apple.systemuiserver 'NSStatusItem Visible Siri' -bool false
+defaults write com.apple.systemuiserver 'NSStatusItem Visible com.apple.menuextra.airport' -bool true
+defaults write com.apple.systemuiserver 'NSStatusItem Visible com.apple.menuextra.appleuser' -bool true
+defaults write com.apple.systemuiserver 'NSStatusItem Visible com.apple.menuextra.battery' -bool true
+defaults write com.apple.systemuiserver 'NSStatusItem Visible com.apple.menuextra.bluetooth' -bool true
+defaults write com.apple.systemuiserver 'NSStatusItem Visible com.apple.menuextra.volume' -bool true
 
-defaults write com.apple.menuextra.clock DateFormat -string "EEE d MMM hh:mm:ss a"
+defaults write com.apple.menuextra.clock DateFormat -string 'EEE d MMM hh:mm:ss a'
 defaults write com.apple.menuextra.clock FlashDateSeparators -bool true
 defaults write com.apple.menuextra.clock IsAnalog -bool true  # Since I am using `The Clocker` app, turning this to analog
 defaults write com.apple.menuextra.clock Show24Hour -bool false
@@ -212,7 +219,7 @@ defaults write com.apple.menuextra.clock ShowDayOfMonth -bool true
 defaults write com.apple.menuextra.clock ShowDayOfWeek -bool false
 defaults write com.apple.menuextra.clock ShowSeconds -bool true
 
-if ask "Remove duplicates in the 'Open With' menu (also see 'lscleanup' alias)" Y; then
+if ask "Remove duplicates in the 'Open With' menu (also see 'lscleanup' alias)" 'Y'; then
   /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
 fi
 
@@ -220,62 +227,62 @@ fi
 # Try e.g. `cd /tmp; unidecode "\x{0000}" > cc.txt; open -e cc.txt`
 # defaults write -g NSTextShowsControlCharacters -bool true
 
-# if ask "Enable multitouch trackpad auto orientation sensing (for all users)" Y; then
+# if ask 'Enable multitouch trackpad auto orientation sensing (for all users)' 'Y'; then
 #   defaults write /Library/Preferences/com.apple.MultitouchSupport ForceAutoOrientation -boolean
 # fi
 
-if ask "Enable Resume applications on reboot (system-wide)" Y; then
+if ask 'Enable Resume applications on reboot (system-wide)' 'Y'; then
   defaults write -g NSQuitAlwaysKeepsWindows -bool true
 fi
 
-if ask "Restart automatically if the computer freezes" Y; then
+if ask 'Restart automatically if the computer freezes' 'Y'; then
   sudo systemsetup -setrestartfreeze on
 fi
 
-if ask "Set the timezone" Y; then
+if ask 'Set the timezone' 'Y'; then
   # see 'sudo systemsetup -listtimezones' for other values
-  sudo systemsetup -settimezone "Asia/Calcutta"
+  sudo systemsetup -settimezone 'Asia/Calcutta'
 fi
 
-if ask "Set the time using the network time" Y; then
+if ask 'Set the time using the network time' 'Y'; then
   sudo systemsetup -setusingnetworktime on
 fi
 
-if ask "Set the computer sleep time to 10 minutes" Y; then
+if ask 'Set the computer sleep time to 10 minutes' 'Y'; then
   # To never go into computer sleep mode, use 'Never' or 'Off'
   sudo systemsetup -setcomputersleep 10
 fi
 
-if ask "Set the display sleep time to 10 minutes" Y; then
+if ask 'Set the display sleep time to 10 minutes' 'Y'; then
   # To never go into display sleep mode, use 'Never' or 'Off'
   sudo systemsetup -setdisplaysleep 10
 fi
 
-if ask "Set the harddisk sleep time to 15 minutes" Y; then
+if ask 'Set the harddisk sleep time to 15 minutes' 'Y'; then
   # To never go into harddisk sleep mode, use 'Never' or 'Off'
   sudo systemsetup -setharddisksleep 15
 fi
 
 # TODO: This causes terminal.app to run in an interactive loop
-# if ask "Set the remote login to off" Y; then
+# if ask 'Set the remote login to off' 'Y'; then
 #   sudo systemsetup -setremotelogin off
 # fi
 
 # Disable Notification Center and remove the menu bar icon
 # launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist 2> /dev/null
 
-if ask "Disable automatic capitalization as it's annoying when typing code" Y; then
+if ask "Disable automatic capitalization as it's annoying when typing code" 'Y'; then
   defaults write -g NSAutomaticCapitalizationEnabled -bool false
 fi
 
-if ask "Set the languages present" Y; then
-  defaults write -g NSLinguisticDataAssetsRequested -array "en_IN" "en_US" "en"
+if ask 'Set the languages present' 'Y'; then
+  defaults write -g NSLinguisticDataAssetsRequested -array 'en_IN' 'en_US' 'en'
   defaults delete NSGlobalDomain NSNavRecentPlaces
 fi
 
 # TODO: defaults write -g NSPreferredWebServices NSWebServicesProviderWebSearch
 
-if ask "Set the some english acronyms/short forms for ease of typing" Y; then
+if ask 'Set the some english acronyms/short forms for ease of typing' 'Y'; then
   defaults write -g NSUserDictionaryReplacementItems -array \
     '{ on = 1; replace = dfdm; with = "dropping off for different meeting"; }' \
     '{ on = 1; replace = ntd; with = "need to drop"; }' \
@@ -285,7 +292,7 @@ if ask "Set the some english acronyms/short forms for ease of typing" Y; then
     '{ on = 1; replace = omg; with = "Oh my God!"; }'
 fi
 
-if ask "Disable automatic period substitution as it's annoying when typing code" Y; then
+if ask "Disable automatic period substitution as it's annoying when typing code" 'Y'; then
   defaults write -g NSAutomaticPeriodSubstitutionEnabled -bool false
 fi
 
@@ -303,20 +310,18 @@ fi
 ###############################################################################
 # SSD-specific tweaks                                                         #
 ###############################################################################
-
-if ask "Disable hibernation (speeds up entering sleep mode)" Y; then
+if ask 'Disable hibernation (speeds up entering sleep mode)' 'Y'; then
   sudo pmset -a hibernatemode 0
 fi
 
-if ask "Disable the sudden motion sensor as it's not useful for SSDs" Y; then
+if ask "Disable the sudden motion sensor as it's not useful for SSDs" 'Y'; then
   sudo pmset -a sms 0
 fi
 
 ###############################################################################
 # Trackpad, mouse, keyboard, Bluetooth accessories, and input                 #
 ###############################################################################
-
-if ask "Enable Trackpad Gestures" Y; then
+if ask 'Enable Trackpad Gestures' 'Y'; then
   defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -int 1
   defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad DragLock -int 0
   defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Dragging -int 0
@@ -342,18 +347,18 @@ if ask "Enable Trackpad Gestures" Y; then
   defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad UserPreferences -int 1
 fi
 
-if ask "Enable full keyboard access for all controls (e.g. enable Tab in modal dialogs)" Y; then
+if ask 'Enable full keyboard access for all controls (e.g. enable Tab in modal dialogs)' 'Y'; then
   defaults write -g AppleKeyboardUIMode -int 2
 fi
 
-if ask "Set language and text formats" Y; then
+if ask 'Set language and text formats' 'Y'; then
   # Note: if you're in the US, replace `EUR` with `USD`, `Centimeters` with
   # `Inches`, `en_GB` with `en_US`, and `true` with `false`.
-  defaults write -g AppleLanguages -array "en-IN" "en"
-  defaults write -g AppleLocale -string "en_IN@currency=INR"
-  defaults write -g AppleMeasurementUnits -string "Centimeters"
+  defaults write -g AppleLanguages -array 'en-IN' 'en'
+  defaults write -g AppleLocale -string 'en_IN@currency=INR'
+  defaults write -g AppleMeasurementUnits -string 'Centimeters'
   defaults write -g AppleMetricUnits -bool true
-  defaults write -g AppleActionOnDoubleClick -string "Maximize"
+  defaults write -g AppleActionOnDoubleClick -string 'Maximize'
 fi
 
 # Stop iTunes from responding to the keyboard media keys
@@ -369,49 +374,49 @@ fi
 # Finder                                                                      #
 ###############################################################################
 
-if ask "Allow quitting Finder via ⌘ + Q; doing so will also hide desktop icons" Y; then
+if ask 'Allow quitting Finder via ⌘ + Q; doing so will also hide desktop icons' 'Y'; then
   defaults write com.apple.finder QuitMenuItem -bool true
 fi
 
-# if ask "Disable window animations and Get Info animations" Y; then
-# defaults write com.apple.finder DisableAllAnimations -bool true
-# fi
+# if ask 'Disable window animations and Get Info animations' 'Y'; then
+#   defaults write com.apple.finder DisableAllAnimations -bool true
+#fi
 
-if ask "Set Desktop as the default location for new Finder windows" Y; then
+if ask 'Set Desktop as the default location for new Finder windows' 'Y'; then
   # For other paths, use `PfLo` and `file:///full/path/here/`
-  defaults write com.apple.finder NewWindowTarget -string "PfHm"
+  defaults write com.apple.finder NewWindowTarget -string 'PfHm'
   defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/"
 fi
 
-if ask "Show icons for hard drives, servers, and removable media on the desktop" Y; then
+if ask 'Show icons for hard drives, servers, and removable media on the desktop' 'N'; then
   defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false
 fi
 
-# if ask "Show hidden files by default" N; then
-# defaults write com.apple.finder AppleShowAllFiles -bool false
+# if ask 'Show hidden files by default' 'N'; then
+#   defaults write com.apple.finder AppleShowAllFiles -bool false
 # fi
 
-if ask "Show all filename extensions" Y; then
+if ask 'Show all filename extensions' 'Y'; then
   defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 fi
 
-if ask "Display full POSIX path as Finder window title" Y; then
+if ask 'Display full POSIX path as Finder window title' 'Y'; then
   defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 fi
 
-if ask "Show status bar" Y; then
+if ask 'Show status bar' 'Y'; then
   defaults write com.apple.finder ShowStatusBar -bool true
 fi
 
-if ask "Start the status bar Path at ${HOME} (instead of Hard drive)" N; then
+if ask "Start the status bar Path at ${HOME} (instead of 'Hard drive')" 'Y'; then
   defaults write /Library/Preferences/com.apple.finder PathBarRootAtHome -bool true
 fi
 
-if ask "Show path (breadcrumb) bar" Y; then
+if ask 'Show path (breadcrumb) bar' 'Y'; then
   defaults write com.apple.finder ShowPathbar -bool true
 fi
 
-if ask "Show preview pane" Y; then
+if ask 'Show preview pane' 'Y'; then
   defaults write com.apple.finder ShowPreviewPane -bool false
 fi
 
@@ -427,102 +432,87 @@ defaults write com.apple.finder SidebarTagsSctionDisclosedState -bool true
 defaults write com.apple.finder SidebarWidth 172
 defaults write com.apple.finder SidebariCloudDriveSectionDisclosedState -bool true
 
-if ask "Allowing text selection in Quick Look/Preview in Finder by default" Y; then
+if ask 'Allowing text selection in Quick Look/Preview in Finder by default' 'Y'; then
   defaults write com.apple.finder QLEnableTextSelection -bool true
 fi
 
-# if ask "Keep folders on top when sorting by name" Y; then
-# defaults write com.apple.finder _FXSortFoldersFirst -bool true
-# fi
+# if ask 'Keep folders on top when sorting by name' 'Y'; then
+#   defaults write com.apple.finder _FXSortFoldersFirst -bool true
+#fi
 
-if ask "When performing a search, search the current folder by default (the default 'This Mac' is 'SCev')" Y; then
-  defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+if ask "When performing a search, search the current folder by default (the default 'This Mac' is 'SCev')" 'Y'; then
+  defaults write com.apple.finder FXDefaultSearchScope -string 'SCcf'
 fi
 
-if ask "Disable the warning when changing a file extension" Y; then
+if ask 'Disable the warning when changing a file extension' 'Y'; then
   defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 fi
 
-# if ask "Enable spring loading for directories" Y; then
-# defaults write -g com.apple.springing.enabled -bool true
+# if ask 'Enable spring loading for directories' 'Y'; then
+#   defaults write -g com.apple.springing.enabled -bool true
+#fi
+
+# if ask 'Remove the delay for spring loading for directories' 'Y'; then
+#   defaults write -g com.apple.springing.delay -float 0
 # fi
 
-# if ask "Remove the delay for spring loading for directories" Y; then
-# defaults write -g com.apple.springing.delay -float 0
-# fi
-
-if ask "Enable snap-to-grid for icons on the desktop and in other icon views" Y; then
-  /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ${HOME}/Library/Preferences/com.apple.finder.plist
-  /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ${HOME}/Library/Preferences/com.apple.finder.plist
-  /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ${HOME}/Library/Preferences/com.apple.finder.plist
+if ask 'Enable snap-to-grid for icons on the desktop and in other icon views' 'Y'; then
+  /usr/libexec/PlistBuddy -c 'Set :DesktopViewSettings:IconViewSettings:arrangeBy grid' "${HOME}/Library/Preferences/com.apple.finder.plist"
+  /usr/libexec/PlistBuddy -c 'Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid' "${HOME}/Library/Preferences/com.apple.finder.plist"
+  /usr/libexec/PlistBuddy -c 'Set :StandardViewSettings:IconViewSettings:arrangeBy grid' "${HOME}/Library/Preferences/com.apple.finder.plist"
 fi
 
-if ask "Increase grid spacing for icons on the desktop and in other icon views" Y; then
-  /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:gridSpacing 54" ${HOME}/Library/Preferences/com.apple.finder.plist
-  /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:gridSpacing 54" ${HOME}/Library/Preferences/com.apple.finder.plist
-  /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:gridSpacing 54" ${HOME}/Library/Preferences/com.apple.finder.plist
+if ask 'Increase grid spacing for icons on the desktop and in other icon views' 'Y'; then
+  /usr/libexec/PlistBuddy -c 'Set :DesktopViewSettings:IconViewSettings:gridSpacing 54' "${HOME}/Library/Preferences/com.apple.finder.plist"
+  /usr/libexec/PlistBuddy -c 'Set :FK_StandardViewSettings:IconViewSettings:gridSpacing 54' "${HOME}/Library/Preferences/com.apple.finder.plist"
+  /usr/libexec/PlistBuddy -c 'Set :StandardViewSettings:IconViewSettings:gridSpacing 54' "${HOME}/Library/Preferences/com.apple.finder.plist"
 fi
 
-if ask "Increase the size of icons on the desktop and in other icon views" Y; then
-  /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 64" ${HOME}/Library/Preferences/com.apple.finder.plist
-  /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:iconSize 64" ${HOME}/Library/Preferences/com.apple.finder.plist
-  /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 64" ${HOME}/Library/Preferences/com.apple.finder.plist
+if ask 'Increase the size of icons on the desktop and in other icon views' 'Y'; then
+  /usr/libexec/PlistBuddy -c 'Set :DesktopViewSettings:IconViewSettings:iconSize 64' "${HOME}/Library/Preferences/com.apple.finder.plist"
+  /usr/libexec/PlistBuddy -c 'Set :FK_StandardViewSettings:IconViewSettings:iconSize 64' "${HOME}/Library/Preferences/com.apple.finder.plist"
+  /usr/libexec/PlistBuddy -c 'Set :StandardViewSettings:IconViewSettings:iconSize 64' "${HOME}/Library/Preferences/com.apple.finder.plist"
 fi
 
 # Show item info near icons on the desktop and in other icon views
-# /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:showItemInfo true" ${HOME}/Library/Preferences/com.apple.finder.plist
-# /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:showItemInfo true" ${HOME}/Library/Preferences/com.apple.finder.plist
-# /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:showItemInfo true" ${HOME}/Library/Preferences/com.apple.finder.plist
+# /usr/libexec/PlistBuddy -c 'Set :DesktopViewSettings:IconViewSettings:showItemInfo true' "${HOME}/Library/Preferences/com.apple.finder.plist"
+# /usr/libexec/PlistBuddy -c 'Set :FK_StandardViewSettings:IconViewSettings:showItemInfo true' "${HOME}/Library/Preferences/com.apple.finder.plist"
+# /usr/libexec/PlistBuddy -c 'Set :StandardViewSettings:IconViewSettings:showItemInfo true' "${HOME}/Library/Preferences/com.apple.finder.plist"
 
 # Show item info to the right of the icons on the desktop
-# /usr/libexec/PlistBuddy -c "Set DesktopViewSettings:IconViewSettings:labelOnBottom false" ${HOME}/Library/Preferences/com.apple.finder.plist
+# /usr/libexec/PlistBuddy -c 'Set :DesktopViewSettings:IconViewSettings:labelOnBottom false' "${HOME}/Library/Preferences/com.apple.finder.plist"
 
-# Enable snap-to-grid for icons on the desktop and in other icon views
-# /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ${HOME}/Library/Preferences/com.apple.finder.plist
-# /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ${HOME}/Library/Preferences/com.apple.finder.plist
-# /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ${HOME}/Library/Preferences/com.apple.finder.plist
-
-# Increase grid spacing for icons on the desktop and in other icon views
-# /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:gridSpacing 100" ${HOME}/Library/Preferences/com.apple.finder.plist
-# /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:gridSpacing 100" ${HOME}/Library/Preferences/com.apple.finder.plist
-# /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:gridSpacing 100" ${HOME}/Library/Preferences/com.apple.finder.plist
-
-# Increase the size of icons on the desktop and in other icon views
-# /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 80" ${HOME}/Library/Preferences/com.apple.finder.plist
-# /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:iconSize 80" ${HOME}/Library/Preferences/com.apple.finder.plist
-# /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 80" ${HOME}/Library/Preferences/com.apple.finder.plist
-
-if ask "Use list view in all Finder windows by default" Y; then
+if ask 'Use list view in all Finder windows by default' 'Y'; then
   # Four-letter codes for the other view modes: `icnv` (icon), `Nlsv` (list), `Flwv` (cover flow)
-  defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
-  defaults write com.apple.finder SearchRecentsSavedViewStyle -string "clmv"
+  defaults write com.apple.finder FXPreferredViewStyle -string 'clmv'
+  defaults write com.apple.finder SearchRecentsSavedViewStyle -string 'clmv'
 fi
 
-if ask "Disable the warning before emptying the Trash" Y; then
+if ask 'Disable the warning before emptying the Trash' 'Y'; then
   defaults write com.apple.finder WarnOnEmptyTrash -bool false
 fi
 
-if ask "Empty Trash securely by default" Y; then
+if ask 'Empty Trash securely by default' 'Y'; then
   defaults write com.apple.finder EmptyTrashSecurely -bool true
 fi
 
-if ask "Show app-centric sidebar" Y; then
+if ask 'Show app-centric sidebar' 'Y'; then
   defaults write com.apple.finder FK_AppCentricShowSidebar -bool true
 fi
 
-if ask "Automatically open a new Finder window when a volume is mounted" Y; then
+if ask 'Automatically open a new Finder window when a volume is mounted' 'Y'; then
   defaults write com.apple.finder OpenWindowForNewRemovableDisk -bool true
 fi
 
-if ask "Show the ${HOME}/Library folder" Y; then
+if ask "Show the ${HOME}/Library folder" 'Y'; then
   chflags nohidden ${HOME}/Library
 fi
 
-if ask "Enable the MacBook Air SuperDrive on any Mac" N; then
-  sudo nvram boot-args="mbasd=1"
+if ask 'Enable the MacBook Air SuperDrive on any Mac' 'N'; then
+  sudo nvram boot-args='mbasd=1'
 fi
 
-if ask "Show the '/Volumes' folder" Y; then
+if ask "Show the '/Volumes' folder" 'Y'; then
   chflags nohidden /Volumes
 fi
 
@@ -530,25 +520,25 @@ fi
 # file=/Applications/Dropbox.app/Contents/Resources/emblem-dropbox-uptodate.icns
 # [ -e "${file}" ] && mv -fv "${file}" "${file}.bak"
 
-if ask "Expand the following File Info panes: 'General', 'Open with', and 'Sharing & Permissions'" Y; then
-  defaults write com.apple.finder FXInfoPanesExpanded -dict-add "General" -bool true
-  defaults write com.apple.finder FXInfoPanesExpanded -dict-add "MetaData" -bool false
-  defaults write com.apple.finder FXInfoPanesExpanded -dict-add "OpenWith" -bool true
-  defaults write com.apple.finder FXInfoPanesExpanded -dict-add "Privileges" -bool true
+if ask "Expand the following File Info panes: 'General', 'Open with', and 'Sharing & Permissions'" 'Y'; then
+  defaults write com.apple.finder FXInfoPanesExpanded -dict-add 'General' -bool true
+  defaults write com.apple.finder FXInfoPanesExpanded -dict-add 'MetaData' -bool false
+  defaults write com.apple.finder FXInfoPanesExpanded -dict-add 'OpenWith' -bool true
+  defaults write com.apple.finder FXInfoPanesExpanded -dict-add 'Privileges' -bool true
 fi
 
-if ask "Windows which were open prior to logging out are re-opened after logging in" Y; then
+if ask 'Windows which were open prior to logging out are re-opened after logging in' 'Y'; then
   defaults write com.apple.finder RestoreWindowState -bool true
 fi
 
-# if ask "Location and style of scrollbar arrows" N; then
 # Applications often need to be relaunched to see the change.
-# defaults write -g AppleScrollBarVariant -string "DoubleBoth" true
+# if ask 'Location and style of scrollbar arrows' 'N'; then
+#   defaults write -g AppleScrollBarVariant -string 'DoubleBoth' true
 # fi
 
-# if ask "Disable window animations" N; then
-# defaults write -g NSAutomaticWindowAnimationsEnabled -bool false && killall Finder
-# fi
+# if ask 'Disable window animations' 'N'; then
+#   defaults write -g NSAutomaticWindowAnimationsEnabled -bool false && killall Finder
+#fi
 
 # Avoiding the creation of .DS_Store files on network volumes
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
@@ -597,207 +587,203 @@ sudo systemsetup -setrestartfreeze on
 ###############################################################################
 # Preview                                                                     #
 ###############################################################################
-# if ask "Scale images by default when printing" N; then
-# defaults write com.apple.Preview PVImagePrintingScaleMode -bool true
-# fi
+# if ask 'Scale images by default when printing' 'Y'; then
+#   defaults write com.apple.Preview PVImagePrintingScaleMode -bool true
+#fi
 
-# if ask "Preview Auto-rotate by default when printing" N; then
-# defaults write com.apple.Preview PVImagePrintingAutoRotate -bool true
-# fi
+# if ask 'Preview Auto-rotate by default when printing' 'Y'; then
+#   defaults write com.apple.Preview PVImagePrintingAutoRotate -bool true
+#fi
 
-# if ask "Quit Always Keeps Windows" Y; then
-# defaults write com.apple.Preview NSQuitAlwaysKeepsWindows -bool true
-# fi
+# if ask 'Quit Always Keeps Windows' 'Y'; then
+#   defaults write com.apple.Preview NSQuitAlwaysKeepsWindows -bool true
+#fi
 
 ###############################################################################
 # Keychain                                                                    #
 ###############################################################################
-
-if ask "Keychain shows expired certificates" N; then
-  defaults write com.apple.keychainaccess "Show Expired Certificates" -bool true
+if ask 'Keychain shows expired certificates' 'N'; then
+  defaults write com.apple.keychainaccess 'Show Expired Certificates' -bool true
 fi
 
-if ask "Makes Keychain Access display *unsigned* ACL entries in italics" Y; then
-  defaults write com.apple.keychainaccess "Distinguish Legacy ACLs" -bool true
+if ask 'Makes Keychain Access display *unsigned* ACL entries in italics' 'Y'; then
+  defaults write com.apple.keychainaccess 'Distinguish Legacy ACLs' -bool true
 fi
 
 ###############################################################################
 # Remote Desktop                                                              #
 ###############################################################################
-
-# if ask "Admin Console Allows Remote Control" N; then
+# if ask 'Admin Console Allows Remote Control' 'N'; then
 #   defaults delete /Library/Preferences/com.apple.RemoteManagement AdminConsoleAllowsRemoteControl
 # fi
 
-# if ask "Disable Multicast" N; then
+# if ask 'Disable Multicast' 'Y'; then
 #   defaults write /Library/Preferences/com.apple.RemoteManagement ARD_MulticastAllowed -bool true
 # fi
 
-# if ask "Prevents system keys like command-tab from being sent" N; then
+# if ask 'Prevents system keys like command-tab from being sent' 'Y'; then
 #   defaults write com.apple.RemoteDesktop DoNotSendSystemKeys -bool true
 # fi
 
-if ask "Show the Debug menu Remote Desktop" Y; then
+if ask 'Show the Debug menu Remote Desktop' 'Y'; then
   defaults write com.apple.remotedesktop IncludeDebugMenu -bool true
 fi
 
-if ask "Define user name display behavior" Y; then
+if ask 'Define user name display behavior' 'Y'; then
   defaults write com.apple.remotedesktop showShortUserName -bool true
 fi
 
-# if ask "Set the maximum number of computers that can be observed: (up to 50 opposed to the default of 9)" Y; then
-#   defaults write com.apple.RemoteDesktop multiObserveMaxPerScreen -int 9
+# if ask 'Set the maximum number of computers that can be observed: (up to 50 opposed to the default of 9)' 'Y'; then
+#   defaults write com.apple.RemoteDesktop multiObserveMaxPerScreen -int 20
 # fi
 
 ###############################################################################
 # Screen Sharing                                                              #
 ###############################################################################
-
-# if ask "Prevent protection when attempting to remotely control this computer" N; then
+# if ask 'Prevent protection when attempting to remotely control this computer' 'Y'; then
 #   defaults write com.apple.ScreenSharing skipLocalAddressCheck -bool true
 # fi
 
-# if ask "Disables system-level key combos like command-option-esc (Force Quit), command-tab (App switcher) to be used on the remote machine" N; then
+# if ask 'Disables system-level key combos like command-option-esc (Force Quit), command-tab (App switcher) to be used on the remote machine' 'Y'; then
 #   defaults write com.apple.ScreenSharing DoNotSendSystemKeys -bool true
 # fi
 
-# if ask "Debug (To Show Bonjour)" N; then
+# if ask 'Debug (To Show Bonjour)' 'Y'; then
 #   defaults write com.apple.ScreenSharing debug -bool true
 # fi
 
-# if ask "Do Not Send Special Keys to Remote Machine" N; then
+# if ask 'Do Not Send Special Keys to Remote Machine' 'Y'; then
 #   defaults write com.apple.ScreenSharing DoNotSendSystemKeys -bool true
 # fi
 
-# if ask "Skip local address check" N; then
+# if ask 'Skip local address check' 'Y'; then
 #   defaults write com.apple.ScreenSharing skipLocalAddressCheck -bool true
 # fi
 
-# if ask "Screen sharing image quality" N; then
-#   defaults write com.apple.ScreenSharing controlObserveQuality -int
+# if ask 'Screen sharing image quality' 'Y'; then
+#   defaults write com.apple.ScreenSharing controlObserveQuality -int 10
 # fi
 
-# if ask "Number of recent hosts on ScreenSharingMenulet" N; then
-#   defaults write com.klieme.ScreenSharingMenulet maxHosts -int
+# if ask 'Number of recent hosts on ScreenSharingMenulet' 'Y'; then
+#   defaults write com.klieme.ScreenSharingMenulet maxHosts -int 5
 # fi
 
-# if ask "Display IP-Addresses of the local hosts on ScreenSharingMenulet" N; then
+# if ask 'Display IP-Addresses of the local hosts on ScreenSharingMenulet' 'Y'; then
 #   defaults write com.klieme.ScreenSharingMenulet showIPAddresses -bool true
 # fi
 
 ###############################################################################
 # Dock, Dashboard, and hot corners                                            #
 ###############################################################################
-
-if ask "Set the icon size of Dock items to 35 pixels" Y; then
+if ask 'Set the icon size of Dock items to 35 pixels' 'Y'; then
   defaults write com.apple.dock tilesize -int 35
 fi
 
-if ask "Move the dock to the right side of the screen" Y; then
-  defaults write com.apple.dock orientation -string "right"
+if ask 'Move the dock to the right side of the screen' 'Y'; then
+  defaults write com.apple.dock orientation -string 'right'
 fi
 
-if ask "Minimize windows into their application's icon" Y; then
-  defaults write com.apple.dock "minimize-to-application" -bool true
+if ask "Minimize windows into their application's icon" 'Y'; then
+  defaults write com.apple.dock 'minimize-to-application' -bool true
 fi
 
-if ask "Show only active apps in Dock" Y; then
-  defaults write com.apple.dock "static-only" -bool true
+if ask 'Show only active apps in Dock' 'Y'; then
+  defaults write com.apple.dock 'static-only' -bool true
 fi
 
-# if ask "Enable spring loading for all Dock items" Y; then
+# if ask 'Enable spring loading for all Dock items' 'Y'; then
 #   defaults write com.apple.dock enable-spring-load-actions-on-all-items -bool true
 # fi
 
-if ask "Enable highlight hover effect for the grid view of a stack (Dock)" Y; then
-  defaults write com.apple.dock "mouse-over-hilte-stack" -bool true
+if ask 'Enable highlight hover effect for the grid view of a stack (Dock)' 'Y'; then
+  defaults write com.apple.dock 'mouse-over-hilte-stack' -bool true
 fi
 
-if ask "Show indicator lights for open applications in the Dock" Y; then
-  defaults write com.apple.dock "show-process-indicators" -bool true
+if ask 'Show indicator lights for open applications in the Dock' 'Y'; then
+  defaults write com.apple.dock 'show-process-indicators' -bool true
 fi
 
-if ask "Animate opening applications from the Dock" Y; then
+if ask 'Animate opening applications from the Dock' 'Y'; then
   defaults write com.apple.dock launchanim -bool true
 fi
 
-if ask "Change minimize/maximize window effect" Y; then
-  defaults write com.apple.dock mineffect -string "suck"
+if ask 'Change minimize/maximize window effect' 'Y'; then
+  defaults write com.apple.dock mineffect -string 'suck'
 fi
 
-if ask "Speed up Mission Control animations" Y; then
-  defaults write com.apple.dock "expose-animation-duration" -float 0.5
+if ask 'Speed up Mission Control animations' 'Y'; then
+  defaults write com.apple.dock 'expose-animation-duration' -float 0.5
 fi
 
-if ask "Don't group windows by application in Mission Control (i.e. use the old Exposé behavior instead)" N; then
+if ask "Don't group windows by application in Mission Control (i.e. use the old Exposé behavior instead)" 'N'; then
   defaults write com.apple.dock "expose-group-by-app" -bool false
 fi
 
-if ask "Enable Mission Control" N; then
-  defaults write com.apple.Dock "mcx-expose-disabled" -bool false
+if ask 'Enable Mission Control' 'N'; then
+  defaults write com.apple.Dock 'mcx-expose-disabled' -bool false
 fi
 
-if ask "Don't show Dashboard as a Space" N; then
-  defaults write com.apple.dock "dashboard-in-overlay" -bool true
+if ask "Don't show Dashboard as a Space" 'N'; then
+  defaults write com.apple.dock 'dashboard-in-overlay' -bool true
 fi
 
-if ask "Show image for notifications" Y; then
-  defaults write com.apple.dock "notification-always-show-image" -bool true
+if ask 'Show image for notifications' 'Y'; then
+  defaults write com.apple.dock 'notification-always-show-image' -bool true
 fi
 
-if ask "Enable the 2D Dock" N; then
-  defaults write com.apple.dock "no-glass" -bool true
+if ask 'Enable the 2D Dock' 'N'; then
+  defaults write com.apple.dock 'no-glass' -bool true
 fi
 
-if ask "Ensable Bouncing dock icons" Y; then
-  defaults write com.apple.dock "no-bouncing" -bool false
+if ask 'Enable Bouncing dock icons' 'Y'; then
+  defaults write com.apple.dock 'no-bouncing' -bool false
 fi
 
-if ask "Disable multi-display swoosh animations" N; then
-  defaults write com.apple.dock "workspaces-swoosh-animation-off" -bool false
+if ask 'Disable multi-display swoosh animations' 'N'; then
+  defaults write com.apple.dock 'workspaces-swoosh-animation-off' -bool false
 fi
 
-if ask "Remove the animation when hiding or showing the dock" Y; then
-  defaults write com.apple.dock "autohide-time-modifier" -float 0
+if ask 'Remove the animation when hiding or showing the dock' 'Y'; then
+  defaults write com.apple.dock 'autohide-time-modifier' -float 0
 fi
 
-if ask "Enable iTunes pop-up notifications" N; then
-  defaults write com.apple.dock "itunes-notifications" -boolean false
+if ask 'Enable iTunes pop-up notifications' 'N'; then
+  defaults write com.apple.dock 'itunes-notifications' -boolean false
 fi
 
-# if ask "Add a 'Recent Applications' stack to the Dock" N; then
-# defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'
-# fi
+# if ask "Add a 'Recent Applications' stack to the Dock" 'Y'; then
+#   defaults write com.apple.dock persistent-others -array-add '{ 'tile-data' = { 'list-type' = 1; }; 'tile-type' = 'recents-tile'; }'
+#fi
 
-if ask "In Expose, only show windows from the current space" N; then
-  defaults write com.apple.dock "wvous-show-windows-in-other-spaces" -bool false
+if ask 'In Expose, only show windows from the current space' 'N'; then
+  defaults write com.apple.dock 'wvous-show-windows-in-other-spaces' -bool false
 fi
 
-if ask "Automatically rearrange Spaces based on most recent use" Y; then
-  defaults write com.apple.dock "mru-spaces" -bool true
+if ask 'Automatically rearrange Spaces based on most recent use' 'Y'; then
+  defaults write com.apple.dock 'mru-spaces' -bool true
 fi
 
-if ask "Remove the auto-hiding Dock delay" N; then
-  defaults write com.apple.dock "autohide-delay" -float 0
+if ask 'Remove the auto-hiding Dock delay' 'N'; then
+  defaults write com.apple.dock 'autohide-delay' -float 0
 fi
 
-if ask "Automatically hide and show the Dock" Y; then
+if ask 'Automatically hide and show the Dock' 'Y'; then
   defaults write com.apple.dock autohide -bool true
 fi
 
-if ask "Automatically magnify the Dock" Y; then
+if ask 'Automatically magnify the Dock' 'Y'; then
   defaults write com.apple.dock magnification -bool true
 fi
 
-if ask "Make Dock icons of hidden applications translucent" Y; then
+if ask 'Make Dock icons of hidden applications translucent' 'Y'; then
   defaults write com.apple.dock showhidden -bool true
 fi
 
-if ask "Enable highlight hover effect for the grid view of a stack (Dock)" Y; then
+if ask 'Enable highlight hover effect for the grid view of a stack (Dock)' 'Y'; then
   defaults write com.apple.dock mouse-over-hilite-stack -bool true
 fi
 
-if ask "Enable the 'reopen windows when logging back in' option" Y; then
+if ask "Enable the 'reopen windows when logging back in' option" 'Y'; then
   # This works, although the checkbox will still appear to be checked.
   defaults write com.apple.loginwindow TALLogoutSavesState -bool true
   defaults write com.apple.loginwindow LoginwindowLaunchesRelaunchApps -bool true
@@ -806,26 +792,26 @@ fi
 ###############################################################################
 # Launchpad                                                                   #
 ###############################################################################
-if ask "Number of columns and rows in the dock springboard set to 10" Y; then
+if ask 'Number of columns and rows in the dock springboard set to 10' 'Y'; then
   defaults write com.apple.dock springboard-rows -int 10
   defaults write com.apple.dock springboard-columns -int 10
 fi
 # defaults write com.apple.dock ResetLaunchPad -bool true
 
-if ask "Disable the Launchpad gesture (pinch with thumb and three fingers)" N; then
+if ask 'Disable the Launchpad gesture (pinch with thumb and three fingers)' 'N'; then
   defaults write com.apple.dock showLaunchpadGestureEnabled -int 0
 fi
 
 # Add iOS & Watch Simulator to Launchpad
-# sudo ln -sf "/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app" "/Applications/Simulator.app"
-# sudo ln -sf "/Applications/Xcode.app/Contents/Developer/Applications/Simulator (Watch).app" "/Applications/Simulator (Watch).app"
+# sudo ln -sf '/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app' '/Applications/Simulator.app'
+# sudo ln -sf '/Applications/Xcode.app/Contents/Developer/Applications/Simulator (Watch).app' '/Applications/Simulator (Watch).app'
 
 # Add a spacer to the left side of the Dock (where the applications are)
 # defaults write com.apple.dock persistent-apps -array-add '{tile-data={}; tile-type="spacer-tile";}'
 # Add a spacer to the right side of the Dock (where the Trash is)
 # defaults write com.apple.dock persistent-others -array-add '{tile-data={}; tile-type="spacer-tile";}'
 
-if ask "Hot corners" Y; then
+if ask 'Hot corners' 'Y'; then
   # Possible values:
   #  0: no-op
   #  2: Mission Control
@@ -854,110 +840,109 @@ fi
 ###############################################################################
 # Safari & WebKit                                                             #
 ###############################################################################
-
-if ask "Privacy: don't send search queries to Apple" Y; then
+if ask "Privacy: don't send search queries to Apple" 'Y'; then
   defaults write com.apple.Safari UniversalSearchEnabled -bool false
   defaults write com.apple.Safari SuppressSearchSuggestions -bool true
 fi
 
-# if ask "Press Tab to highlight each item on a web page" N; then
+# if ask 'Press Tab to highlight each item on a web page' 'Y'; then
 #   defaults write com.apple.Safari WebKitTabToLinksPreferenceKey -bool true
 #   defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks -bool true
 # fi
 
-if ask "Show the full URL in the address bar (note: this still hides the scheme)" Y; then
+if ask 'Show the full URL in the address bar (note: this still hides the scheme)' 'Y'; then
   defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
 fi
 
-if ask "Set Safari's home page to 'about:blank' for faster loading" Y; then
-  defaults write com.apple.Safari HomePage -string "about:blank"
+if ask "Set Safari's home page to 'about:blank' for faster loading" 'Y'; then
+  defaults write com.apple.Safari HomePage -string 'about:blank'
 fi
 
-if ask "Prevent Safari from opening 'safe' files automatically after downloading" Y; then
+if ask "Prevent Safari from opening 'safe' files automatically after downloading" 'Y'; then
   defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
 fi
 
-if ask "Allow hitting the Backspace key to go to the previous page in history" Y; then
+if ask 'Allow hitting the Backspace key to go to the previous page in history' 'Y'; then
   defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2BackspaceKeyNavigationEnabled -bool true
 fi
 
-if ask "Hide Safari's bookmarks bar by default" Y; then
+if ask "Hide Safari's bookmarks bar by default" 'Y'; then
   defaults write com.apple.Safari ShowFavoritesBar -bool false
-  defaults write com.apple.Safari "ShowFavoritesBar-v2" -bool false
+  defaults write com.apple.Safari 'ShowFavoritesBar-v2' -bool false
 fi
 
-if ask "Hide Safari's sidebar in Top Sites" Y; then
+if ask "Hide Safari's sidebar in Top Sites" 'Y'; then
   defaults write com.apple.Safari ShowSidebarInTopSites -bool false
 fi
 
-if ask "Disable Safari's thumbnail cache for History and Top Sites" Y; then
+if ask "Disable Safari's thumbnail cache for History and Top Sites" 'Y'; then
   defaults write com.apple.Safari DebugSnapshotsUpdatePolicy -int 2
 fi
 
-if ask "Enable Safari's debug menu" Y; then
+if ask "Enable Safari's debug menu" 'Y'; then
   defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
 fi
 
-if ask "Make Safari's search banners default to Contains instead of Starts With" Y; then
+if ask "Make Safari's search banners default to Contains instead of Starts With" 'Y'; then
   defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool false
 fi
 
-if ask "Remove useless icons from Safari's bookmarks bar" Y; then
+if ask "Remove useless icons from Safari's bookmarks bar" 'Y'; then
   defaults write com.apple.Safari ProxiesInBookmarksBar "()"
 fi
 
-if ask "Warn about fraudulent websites" Y; then
+if ask 'Warn about fraudulent websites' 'Y'; then
   defaults write com.apple.Safari WarnAboutFraudulentWebsites -bool true
 fi
 
-if ask "Block pop-up windows" Y; then
+if ask 'Block pop-up windows' 'Y'; then
   defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool false
   defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool false
 fi
 
-if ask "Disable auto-playing video" Y; then
+if ask 'Disable auto-playing video' 'Y'; then
   defaults write com.apple.Safari WebKitMediaPlaybackAllowsInline -bool false
   defaults write com.apple.SafariTechnologyPreview WebKitMediaPlaybackAllowsInline -bool false
   defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2AllowsInlineMediaPlayback -bool false
   defaults write com.apple.SafariTechnologyPreview com.apple.Safari.ContentPageGroupIdentifier.WebKit2AllowsInlineMediaPlayback -bool false
 fi
 
-if ask "Enable 'Do Not Track'" Y; then
+if ask "Enable 'Do Not Track'" 'Y'; then
   defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
 fi
 
-if ask "Enable the Develop menu and the Web Inspector in Safari" Y; then
+if ask 'Enable the Develop menu and the Web Inspector in Safari' 'Y'; then
   defaults write com.apple.Safari IncludeDevelopMenu -bool true
   defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
   defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
 fi
 
-# Requires Safari 5.0.1 or later. Feature that is intended to increase the speed at which pages load. DNS (Domain Name System) prefetching kicks in when you load a webpage that contains links to other pages. As soon as the initial page is loaded, Safari 5.0.1 (or later) begins resolving the listed links' domain names to their IP addresses. Prefetching can occasionally result in 'slow performance, partially-loaded pages, or webpage 'cannot be found' messages.”
-if ask "Increase page load speed in Safari" Y; then
+# Requires Safari 5.0.1 or later. Feature that is intended to increase the speed at which pages load. DNS (Domain Name System) prefetching kicks in when you load a webpage that contains links to other pages. As soon as the initial page is loaded, Safari 5.0.1 (or later) begins resolving the listed links' domain names to their IP addresses. Prefetching can occasionally result in 'slow performance, partially-loaded pages, or webpage 'cannot be found' messages.
+if ask 'Increase page load speed in Safari' 'Y'; then
   defaults write com.apple.safari WebKitDNSPrefetchingEnabled -bool true
 fi
 
-if ask "Disable Data Detectors" Y; then
+if ask 'Disable Data Detectors' 'Y'; then
   defaults write com.apple.Safari WebKitUsesEncodingDetector -bool false
 fi
 
-if ask "Google Suggestion" Y; then
+if ask 'Google Suggestion' 'Y'; then
   defaults write com.apple.safari DebugSafari4IncludeGoogleSuggest -bool true
 fi
 
-if ask "Automatically spell check web forms" Y; then
+if ask 'Automatically spell check web forms' 'Y'; then
   defaults write com.apple.safari WebContinuousSpellCheckingEnabled -bool true
 fi
 
-if ask "Automatically grammar check web forms" Y; then
+if ask 'Automatically grammar check web forms' 'Y'; then
   defaults write com.apple.safari WebGrammarCheckingEnabled -bool true
 fi
 
-if ask "Include page background colors and images when printing" N; then
+if ask 'Include page background colors and images when printing' 'N'; then
   defaults write com.apple.safari WebKitShouldPrintBackgroundsPreferenceKey -bool true
 fi
 
-if ask "Enable developer menu in Safari" Y; then
+if ask 'Enable developer menu in Safari' 'Y'; then
   defaults write com.apple.Safari IncludeDebugMenu -bool true
 fi
 
@@ -975,21 +960,20 @@ fi
 # defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool false
 
 # Disable auto-playing video
-#defaults write com.apple.Safari WebKitMediaPlaybackAllowsInline -bool false
-#defaults write com.apple.SafariTechnologyPreview WebKitMediaPlaybackAllowsInline -bool false
-#defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2AllowsInlineMediaPlayback -bool false
-#defaults write com.apple.SafariTechnologyPreview com.apple.Safari.ContentPageGroupIdentifier.WebKit2AllowsInlineMediaPlayback -bool false
+#   defaults write com.apple.Safari WebKitMediaPlaybackAllowsInline -bool false
+#   defaults write com.apple.SafariTechnologyPreview WebKitMediaPlaybackAllowsInline -bool false
+#   defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2AllowsInlineMediaPlayback -bool false
+#   defaults write com.apple.SafariTechnologyPreview com.apple.Safari.ContentPageGroupIdentifier.WebKit2AllowsInlineMediaPlayback -bool false
 
-# Enable “Do Not Track”
-# defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
+# Enable 'Do Not Track'
+defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
 
 # Update extensions automatically
-# defaults write com.apple.Safari InstallExtensionUpdatesAutomatically -bool true
+defaults write com.apple.Safari InstallExtensionUpdatesAutomatically -bool true
 
 ###############################################################################
 # Mail                                                                        #
 ###############################################################################
-
 # Disable send and reply animations in Mail.app
 # defaults write com.apple.mail DisableReplyAnimations -bool true
 # defaults write com.apple.mail DisableSendAnimations -bool true
@@ -998,89 +982,85 @@ fi
 # defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
 
 # Add the keyboard shortcut ⌘ + Enter to send an email in Mail.app
-# defaults write com.apple.mail NSUserKeyEquivalents -dict-add "Send" "@\U21a9"
+# defaults write com.apple.mail NSUserKeyEquivalents -dict-add 'Send' "@\U21a9"
 
 # Display emails in threaded mode, sorted by date (oldest at the top)
-# defaults write com.apple.mail DraftsViewerAttributes -dict-add "DisplayInThreadedMode" -string "yes"
-# defaults write com.apple.mail DraftsViewerAttributes -dict-add "SortedDescending" -string "yes"
-# defaults write com.apple.mail DraftsViewerAttributes -dict-add "SortOrder" -string "received-date"
+# defaults write com.apple.mail DraftsViewerAttributes -dict-add 'DisplayInThreadedMode' -string 'yes'
+# defaults write com.apple.mail DraftsViewerAttributes -dict-add 'SortedDescending' -string 'yes'
+# defaults write com.apple.mail DraftsViewerAttributes -dict-add 'SortOrder' -string 'received-date'
 
 # Disable inline attachments (just show the icons)
 # defaults write com.apple.mail DisableInlineAttachmentViewing -bool true
 
 # Disable automatic spell checking
-# defaults write com.apple.mail SpellCheckingBehavior -string "NoSpellCheckingEnabled"
+# defaults write com.apple.mail SpellCheckingBehavior -string 'NoSpellCheckingEnabled'
 
 ###############################################################################
 # iMessage                                                                    #
 ###############################################################################
-
-if ask "Automatically go away after the specified time period" N; then
+if ask 'Automatically go away after the specified time period' 'N'; then
   defaults write com.apple.ichat AutoAway -bool true
 fi
 
-if ask "Disable iChat Data Detectors which help locate e-mails, dates, and other data tidbits" N; then
+if ask 'Disable iChat Data Detectors which help locate e-mails, dates, and other data tidbits' 'N'; then
   defaults write com.apple.ichat EnableDataDetectors -bool false
 fi
 
 ###############################################################################
 # Parallels                                                                   #
 ###############################################################################
-
-if ask "Disable Advertisments" Y; then
+if ask 'Disable Advertisments' 'Y'; then
   defaults write com.parallels.Parallels\ Desktop ProductPromo.ForcePromoOff -bool true
 fi
 
 ###############################################################################
 # Mail                                                                        #
 ###############################################################################
-
-if ask "Display emails in threaded mode, sorted by date (oldest at the top)" Y; then
-  defaults write com.apple.mail DraftsViewerAttributes -dict-add "DisplayInThreadedMode" -string "yes"
-  defaults write com.apple.mail DraftsViewerAttributes -dict-add "SortedDescending" -string "yes"
-  defaults write com.apple.mail DraftsViewerAttributes -dict-add "SortOrder" -string "received-date"
+if ask 'Display emails in threaded mode, sorted by date (oldest at the top)' 'Y'; then
+  defaults write com.apple.mail DraftsViewerAttributes -dict-add 'DisplayInThreadedMode' -string 'yes'
+  defaults write com.apple.mail DraftsViewerAttributes -dict-add 'SortedDescending' -string 'yes'
+  defaults write com.apple.mail DraftsViewerAttributes -dict-add 'SortOrder' -string 'received-date'
 fi
 
-if ask "Disable automatic spell checking" N; then
-  defaults write com.apple.mail SpellCheckingBehavior -string "NoSpellCheckingEnabled"
+if ask 'Disable automatic spell checking' 'N'; then
+  defaults write com.apple.mail SpellCheckingBehavior -string 'NoSpellCheckingEnabled'
 fi
 
-if ask "Copy email addresses as 'foo@example.com' instead of 'Foo Bar <foo@example.com>'' in Mail.app" N; then
+if ask "Copy email addresses as 'foo@example.com' instead of 'Foo Bar <foo@example.com>'' in Mail.app" 'N'; then
   defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
 fi
 
-if ask "Disable send and reply animations in Mail.app" N; then
+if ask 'Disable send and reply animations in Mail.app' 'N'; then
   defaults write com.apple.Mail DisableReplyAnimations -bool true
   defaults write com.apple.Mail DisableSendAnimations -bool true
 fi
 
-if ask "Set a minimum font size of 14px (affects reading and sending email)" N; then
+if ask 'Set a minimum font size of 14px (affects reading and sending email)' 'N'; then
   defaults write com.apple.mail MinimumHTMLFontSize 14
 fi
 
-if ask "Force all Mail messages to display as plain text" N; then
+if ask 'Force all Mail messages to display as plain text' 'N'; then
   # For rich text (the default) set it to FALSE
   defaults write com.apple.mail PreferPlainText -bool TRUE
 fi
 
-if ask "Disable tracking of Previous Recipients" N; then
+if ask 'Disable tracking of Previous Recipients' 'N'; then
   defaults write com.apple.mail SuppressAddressHistory -bool true
 fi
 
-if ask "Send Windows friendly attachments" N; then
+if ask 'Send Windows friendly attachments' 'N'; then
   defaults write com.apple.mail SendWindowsFriendlyAttachments -bool true
 fi
 
 ###############################################################################
 # Spotlight                                                                   #
 ###############################################################################
-
 # Turning off since this causes the system settings pane to break.
-# if ask "Disable Spotlight indexing for any volume that gets mounted and has not yet been indexed before." N; then
-#   sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
+# if ask 'Disable Spotlight indexing for any volume that gets mounted and has not yet been indexed before.' 'Y'; then
+#   sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array '/Volumes'
 # fi
 
-if ask "Change indexing order and disable some search results" Y; then
+if ask 'Change indexing order and disable some search results' 'Y'; then
   defaults write com.apple.spotlight orderedItems -array \
     '{"enabled" = 1;"name" = "APPLICATIONS";}' \
     '{"enabled" = 1;"name" = "SYSTEM_PREFS";}' \
@@ -1106,15 +1086,15 @@ if ask "Change indexing order and disable some search results" Y; then
     '{"enabled" = 0;"name" = "MENU_SPOTLIGHT_SUGGESTIONS";}'
 fi
 
-if ask "Load new settings before rebuilding the index" Y; then
+if ask 'Load new settings before rebuilding the index' 'Y'; then
   killall mds 2>&1 &> /dev/null
 fi
 
 ###############################################################################
 # Apple Multitouch Mouse                                                      #
 ###############################################################################
-if ask "Apple Multitouch mouse features" Y; then
-  defaults write com.apple.AppleMultitouchMouse MouseButtonMode -string "OneButton"
+if ask 'Apple Multitouch mouse features' 'Y'; then
+  defaults write com.apple.AppleMultitouchMouse MouseButtonMode -string 'OneButton'
   defaults write com.apple.AppleMultitouchMouse MouseHorizontalScroll -int 1
   defaults write com.apple.AppleMultitouchMouse MouseMomentumScroll -int 1
   defaults write com.apple.AppleMultitouchMouse MouseOneFingerDoubleTapGesture -int 0
@@ -1127,7 +1107,7 @@ fi
 ###############################################################################
 # Apple Multitouch Trackpad                                                   #
 ###############################################################################
-if ask "Apple Multitouch trackpad features" Y; then
+if ask 'Apple Multitouch trackpad features' 'Y'; then
   defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
   defaults write com.apple.AppleMultitouchTrackpad DragLock -int 0
   defaults write com.apple.AppleMultitouchTrackpad Dragging -int 0
@@ -1159,46 +1139,45 @@ fi
 ###############################################################################
 # Terminal                                                                    #
 ###############################################################################
-
-if ask "New window opens in the same directory as the current window" Y; then
+if ask 'New window opens in the same directory as the current window' 'Y'; then
   defaults write com.apple.Terminal NewWindowWorkingDirectoryBehavior -int 2
 fi
 
-if ask "Disable Secure Keyboard Entry in Terminal.app" Y; then
+if ask 'Disable Secure Keyboard Entry in Terminal.app' 'Y'; then
   # (see: https://security.stackexchange.com/a/47786/8918)
   defaults write com.apple.Terminal SecureKeyboardEntry -bool false
-  defaults write com.apple.Terminal Shell -string ""
-  defaults write com.apple.Terminal "Default Window Settings" -string Basic
-  defaults write com.apple.Terminal "Startup Window Settings" -string Basic
+  defaults write com.apple.Terminal Shell -string ''
+  defaults write com.apple.Terminal 'Default Window Settings' -string Basic
+  defaults write com.apple.Terminal 'Startup Window Settings' -string Basic
 fi
 
 # Disable the annoying line marks
 # defaults write com.apple.Terminal ShowLineMarks -int 0
 
 # Note: To print the values, use this:
-# /usr/libexec/PlistBuddy -c "Print :'Window Settings':Basic" ${HOME}/Library/Preferences/com.apple.Terminal.plist
+# /usr/libexec/PlistBuddy -c "Print :'Window Settings':Basic" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
 profile_array=(Basic Pro)
 for profile in "${profile_array[@]}"; do
   # Close the window if the shell exited cleanly - TODO: These error out and stop the whole file from being executed - need to fix
-  # /usr/libexec/PlistBuddy -c "Delete :'Window Settings':$profile:shellExitAction" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-  # /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:shellExitAction integer 1" ${HOME}/Library/Preferences/com.apple.Terminal.plist
+  # /usr/libexec/PlistBuddy -c "Delete :'Window Settings':$profile:shellExitAction" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+  # /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:shellExitAction integer 1" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
 
-  if ask "Set window size in Terminal.app" Y; then
-    /usr/libexec/PlistBuddy -c "Delete :'Window Settings':$profile:rowCount" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:rowCount integer 48" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-    /usr/libexec/PlistBuddy -c "Delete :'Window Settings':$profile:columnCount" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:columnCount integer 160" ${HOME}/Library/Preferences/com.apple.Terminal.plist
+  if ask 'Set window size in Terminal.app' 'Y'; then
+    /usr/libexec/PlistBuddy -c "Delete :'Window Settings':$profile:rowCount" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:rowCount integer 48" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+    /usr/libexec/PlistBuddy -c "Delete :'Window Settings':$profile:columnCount" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:columnCount integer 160" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
   fi
 
-  if ask "do not close the window if these programs are running" Y; then
-    /usr/libexec/PlistBuddy -c "Delete :'Window Settings':$profile:noWarnProcesses" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses array" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:0:ProcessName string screen" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:1:ProcessName string tmux" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:2:ProcessName string rlogin" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:3:ProcessName string ssh" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:4:ProcessName string slogin" ${HOME}/Library/Preferences/com.apple.Terminal.plist
-    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:5:ProcessName string telnet" ${HOME}/Library/Preferences/com.apple.Terminal.plist
+  if ask 'Do not close the window if these programs are running' 'Y'; then
+    /usr/libexec/PlistBuddy -c "Delete :'Window Settings':$profile:noWarnProcesses" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses array" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:0:ProcessName string screen" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:1:ProcessName string tmux" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:2:ProcessName string rlogin" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:3:ProcessName string ssh" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:4:ProcessName string slogin" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
+    /usr/libexec/PlistBuddy -c "Add :'Window Settings':$profile:noWarnProcesses:5:ProcessName string telnet" "${HOME}/Library/Preferences/com.apple.Terminal.plist"
   fi
 done
 
@@ -1208,9 +1187,8 @@ done
 ###############################################################################
 # iTerm 2                                                                     #
 ###############################################################################
-
-# TODO: Need to set the keyboard overrides for "back/forward 1 word" AND "Jobs to Ignore"
-if ask "iTerm2 settings" Y; then
+# TODO: Need to set the keyboard overrides for 'back/forward 1 word' AND 'Jobs to Ignore'
+if ask 'iTerm2 settings' 'Y'; then
   defaults write com.googlecode.iterm2 AllowClipboardAccess -bool true
   defaults write com.googlecode.iterm2 AppleAntiAliasingThreshold -bool true
   defaults write com.googlecode.iterm2 AppleScrollAnimationEnabled -bool false
@@ -1244,64 +1222,64 @@ if ask "iTerm2 settings" Y; then
   defaults write com.googlecode.iterm2 SUAutomaticallyUpdate -bool true
   defaults write com.googlecode.iterm2 SUEnableAutomaticChecks -bool true
   defaults write com.googlecode.iterm2 SUFeedAlternateAppNameKey -string iTerm
-  defaults write com.googlecode.iterm2 SUFeedURL -string "https://iterm2.com/appcasts/final.xml?shard=69"
+  defaults write com.googlecode.iterm2 SUFeedURL -string 'https://iterm2.com/appcasts/final.xml?shard=69'
   defaults write com.googlecode.iterm2 SUHasLaunchedBefore -bool true
   defaults write com.googlecode.iterm2 SUUpdateRelaunchingMarker -bool false
   defaults write com.googlecode.iterm2 SavePasteHistory -bool false
   defaults write com.googlecode.iterm2 ShowBookmarkName -bool false
-  defaults write com.googlecode.iterm2 SplitPaneDimmingAmount -string "0.4070612980769232"
+  defaults write com.googlecode.iterm2 SplitPaneDimmingAmount -string '0.4070612980769232'
   defaults write com.googlecode.iterm2 StatusBarPosition -integer 1
   defaults write com.googlecode.iterm2 SuppressRestartAnnouncement -bool true
   defaults write com.googlecode.iterm2 TabStyleWithAutomaticOption -integer 4
   defaults write com.googlecode.iterm2 TraditionalVisualBell -bool true
   defaults write com.googlecode.iterm2 UseBorder -bool true
-  defaults write com.googlecode.iterm2 WordCharacters -string "/-+\\\\~-integer."
+  defaults write com.googlecode.iterm2 WordCharacters -string "/-+\\~-integer."
   defaults write com.googlecode.iterm2 findMode_iTerm -bool false
   defaults write com.googlecode.iterm2 kCPKSelectionViewPreferredModeKey -bool false
   defaults write com.googlecode.iterm2 kCPKSelectionViewShowHSBTextFieldsKey -bool false
 
   # TODO: Need to set up the font settings for font in iTerm2
-  # TODO: Need to set up the "Natural text editing" preset in Profiles > Keys preference pane for iTerm2
+  # TODO: Need to set up the 'Natural text editing' preset in Profiles > Keys preference pane for iTerm2
   # TODO: Need to set up the status bar layout and prefs in iTerm2
 
   # Note: To print the values, use this:
-  # /usr/libexec/PlistBuddy -c "Print :'New Bookmarks':0:'Jobs to Ignore'" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks' array" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist # Note: This is a naive way to ensure that the array is present on newly images OS
-  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:Rows" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:Rows integer 48" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
+  # /usr/libexec/PlistBuddy -c "Print :'New Bookmarks':0:'Jobs to Ignore'" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks' array" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist" # Note: This is a naive way to ensure that the array is present on newly images OS
+  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:Rows" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:Rows integer 48" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
 
-  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:Columns" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:Columns integer 160" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
+  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:Columns" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:Columns integer 160" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
 
-  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Silence Bell'" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Silence Bell' bool false" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
+  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Silence Bell'" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Silence Bell' bool false" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
 
-  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Unlimited Scrollback'" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Unlimited Scrollback' bool true" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
+  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Unlimited Scrollback'" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Unlimited Scrollback' bool true" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
 
-  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Use Cursor Guide'" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Use Cursor Guide' bool true" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
+  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Use Cursor Guide'" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Use Cursor Guide' bool true" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
 
-  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Visual Bell'" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Visual Bell' bool true" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
+  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Visual Bell'" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Visual Bell' bool true" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
 
-  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Jobs to Ignore'" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore' array" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':0 string screen" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':1 string tmux" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':2 string rlogin" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':3 string ssh" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':4 string slogin" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':5 string telnet" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':5 string zsh" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
+  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Jobs to Ignore'" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore' array" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':0 string screen" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':1 string tmux" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':2 string rlogin" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':3 string ssh" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':4 string slogin" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':5 string telnet" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Jobs to Ignore':5 string zsh" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
 
-  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Minimum Contrast'" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
-  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Minimum Contrast' integer 0" ${HOME}/Library/Preferences/com.googlecode.iterm2.plist
+  /usr/libexec/PlistBuddy -c "Delete :'New Bookmarks':0:'Minimum Contrast'" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
+  /usr/libexec/PlistBuddy -c "Add :'New Bookmarks':0:'Minimum Contrast' integer 0" "${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
 fi
 
 # TODO: Need to add these - stopping due to time constraints
 # {
-#     "New Bookmarks" =     (
+#     'New Bookmarks' =     (
 #                 {
 #             // Same level as 'Jobs to Ignore'
 #             "Character Encoding" -integer 4;
@@ -1342,7 +1320,7 @@ fi
 ###############################################################################
 # Docker - TODO: Should we replace this with podman-equivalent?               #
 ###############################################################################
-if ask "Docker settings" Y; then
+if ask 'Docker settings' 'Y'; then
   defaults write com.docker.docker SUAutomaticallyUpdate -bool true
   defaults write com.docker.docker SUEnableAutomaticChecks -bool true
   defaults write com.docker.docker SUUpdateRelaunchingMarker -bool true
@@ -1351,18 +1329,18 @@ fi
 ###############################################################################
 # Firefox-nightly                                                             #
 ###############################################################################
-if ask "Firefox settings" Y; then
-  defaults write -app "Firefox Nightly" NSFullScreenMenuItemEverywhere -bool false
-  defaults write -app "Firefox Nightly" NSNavLastRootDirectory -string "${HOME}/Downloads"
-  defaults write -app "Firefox Nightly" NSNavLastUserSetHideExtensionButtonState -bool false
-  defaults write -app "Firefox Nightly" NSTreatUnknownArgumentsAsOpen -bool false
-  defaults write -app "Firefox Nightly" PMPrintingExpandedStateForPrint2 -bool false
+if ask 'Firefox settings' 'Y'; then
+  defaults write -app 'Firefox Nightly' NSFullScreenMenuItemEverywhere -bool false
+  defaults write -app 'Firefox Nightly' NSNavLastRootDirectory -string "${HOME}/Downloads"
+  defaults write -app 'Firefox Nightly' NSNavLastUserSetHideExtensionButtonState -bool false
+  defaults write -app 'Firefox Nightly' NSTreatUnknownArgumentsAsOpen -bool false
+  defaults write -app 'Firefox Nightly' PMPrintingExpandedStateForPrint2 -bool false
 fi
 
 ###############################################################################
 # Flycut                                                                      #
 ###############################################################################
-if ask "Flycut settings" N; then
+if ask 'Flycut settings' 'N'; then
   defaults write com.generalarcade.flycut loadOnStartup -bool true
   defaults write com.generalarcade.flycut pasteMovesToTop -bool true
   defaults write com.generalarcade.flycut rememberNum -int 60
@@ -1376,19 +1354,19 @@ fi
 ###############################################################################
 # Maccy                                                                       #
 ###############################################################################
-if ask "Maccy settings" Y; then
+if ask 'Maccy settings' 'Y'; then
   defaults write org.p0deje.Maccy historySize -int 300
-  defaults write org.p0deje.Maccy ignoredApps -array "org.keepassxc.keepassxc"
+  defaults write org.p0deje.Maccy ignoredApps -array 'org.keepassxc.keepassxc'
   defaults write org.p0deje.Maccy pasteByDefault -bool true
   defaults write org.p0deje.Maccy removeFormattingByDefault -bool true
   defaults write org.p0deje.Maccy showRecentCopyInMenuBar -bool false
-  defaults write org.p0deje.Maccy searchMode -string "mixed"
+  defaults write org.p0deje.Maccy searchMode -string 'mixed'
 fi
 
 ###############################################################################
 # Google Chrome & Google Chrome Canary                                        #
 ###############################################################################
-if ask "Chrome settings" Y; then
+if ask 'Chrome settings' 'Y'; then
   defaults write com.google.Chrome AppleEnableMouseSwipeNavigateWithScrolls -bool false
   defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool false
   defaults write com.google.Chrome KeychainReauthorizeInAppSpring2017 -int 2
@@ -1403,14 +1381,14 @@ if ask "Chrome settings" Y; then
   defaults write com.google.Chrome.canary AppleEnableMouseSwipeNavigateWithScrolls -bool false
 
   # Allow installing user scripts via GitHub or Userscripts.org
-  # defaults write com.google.Chrome ExtensionInstallSources -array "https://*.github.com/*" "http://userscripts.org/*"
-  # defaults write com.google.Chrome.canary ExtensionInstallSources -array "https://*.github.com/*" "http://userscripts.org/*"
+  # defaults write com.google.Chrome ExtensionInstallSources -array 'https://*.github.com/*' 'http://userscripts.org/*'
+  # defaults write com.google.Chrome.canary ExtensionInstallSources -array 'https://*.github.com/*' 'http://userscripts.org/*'
 fi
 
 ###############################################################################
 # ImageOptim                                                                  #
 ###############################################################################
-if ask "ImageOptim settings" Y; then
+if ask 'ImageOptim settings' 'Y'; then
   defaults write net.pornel.ImageOptim AdvPngLevel -int 5
   defaults write net.pornel.ImageOptim JpegOptimMaxQuality -int 85
   defaults write net.pornel.ImageOptim GuetzliEnabled -bool false
@@ -1423,14 +1401,14 @@ fi
 ###############################################################################
 # KeepassXC                                                                   #
 ###############################################################################
-if ask "KeepassXC settings" Y; then
-  defaults write org.keepassxc.keepassxc "NSNavLastRootDirectory" -string "${HOME}/personal/$(whoami)"
+if ask 'KeepassXC settings' 'Y'; then
+  defaults write org.keepassxc.keepassxc 'NSNavLastRootDirectory' -string "${HOME}/personal/$(whoami)"
 fi
 
 ###############################################################################
 # Rectangle                                                                   #
 ###############################################################################
-if ask "Rectangle settings" Y; then
+if ask 'Rectangle settings' 'Y'; then
   defaults write com.knollsoft.Rectangle SUEnableAutomaticChecks -bool true
   defaults write com.knollsoft.Rectangle SUHasLaunchedBefore -bool true
   defaults write com.knollsoft.Rectangle alternateDefaultShortcuts -bool true
@@ -1441,7 +1419,7 @@ fi
 ###############################################################################
 # Monolingual                                                                 #
 ###############################################################################
-if ask "Monolingual settings" Y; then
+if ask 'Monolingual settings' 'Y'; then
   defaults write net.sourceforge.Monolingual SUAutomaticallyUpdate -bool true
   defaults write net.sourceforge.Monolingual SUEnableAutomaticChecks -bool true
   defaults write net.sourceforge.Monolingual SUSendProfileInfo -bool false
@@ -1451,7 +1429,7 @@ fi
 ###############################################################################
 # ProtonVpn                                                                   #
 ###############################################################################
-if ask "ProtonVpn settings" Y; then
+if ask 'ProtonVpn settings' 'Y'; then
   defaults write ch.protonvpn.mac ConnectOnDemand -bool true
   defaults write ch.protonvpn.mac EarlyAccess -bool true
   defaults write ch.protonvpn.mac NSInitialToolTipDelay -int 500
@@ -1465,26 +1443,9 @@ if ask "ProtonVpn settings" Y; then
 fi
 
 ###############################################################################
-# Rambox                                                                      #
-###############################################################################
-# if ask "Rambox settings" Y; then
-#   defaults write com.grupovrs.ramboxce NSFullScreenMenuItemEverywhere -bool false
-#   defaults write com.grupovrs.ramboxce NSNavLastRootDirectory -string "${HOME}/Downloads"
-#   defaults write com.grupovrs.ramboxce NSNavLastUserSetHideExtensionButtonState -bool false
-#   defaults write com.grupovrs.ramboxce NSTreatUnknownArgumentsAsOpen -bool false
-# fi
-
-###############################################################################
-# Spectacle                                                                   #
-###############################################################################
-# if ask "Spectacle settings" Y; then
-#   defaults write com.divisiblebyzero.Spectacle SUEnableAutomaticChecks -bool true
-# fi
-
-###############################################################################
 # The-unarchiver                                                              #
 ###############################################################################
-if ask "The-unarchiver settings" Y; then
+if ask 'The-unarchiver settings' 'Y'; then
   defaults write com.macpaw.site.theunarchiver SUEnableAutomaticChecks -bool true
   defaults write com.macpaw.site.theunarchiver changeDateOfFiles -bool true
   defaults write com.macpaw.site.theunarchiver deleteExtractedArchive -bool false
@@ -1496,7 +1457,7 @@ fi
 ###############################################################################
 # Thunderbird-beta                                                            #
 ###############################################################################
-if ask "Thunderbird settings" Y; then
+if ask 'Thunderbird settings' 'Y'; then
   defaults write org.mozilla.thunderbird NSFullScreenMenuItemEverywhere -bool false
   defaults write org.mozilla.thunderbird NSTreatUnknownArgumentsAsOpen -bool false
 fi
@@ -1504,7 +1465,7 @@ fi
 ###############################################################################
 # Vlc                                                                         #
 ###############################################################################
-if ask "Vlc settings" Y; then
+if ask 'Vlc settings' 'Y'; then
   defaults write org.videolan.vlc.plist AudioEffectSelectedProfile -int 0
   defaults write org.videolan.vlc.plist SUEnableAutomaticChecks -bool true
   defaults write org.videolan.vlc.plist VideoEffectSelectedProfile -int 0
@@ -1514,7 +1475,7 @@ fi
 ###############################################################################
 # Zoomus                                                                      #
 ###############################################################################
-if ask "Zoomus settings" Y; then
+if ask 'Zoomus settings' 'Y'; then
   defaults write us.zoom.xos BounceApplicationSetting -int 2
   defaults write us.zoom.xos NSInitialToolTipDelay -int 100
   defaults write us.zoom.xos NSQuitAlwaysKeepsWindows -bool false
@@ -1536,87 +1497,84 @@ fi
 # Activity Monitor                                                            #
 ###############################################################################
 
-if ask "Show the main window when launching Activity Monitor" Y; then
+if ask 'Show the main window when launching Activity Monitor' 'Y'; then
   defaults write com.apple.ActivityMonitor OpenMainWindow -bool true
 fi
 
-if ask "Visualize CPU usage in the Dock icon" Y; then
+if ask 'Visualize CPU usage in the Dock icon' 'Y'; then
   defaults write com.apple.ActivityMonitor IconType -int 5
 fi
 
-if ask "Show all processes hierarchically" Y; then
+if ask 'Show all processes hierarchically' 'Y'; then
   defaults write com.apple.ActivityMonitor ShowCategory -int 101
 fi
 
-if ask "Sort Activity Monitor results by CPU usage" Y; then
-  defaults write com.apple.ActivityMonitor SortColumn -string "CPUUsage"
+if ask 'Sort Activity Monitor results by CPU usage' 'Y'; then
+  defaults write com.apple.ActivityMonitor SortColumn -string 'CPUUsage'
   defaults write com.apple.ActivityMonitor SortDirection -int 0
 fi
 
-if ask "default to showing the Memory tab" Y; then
+if ask 'Default to showing the Memory tab' 'Y'; then
   defaults write com.apple.ActivityMonitor SelectedTab -int 1
 fi
 
 ###############################################################################
 # Photos                                                                      #
 ###############################################################################
-
-if ask "Prevent Photos from opening automatically when devices are plugged in" Y; then
+if ask 'Prevent Photos from opening automatically when devices are plugged in' 'Y'; then
   defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
 fi
 
 ###############################################################################
 # Messages                                                                    #
 ###############################################################################
-
 # Disable automatic emoji substitution (i.e. use plain text smileys)
-# defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticEmojiSubstitutionEnablediMessage" -bool false
+# defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add 'automaticEmojiSubstitutionEnablediMessage' -bool false
 
 # Disable smart quotes as it's annoying for messages that contain code
-# defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
+# defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add 'automaticQuoteSubstitutionEnabled' -bool false
 
 # Disable continuous spell checking
-# defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "continuousSpellCheckingEnabled" -bool false
+# defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add 'continuousSpellCheckingEnabled' -bool false
 
 ###############################################################################
 # Software Update                                                             #
 ###############################################################################
-if ask "Automatically check for updates (required for any downloads)" Y; then
+if ask 'Automatically check for updates (required for any downloads)' 'Y'; then
   defaults write com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
 fi
 
-if ask "Download updates automatically in the background" Y; then
+if ask 'Download updates automatically in the background' 'Y'; then
   sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticDownload -bool true
 fi
 
-if ask "Install app updates automatically" Y; then
+if ask 'Install app updates automatically' 'Y'; then
   defaults write com.apple.commerce AutoUpdate -bool true
 fi
 
-if ask "Install macos updates automatically" Y; then
+if ask 'Install macos updates automatically' 'Y'; then
   defaults write com.apple.commerce AutoUpdateRestartRequired -bool true
 fi
 
-if ask "Install system data file updates automatically" Y; then
+if ask 'Install system data file updates automatically' 'Y'; then
   defaults write com.apple.SoftwareUpdate ConfigDataInstall -bool true
 fi
 
-if ask "Install critical security updates automatically" Y; then
+if ask 'Install critical security updates automatically' 'Y'; then
   defaults write com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
 fi
 
-if ask "Check for software updates daily, not just once per week" Y; then
+if ask 'Check for software updates daily, not just once per week' 'Y'; then
   defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 fi
 
-if ask "Download newly available updates in background" Y; then
+if ask 'Download newly available updates in background' 'Y'; then
   defaults write com.apple.SoftwareUpdate AutomaticDownload -bool true
 fi
 
 ###############################################################################
 # Mac App Store                                                               #
 ###############################################################################
-
 # Disable smart quotes as they're annoying when typing code
 # defaults write -g NSAutomaticQuoteSubstitutionEnabled -bool false
 
@@ -1635,7 +1593,6 @@ defaults write -g WebKitDeveloperExtras -bool true
 ###############################################################################
 # Time Machine                                                                #
 ###############################################################################
-
 # Prevent Time Machine from prompting to use new hard drives as backup volume
 defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
 
@@ -1666,12 +1623,11 @@ sudo defaults write /Library/Preferences/com.apple.windowserver DisplayResolutio
 ###############################################################################
 # Screen capture                                                              #
 ###############################################################################
-
 # Save screenshots to the desktop
 defaults write com.apple.screencapture location -string "${HOME}/Desktop"
 
 # Save screenshots in PNG format (other options: BMP, GIF, JPG, PDF, TIFF)
-defaults write com.apple.screencapture type -string "png"
+defaults write com.apple.screencapture type -string 'png'
 
 # Disable shadow in screenshots
 defaults write com.apple.screencapture disable-shadow -bool true
@@ -1710,7 +1666,6 @@ defaults write com.apple.AddressBook ABDefaultAddressCountryCode -string in
 ###############################################################################
 # OmniGraffle                                                                 #
 ###############################################################################
-
 # Allow scroll wheel zooming:
 # defaults write com.omnigroup.OmniGraffle DisableScrollWheelZooming -bool false
 
@@ -1720,22 +1675,19 @@ defaults write com.apple.AddressBook ABDefaultAddressCountryCode -string in
 ###############################################################################
 # Quick Time Player                                                           #
 ###############################################################################
-
 # Automatically show Closed Captions (CC) when opening a Movie:
 # defaults -currentHost write com.apple.QuickTimePlayerX.plist MGEnableCCAndSubtitlesOnOpen -boolean
 
 ###############################################################################
 ## Spaces                                                                     #
 ###############################################################################
-
 # When switching applications, switch to respective space
 defaults write -g AppleSpacesSwitchOnActivate -bool true
 
 ###############################################################################
 # Kill affected applications                                                  #
 ###############################################################################
-
-app_array=(
+local app_array=(
   'Activity Monitor'
   'Address Book'
   'Calendar'
@@ -1762,4 +1714,4 @@ sudo softwareupdate --schedule ON
 sudo mdutil -E -i on / 2>&1 &> /dev/null
 
 echo "Need to manually quit and restart 'Terminal' and 'iTerm' - since one of these might be running this script."
-echo "Done. Note that some of these changes require a logout/restart to take effect."
+success 'Done. Note that some of these changes require a logout/restart to take effect.'

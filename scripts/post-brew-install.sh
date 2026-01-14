@@ -8,7 +8,7 @@
 set -e
 
 # Source helpers only once if any required function is missing
-type section_header 2>&1 &> /dev/null || source "${HOME}/.shellrc"
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 replace_symlink_if_needed() {
   if is_executable "${1}"; then

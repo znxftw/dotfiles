@@ -13,7 +13,7 @@
 [[ -n "${FIRST_INSTALL+1}" ]] && echo "loading ${0}"
 
 # DUPLICATE! Copied over since we get an error if the .shellrc was not loaded
-type command_exists 2>&1 &> /dev/null || source "${HOME}/.shellrc"
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 # add flags to existing aliases
 alias less="${aliases[less]:-less} -RF"
@@ -35,7 +35,7 @@ if command_exists 'run_all.sh'; then
   # shortcuts to handle multiple git repos bypassing the omz auto-correct prompt for 'git'
   alias rug='run_all.sh git'
   alias all="FOLDER='${HOME}' MAXDEPTH=6 rug"
-  alias home="FOLDER='${HOME}' FILTER=\".bin|.dotfiles|zsh|mise\" MAXDEPTH=5 rug"
+  alias home="FOLDER='${HOME}' FILTER='.bin|.dotfiles|zsh|mise' MAXDEPTH=5 rug"
   is_directory "${PERSONAL_PROFILES_DIR}" && alias profiles="FOLDER='${PERSONAL_PROFILES_DIR}' MAXDEPTH=5 rug"
   if is_directory "${PROJECTS_BASE_DIR}"; then
     # Use zsh glob qualifiers to only loop if matches exist and are directories
@@ -56,7 +56,7 @@ delete_caches() {
   find "${HOME}" "${HOMEBREW_PREFIX}" \( -path '*/.git/*' -o -path '*/node_modules/*' -o -path '*/.mypy_cache/*' -o -path '*/__pycache__/*' \) -prune -o -maxdepth 6 -name '*.zwc*' -type f -print -delete || warn "find command failed in ${HOME} or ${HOMEBREW_PREFIX}"
 
   # delete the global cache directory
-  rm -rfv "${XDG_CACHE_HOME}"
+  is_directory "${XDG_CACHE_HOME}" && rm -rfv "${XDG_CACHE_HOME}"
 }
 
 install_mise_versions() {
@@ -92,7 +92,7 @@ allow_all_direnv_configs() {
     _direnv_process "${file:h}"
   done
 
-  is_directory "${PROJECTS_BASE_DIR}" && find "${PROJECTS_BASE_DIR}" \( -path '*/.git/*' -o -path '*/node_modules/*' -o -path '*/.mypy_cache/*' -o -path '*/__pycache__/*' \) -prune -o -maxdepth 5 -name '.envrc' -type f -print0 | while IFS= read -r -d '' file; do
+  is_directory "${PROJECTS_BASE_DIR}" && find "${PROJECTS_BASE_DIR}" -maxdepth 5 -name '.envrc' -print0 | while IFS= read -r -d '' file; do
     _direnv_process "${file:h}"
   done
 }
@@ -108,8 +108,8 @@ fi
 alias find_broken_links='find . -xtype l -print' # Find links whose targets do not exist
 alias clear_logs='rm -rfv */log/*.log'
 alias clear_coverage='rm -rfv */coverage */coverage.data'
-alias kill_ds="sudo find . -type f -name .DS_Store -print -delete"
-alias kill_loc="sudo find . -type f -name .localized -print -delete"
+alias kill_ds='sudo find . -type f -name .DS_Store -print -delete'
+alias kill_loc='sudo find . -type f -name .localized -print -delete'
 
 # Remove trailing spaces
 _remove_trailing_find_cmd="find . -type f \( -name '*.*cs*' -o -name '*.*less' -o -name '*.*js*' -o -name '*.*rb' -o -name '*.*ml' -o -name '*.rake' -o -name '*.java' -o -name '*.ts*' \) -print0"
@@ -133,7 +133,7 @@ if is_linux; then
   alias free_wifi='_free_wifi eth0'
 elif is_macos; then
   alias free_wifi='_free_wifi en0'
-  alias flush_dns="sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache;say MacOS DNS cache has been cleared"
+  alias flush_dns='sudo killall -HUP mDNSResponder;sudo killall mDNSResponderHelper;sudo dscacheutil -flushcache;say MacOS DNS cache has been cleared'
 fi
 
 if is_macos; then
@@ -205,7 +205,7 @@ pdf_to_png() {
   fi
 
   if ! command_exists magick; then
-    warn "Install imagemagick first!"
+    warn 'Install imagemagick first!'
     return 0 # Success, nothing to do
   fi
 
@@ -281,7 +281,7 @@ if is_macos; then
   # Also, sorts (and removes duplicates) from the config file used to capture preferences
   find_and_append_prefs() {
     local file_name="${DOTFILES_DIR}/scripts/data/capture-prefs-domains.txt"
-    defaults find "${1}" | \grep "keys in domain" | cut -d"'" -f2 >> "${file_name}"
+    defaults find "${1}" | \grep 'keys in domain' | cut -d"'" -f2 >> "${file_name}"
     sort -u -o "${file_name}" "${file_name}"
     unset file_name
   }

@@ -14,9 +14,7 @@
 set -e
 
 # Check for one key function defined in .shellrc to see if sourcing is needed
-if ! type red 2>&1 &> /dev/null || ! type is_zero_string 2>&1 &> /dev/null; then
-  source "${HOME}/.shellrc"
-fi
+type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 usage() {
   echo "$(red 'Usage'): $(yellow "${1}") [-e|-i]"
@@ -51,7 +49,7 @@ is_zero_string "${DOTFILES_DIR}" && error "Required env var '$(yellow 'DOTFILES_
 local target_dir="${PERSONAL_CONFIGS_DIR}/defaults"
 ensure_dir_exists "${target_dir}"
 
-if [[ "${operation}" == "export" ]]; then
+if [[ "${operation}" == 'export' ]]; then
   # Clean up old files before exporting new ones (this also handles the case where some entry has been removed from the list of domains)
   rm -f "${target_dir}"/*.defaults || true
 fi
@@ -79,7 +77,7 @@ unset app_pref
 
 # If exporting, add the results to git staging
 # Run this *after* the loop finishes exporting all files.
-if [[ "${operation}" == "export" ]]; then
+if [[ "${operation}" == 'export' ]]; then
   # Explicitly specify the git repo in the home folder, so that this script can be run from any folder
   git -C "${HOME}" add "${target_dir}" || warn "Failed to git add '${target_dir}'"
   echo "$(green 'Export complete.') Staged changes in '${target_dir}'."

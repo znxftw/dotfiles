@@ -76,12 +76,21 @@ export XDG_STATE_HOME="${XDG_STATE_HOME:-"${HOME}/.local/state"}"
 export ARCH="${ARCH:-"$(uname -m)"}"
 export ARCHFLAGS="-arch ${ARCH}"
 
+# Dummy function to check if shellrc is sourced
+is_shellrc_sourced() {
+  return 0
+}
+
+is_running_in_tty() {
+  [[ -t 0 ]]
+}
+
 colorize() {
   printf "\x1b[${1}m"
 }
 
 # Do not use colors if there's no terminal
-if [ ! -t 0 ]; then
+if ! is_running_in_tty; then
   NC=''
   BLACK=''
   DARK_GRAY=''

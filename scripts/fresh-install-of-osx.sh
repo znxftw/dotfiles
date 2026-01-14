@@ -91,7 +91,7 @@ setup_jio_dns() {
 download_and_source_shellrc() {
   echo "==> Download the '${HOME}/.shellrc' for loading the utility functions"
   # Check for one key function defined in .shellrc to see if sourcing is needed
-  if ! type keep_sudo_alive 2>&1 &> /dev/null; then
+  if ! type is_shellrc_sourced 2>&1 &> /dev/null; then
     [[ ! -f "${HOME}/.shellrc" ]] && curl --retry 3 --retry-delay 5 -fsSL "https://raw.githubusercontent.com/${GH_USERNAME}/dotfiles/refs/heads/${DOTFILES_BRANCH}/files/--HOME--/.shellrc" -o "${HOME}/.shellrc"
     FIRST_INSTALL=true source "${HOME}/.shellrc"
   else
@@ -112,13 +112,13 @@ approve_fingerprint_sudo() {
     return 0 # Exit successfully as no action is needed
   fi
 
-  local template_file="/etc/pam.d/sudo_local.template"
+  local template_file='/etc/pam.d/sudo_local.template'
   if ! is_file "${template_file}"; then
     warn "Template file '$(yellow "${template_file}")' not found! Skipping!"
     return
   fi
 
-  local target_file="/etc/pam.d/sudo_local"
+  local target_file='/etc/pam.d/sudo_local'
   if ! is_file "${target_file}"; then
     # Using sh -c 'sed...' is fine here
     if sudo sh -c "sed 's/^#auth/auth/' ${template_file} > ${target_file}"; then
