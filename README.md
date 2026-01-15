@@ -73,6 +73,7 @@ If you want to capture data from your current mac, please follow the instruction
 
 The backup strategy is split into 2 stages - both of which are run by the [same script](scripts/fresh-install-of-osx.sh). The [basic "getting started"](GettingStarted.md) provides the instructions for the most common/basic setup. This covers everything that a typical user might need - without the need to backup other parts of the existing laptop.
 The "advanced" setup is the set of final steps to capture your application preferences (both system apps as well as custom apps) and back them up into an _encrypted remote repository_. Currently this kind of **_private, fully-encrypted and free_** service is offered only by [keybase](https://keybase.io/).
+If you want to automate the repetitive running of these scripts/commands, you can use the system-level cronjobs to set this up, the details of which can be found in the Extras, by which you can reduce more manual efforts.
 
 # Finally...
 
@@ -96,7 +97,7 @@ The backup strategy is **not a one-off activity**. It will require you to take s
 
 - Ensure that the software catalogs (`files/--HOME--/Brewfile`, `scripts/fresh-install-of-osx.sh`, `scripts/capture-prefs.sh`) are always kept in sync with the actual applications that you install and use
 - Ensure that the git repo catalogs that you are "tracking" in the `${PERSONAL_CONFIGS_DIR}/repositories-*.yml` files are kept up-to-date so that resurrection in your new machine will be seamless
-- Ensure to run the `scripts/capture-prefs.sh` (with the export switch) to export and capture/backup your preferences for all installed applications from your current machine. If you want to automate the repetitive running of this and possibly other scripts/commands, you can use the system-level cronjobs to set this up, the details of which can be found in the Extras!
+- Ensure to run the `scripts/capture-prefs.sh` (with the export switch) to export and capture/backup your preferences for all installed applications from your current machine.
 
 # Extras/Details
 
