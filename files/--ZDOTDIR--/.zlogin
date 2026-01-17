@@ -13,15 +13,15 @@
 # load order: .zshenv [.shellrc], .zshrc [.shellrc, .aliases [.shellrc]], .zlogin
 ################################################################################
 
-# execute 'FIRST_INSTALL=true zsh' to debug the load order of the custom zsh configuration files
-[[ -n "${FIRST_INSTALL+1}" ]] && echo "loading ${0}"
+# execute 'DEBUG=true zsh' to debug the load order of the custom zsh configuration files
+[[ -n "${DEBUG+1}" ]] && echo "loading ${0}"
 
 type is_shellrc_sourced 2>&1 &> /dev/null || source "${HOME}/.shellrc"
 
 recompile_zsh_scripts() {
-  if [[ -s "${1}" && (! -s "${1}.zwc" || "${1}" -nt "${1}.zwc") ]]; then
-    echo "recompiling ${1}"
-    zrecompile -pq "${1}"
+  if ! is_file_empty "${1}" && (! is_file "${1}.zwc" || [[ "${1}" -nt "${1}.zwc" ]]); then
+    [[ -n "${DEBUG+1}" ]] && echo "recompiling ${1}"
+    zrecompile -pq "${1}" 2>&1 &> /dev/null
   fi
 }
 
@@ -42,28 +42,27 @@ find_in_folder_and_recompile() {
   done
 }
 
-# Execute code in the background to not affect the current session
-(
-  # <https://github.com/zimfw/zimfw/blob/master/login_init.zsh>
-  autoload -Uz zrecompile
+# <https://github.com/zimfw/zimfw/blob/master/login_init.zsh>
+autoload -Uz zrecompile
 
-  # zsh config files can be compiled to improve performance
-  # Based from: https://github.com/romkatv/zsh-bench/blob/master/configs/ohmyzsh%2B/setup
-  recompile_zsh_scripts "${ZDOTDIR}/.zshenv"
-  recompile_zsh_scripts "${ZDOTDIR}/.zshrc"
-  recompile_zsh_scripts "${ZDOTDIR}/.zlogin"
+# zsh config files can be compiled to improve performance
+# Based from: https://github.com/romkatv/zsh-bench/blob/master/configs/ohmyzsh%2B/setup
+recompile_zsh_scripts "${ZDOTDIR}/.zshenv"
+recompile_zsh_scripts "${ZDOTDIR}/.zshrc"
+recompile_zsh_scripts "${ZDOTDIR}/.zlogin"
 
-  find_in_folder_and_recompile "${ZSH}"
+find_in_folder_and_recompile "${ZSH}"
 
-  # omz doesn't know about these files, and so we don't depend on 'ZDOTDIR'
-  recompile_zsh_scripts "${HOME}/.aliases"
-  recompile_zsh_scripts "${HOME}/.p10k.zsh"
-  recompile_zsh_scripts "${HOME}/.shellrc"
+# omz doesn't know about these files, and so we don't depend on 'ZDOTDIR'
+recompile_zsh_scripts "${HOME}/.aliases"
+recompile_zsh_scripts "${HOME}/.p10k.zsh"
+recompile_zsh_scripts "${HOME}/.shellrc"
 
-  find_in_folder_and_recompile "${DOTFILES_DIR}"
-  find_in_folder_and_recompile "${PERSONAL_BIN_DIR}"
-  find_in_folder_and_recompile "${PROJECTS_BASE_DIR}"
-  # explicitly use both intel and m1 install locations of homebrew
-  find_in_folder_and_recompile /opt/homebrew
-  find_in_folder_and_recompile /usr/local
-) &!
+find_in_folder_and_recompile "${DOTFILES_DIR}"
+find_in_folder_and_recompile "${PERSONAL_BIN_DIR}"
+find_in_folder_and_recompile "${PROJECTS_BASE_DIR}"
+# explicitly use both intel and arm install locations of homebrew
+find_in_folder_and_recompile /opt/homebrew
+find_in_folder_and_recompile /usr/local
+
+[[ -n "${DEBUG+1}" ]] && echo "Finished recompiling zsh scripts."

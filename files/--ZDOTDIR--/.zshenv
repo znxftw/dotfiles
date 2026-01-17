@@ -17,8 +17,8 @@
 # load order: .zshenv [.shellrc], .zshrc [.shellrc, .aliases [.shellrc]], .zlogin
 ################################################################################
 
-# execute 'FIRST_INSTALL=true zsh' to debug the load order of the custom zsh configuration files
-[[ -n "${FIRST_INSTALL+1}" ]] && echo "loading ${0}"
+# execute 'DEBUG=true zsh' to debug the load order of the custom zsh configuration files
+[[ -n "${DEBUG+1}" ]] && echo "loading ${0}"
 
 # Load the .shellrc here - just to define some env vars that we need before zsh lifecycle kicks in
 source "${HOME}/.shellrc"

@@ -93,7 +93,7 @@ download_and_source_shellrc() {
   # Check for one key function defined in .shellrc to see if sourcing is needed
   if ! type is_shellrc_sourced 2>&1 &> /dev/null; then
     [[ ! -f "${HOME}/.shellrc" ]] && curl --retry 3 --retry-delay 5 -fsSL "https://raw.githubusercontent.com/${GH_USERNAME}/dotfiles/refs/heads/${DOTFILES_BRANCH}/files/--HOME--/.shellrc" -o "${HOME}/.shellrc"
-    FIRST_INSTALL=true source "${HOME}/.shellrc"
+    DEBUG=true source "${HOME}/.shellrc"
   else
     warn "skipping downloading and sourcing '$(yellow "${HOME}/.shellrc")' since its already loaded"
   fi
@@ -403,7 +403,7 @@ append_to_path_if_dir_exists "${DOTFILES_DIR}/scripts"
 install-dotfiles.rb
 
 # Load all zsh config files for PATH and other env vars to take effect
-FIRST_INSTALL=true load_zsh_configs
+DEBUG=true load_zsh_configs
 
 install_homebrew
 
@@ -429,62 +429,8 @@ else
   warn "skipping cloning of any keybase repo since '$(yellow 'KEYBASE_USERNAME')' has not been set"
 fi
 
-if is_non_zero_string "${PERSONAL_CONFIGS_DIR}"; then
-  ########################################################
-  # Generate the repositories-oss.yml fie if not present #
-  ########################################################
-  file_name="${PERSONAL_CONFIGS_DIR}/repositories-oss.yml"
-  section_header "$(yellow 'Generating') $(purple "${file_name}")"
-  if ! is_file "${file_name}"; then
-    ensure_dir_exists "$(dirname "${file_name}")"
-    cat <<EOF > "${file_name}"
-- folder: "\${PROJECTS_BASE_DIR}/oss/git_scripts"
-  remote: git@github.com:${UPSTREAM_GH_USERNAME}/git_scripts
-  active: true
-EOF
-    success "Successfully generated '$(yellow "${file_name}")'"
-  else
-    warn "skipping generation of '$(yellow "${file_name}")' since it already exists"
-  fi
-  unset file_name
+resurrect_tracked_repos
 
-  # TODO: Add the github.com host to the known_hosts file so that the script is not blocked for user input
-  # ssh-keyscan -H -t ED25519 github.com >> "${SSH_CONFIGS_DIR}/known_hosts"
-
-  ##########################################################
-  # Resurrect repositories that are in the repo catalogues #
-  ##########################################################
-  section_header "$(yellow 'Resurrecting repos')"
-  # Use zsh glob qualifier (N.) for nullglob and regular files
-  for file in "${PERSONAL_CONFIGS_DIR}"/repositories-*.yml(N.); do
-    resurrect-repositories.rb -r "${file}"
-  done
-  unset file
-  success 'Successfully resurrected all tracked git repos'
-else
-  warn "skipping resurrecting of repositories since '$(yellow "${PERSONAL_CONFIGS_DIR}")' doesn't exist"
-fi
-
-############################################################
-# post-clone operations for installing system dependencies #
-############################################################
-section_header "$(yellow 'Running post-clone operations')"
-if command_exists all; then
-  all restore-mtime -c
-  all maintenance register --config-file "${HOME}/.gitconfig-oss.inc"
-  all maintenance start
-fi
-if command_exists allow_all_direnv_configs; then
-  allow_all_direnv_configs
-else
-  warn "skipping registering all direnv configs since '$(yellow 'allow_all_direnv_configs')' couldn't be found in the PATH; Please run it manually"
-fi
-
-if command_exists install_mise_versions; then
-  install_mise_versions
-else
-  warn "skipping installation of languages since '$(yellow 'install_mise_versions')' couldn't be found in the PATH; Please run it manually"
-fi
 rm -rf "${SSH_CONFIGS_DIR}/known_hosts.old"
 
 ###################################################################

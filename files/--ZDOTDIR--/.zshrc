@@ -14,8 +14,8 @@
 # https://htr3n.github.io/2018/07/faster-zsh/
 # https://blog.mattclemente.com/2020/06/26/oh-my-zsh-slow-to-load/
 
-# execute 'FIRST_INSTALL=true zsh' to debug the load order of the custom zsh configuration files
-[[ -n "${FIRST_INSTALL+1}" ]] && echo "loading ${0}"
+# execute 'DEBUG=true zsh' to debug the load order of the custom zsh configuration files
+[[ -n "${DEBUG+1}" ]] && echo "loading ${0}"
 
 # for profiling zsh, see: https://unix.stackexchange.com/a/329719/27109
 # execute 'ZSH_PROFILE_RC=true zsh -i -c exit' and run 'zprof' to get the details
@@ -255,7 +255,7 @@ if is_macos; then
   zstyle ':completion:*:*:docker-*:*' option-stacking yes
 
   # Use modern completion system (needs to be run AFTER some zstyle defns; usually a good idea to do so after all of them)
-  autoload -Uz compinit && compinit -C -d "${XDG_CACHE_HOME}/zcompdump-${ZSH_VERSION}"
+  autoload -Uz compinit && compinit -C -d "${XDG_CACHE_HOME}/zcompdump-${ZSH_VERSION}" 2>&1 &> /dev/null || true
 
   autoload -Uz _git
 

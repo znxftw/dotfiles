@@ -2,6 +2,15 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.45
+
+* Added a new script `run-all.sh` to run any unix command in matched git repos.
+* *[fresh-install-of-osx.sh]* Removed cloning of the `git_scripts` repo since the `run-all.sh` script has now been moved into this repo.
+* *[.shellrc]* Replaced function `dir_has_children` with `is_dir_empty` which checks if a directory is empty.
+* *[.zlogin]* Recompile scripts in the foreground since running in the background results in silent failures.
+* *[.aliases]* Added a new alias `resurrect_tracked_repos` to resurrect all tracked repositories.
+* Renamed `FIRST_INSTALL` to `DEBUG` to better reflect the functionality.
+
 ### 2.0.44
 
 * Updated documentation to include the setup of the cronjobs.

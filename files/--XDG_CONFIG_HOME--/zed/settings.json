@@ -129,6 +129,7 @@
   },
   "file_scan_exclusions": [
     "**/.git",
+    "**/.ruby-lsp",
     "**/.svn",
     "**/.hg",
     "**/.jj",

@@ -12,8 +12,8 @@
 # load order: .zshenv [.shellrc], .zshrc [.shellrc, .aliases [.shellrc]], .zlogin
 #################################################################################
 
-# execute 'FIRST_INSTALL=true zsh' to debug the load order of the custom zsh configuration files
-[[ -n "${FIRST_INSTALL+1}" ]] && echo "loading ${0}"
+# execute 'DEBUG=true zsh' to debug the load order of the custom zsh configuration files
+[[ -n "${DEBUG+1}" ]] && echo "loading ${0}"
 
 # Note: Change these as per your settings. Deleting/commenting them will essentially unset the var(s) after the shell session is restarted and thus any aliases/backup-operations/etc will not be processed for those deleted variable(s)
 
@@ -246,20 +246,28 @@ is_arm() {
   [[ "${ARCH}" =~ 'arm' ]]
 }
 
-is_file() {
-  is_non_zero_string "${1}" && [[ -f "${1}" ]]
-}
-
 is_executable() {
   is_non_zero_string "${1}" && [[ -x "${1}" ]]
+}
+
+is_symbolic_link() {
+  is_non_zero_string "${1}" && [[ -h "${1}" ]]
+}
+
+is_file() {
+  is_non_zero_string "${1}" && [[ -f "${1}" ]]
 }
 
 is_directory() {
   is_non_zero_string "${1}" && [[ -d "${1}" ]]
 }
 
-dir_has_children() {
-  is_directory "${1}" && is_non_zero_string "$(ls -A "${1}")"
+is_file_empty() {
+  is_file "${1}" && [[ ! -s "${1}" ]]
+}
+
+is_directory_empty() {
+  is_directory "${1}" && is_zero_string "$(ls -A "${1}")"
 }
 
 ensure_dir_exists() {
@@ -419,10 +427,10 @@ set_ssh_folder_permissions() {
     return
   fi
 
-  if dir_has_children "${SSH_CONFIGS_DIR}"; then
+  if ! is_directory_empty "${SSH_CONFIGS_DIR}"; then
     find "${SSH_CONFIGS_DIR}" -type f -exec chmod 600 {} \; && success "Ensured correct permissions for '$(yellow "${SSH_CONFIGS_DIR}")' and files within it." || warn "Failed to set file permissions in '$(yellow "${SSH_CONFIGS_DIR}")'"
 
-    find "${SSH_CONFIGS_DIR}" -maxdepth 1 -name "id_*" ! -name '*.*' -type f -exec ssh-add "{}" \; && success "Added ssh identity files from '$(yellow "${SSH_CONFIGS_DIR}")'." || warn "Failed to add ssh identity files from '$(yellow "${SSH_CONFIGS_DIR}")'"
+    find "${SSH_CONFIGS_DIR}" -maxdepth 1 -name "id_*" ! -name '*.*' -type f -exec ssh-add -q "{}" \; && success "Added ssh identity files from '$(yellow "${SSH_CONFIGS_DIR}")'." || warn "Failed to add ssh identity files from '$(yellow "${SSH_CONFIGS_DIR}")'"
   else
     warn "'$(yellow "${SSH_CONFIGS_DIR}")' exists but is empty. No file permissions to set."
   fi

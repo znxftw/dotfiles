@@ -188,7 +188,8 @@ fi
 # Set highlight color to green
 # defaults write NSGlobalDomain AppleHighlightColor -string '0.764700 0.976500 0.568600'
 
-for domain in "${HOME}"/Library/Preferences/ByHost/com.apple.systemuiserver.*; do
+# Use zsh glob qualifier (N.) for nullglob and regular files
+for domain in "${HOME}"/Library/Preferences/ByHost/com.apple.systemuiserver.*(N.); do
   defaults write "${domain}" dontAutoLoad -array \
     '/System/Library/CoreServices/Menu Extras/TimeMachine.menu' \
     '/System/Library/CoreServices/Menu Extras/Volume.menu' \
@@ -518,7 +519,7 @@ fi
 
 # Remove Dropbox's green checkmark icons in Finder
 # file=/Applications/Dropbox.app/Contents/Resources/emblem-dropbox-uptodate.icns
-# [ -e "${file}" ] && mv -fv "${file}" "${file}.bak"
+# is_file "${file}" && mv -fv "${file}" "${file}.bak"
 
 if ask "Expand the following File Info panes: 'General', 'Open with', and 'Sharing & Permissions'" 'Y'; then
   defaults write com.apple.finder FXInfoPanesExpanded -dict-add 'General' -bool true
