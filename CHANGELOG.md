@@ -2,6 +2,11 @@ As documented in the README's [adopting](README.md#how-to-adoptcustomize-the-scr
 
 For those who follow this repo, here's the changelog for ease of adoption:
 
+### 2.0.46
+
+* Moved processing of the natsumi browser extension into the `.envrc` file so that `direnv` will take care of it automatically. This also handles cases where a new browser is installed after the first time setup.
+* Moved resurrecting of tracked repos to the end after the import of preferences and setting up the cron job since it takes a long time and should not block the import process.
+
 ### 2.0.45
 
 * Added a new script `run-all.sh` to run any unix command in matched git repos.

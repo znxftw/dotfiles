@@ -65,7 +65,7 @@ resurrect_tracked_repos() {
     # ssh-keyscan -H -t ED25519 github.com >> "${SSH_CONFIGS_DIR}/known_hosts"
 
     # resurrect repositories that are in the repo catalogues
-    section_header "$(yellow 'Resurrecting repos')"
+    section_header "$(yellow 'Resurrecting all tracked git repos')"
     # Use zsh glob qualifier (N.) for nullglob and regular files
     for file in "${PERSONAL_CONFIGS_DIR}"/repositories-*.yml(N.); do
       resurrect-repositories.rb -r "${file}"

@@ -323,37 +323,8 @@ clone_profiles_repo() {
   section_header "$(yellow 'Cloning') $(purple 'profiles') repo"
   if is_non_zero_string "${KEYBASE_PROFILES_REPO_NAME}" && is_non_zero_string "${PERSONAL_PROFILES_DIR}"; then
     if ! clone_repo_into "$(build_keybase_repo_url "${KEYBASE_PROFILES_REPO_NAME}")" "${PERSONAL_PROFILES_DIR}"; then
-      warn 'Failed to clone profiles repo; skipping dependent steps.'
-      return
+      warn 'Failed to clone profiles repo'
     fi
-
-    # Clone the natsumi-browser repo into specified browser profile chrome folders and switch to the 'dev' branch
-    local -a browsers=(FirefoxProfile)
-    for browser in "${(@kv)browsers}"; do
-      local folder="${PERSONAL_PROFILES_DIR}/${browser}"
-      if is_directory "${folder}"; then
-        clone_repo_into "git@github.com:${UPSTREAM_GH_USERNAME}/natsumi-browser" "${folder}/Profiles/DefaultProfile/chrome" dev || warn "Failed to clone natsumi-browser for '$(yellow "${browser}")'"
-      else
-        warn "skipping cloning of natsumi repo for '$(yellow "${browser}")' as its profile directory structure is not present."
-      fi
-      unset folder
-    done
-    unset browsers
-
-    # Use zsh glob qualifiers to only loop if matches exist and are directories
-    # (N) nullglob: if no match, the pattern expands to nothing
-    # (/): only match directories
-    local chrome_folders=("${PERSONAL_PROFILES_DIR}"/*Profile/Profiles/DefaultProfile/chrome(N/))
-    if [[ ${#chrome_folders[@]} -gt 0 ]]; then
-      for folder in "${chrome_folders[@]}"; do
-        # Setup the chrome repo's upstream if it doesn't already point to UPSTREAM_GH_USERNAME's repo
-        add-upstream-git-config.sh -d "${folder}" -u "${UPSTREAM_GH_USERNAME}" || warn "Failed to add upstream git config for '$(yellow "${folder}")'"
-      done
-      unset folder
-    else
-      warn "No '*Profile/Profiles/DefaultProfile/chrome' directories found to set upstream for."
-    fi
-    unset chrome_folders
   else
     warn "skipping cloning of profiles repo since either the '$(yellow 'KEYBASE_PROFILES_REPO_NAME')' or the '$(yellow 'PERSONAL_PROFILES_DIR')' env var hasn't been set"
   fi
@@ -429,8 +400,6 @@ else
   warn "skipping cloning of any keybase repo since '$(yellow 'KEYBASE_USERNAME')' has not been set"
 fi
 
-resurrect_tracked_repos
-
 rm -rf "${SSH_CONFIGS_DIR}/known_hosts.old"
 
 ###################################################################
@@ -472,6 +441,11 @@ if command_exists recron; then
 else
   warn "skipping setting up of cron jobs since '$(yellow 'recron')' couldn't be found in the PATH; Please set it up manually"
 fi
+
+###########################
+# Resurrect tracked repos #
+###########################
+resurrect_tracked_repos
 
 ###############################
 # Cleanup temp functions, etc #

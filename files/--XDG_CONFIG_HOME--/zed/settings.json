@@ -53,7 +53,8 @@
         "provider": "zed.dev",
         "model": "gemini-2.0-flash"
       },
-    ]
+    ],
+    "show_turn_stats": true,
   },
   // "disable_ai": true,
   "hard_tabs": false,
@@ -148,6 +149,9 @@
     "**/.cache",
     "**/.*.zwc*",
     "**/*.zwc*",
+  ],
+  "file_scan_inclusions": [
+    "**/.env*"
   ],
   "enable_language_server": true,
   "inlay_hints": {
