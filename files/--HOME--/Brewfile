@@ -67,6 +67,9 @@ if ENV.has_key?('HOMEBREW_BASE_INSTALL')
 end
 
 # formulae pulled in for advanced configs (these are optional, but still recommended)
+
+brew 'awscli'
+brew 'awscli-local'
 brew 'bat'
 brew 'btop'
 # brew 'container', restart_service: :changed if ::OS::Mac::version >= 26
@@ -78,26 +81,42 @@ brew 'ncdu'
 brew 'pandoc'
 brew 'prettyping'
 brew 'ripgrep'
+brew 'rustup'
+brew 'shellcheck'
 brew 'shfmt'
 brew 'syncthing'
+brew 'terragrunt'
+brew 'tesseract'
+brew 'tldr'
 brew 'tlrc'
+brew 'watch'
+brew 'zola'
 
 cask 'aldente', postinstall: "\"#{setup_login_items_script}\" -a 'AlDente'"
+cask 'appcleaner'
+cask 'bitwarden'
 cask 'brave-browser'
+cask 'bruno'
 cask 'clocker', postinstall: "\"#{setup_login_items_script}\" -a 'Clocker'"
 cask 'firefox@nightly' #, greedy: true
-cask 'google-chrome@beta'
+cask 'google-chrome'
+cask 'google-cloud-sdk'
+cask 'intellij-idea'
 cask 'jordanbaird-ice@beta', postinstall: "\"#{setup_login_items_script}\" -a 'Ice'" if ::OS::Mac::version >= 14
 cask 'keepassxc@beta'
+cask 'obsidian'
 cask 'ollama-app', restart_service: :changed
 cask 'onlyoffice'
 cask 'pearcleaner'
 cask 'protonvpn'
 cask 'rancher' # if ::OS::Mac::version < 26
 cask 'raycast', postinstall: "\"#{setup_login_items_script}\" -a 'Raycast'"
+cask 'rider'
 cask 'stats', postinstall: "\"#{setup_login_items_script}\" -a 'Stats'"
-cask 'zed@preview'
-cask 'zen@twilight'
+cask 'steam'
+cask 'windows-app'
+cask 'zed'
+cask 'zen'
 cask 'zoom'
 
 # brew 'mas'
