@@ -64,6 +64,9 @@ if ENV.has_key?('HOMEBREW_BASE_INSTALL')
 end
 
 # formulae pulled in for advanced configs (these are optional, but still recommended)
+
+brew 'awscli'
+brew 'awscli-local'
 brew 'bat'
 brew 'btop'
 brew 'git-gui'
@@ -74,25 +77,37 @@ brew 'prettyping'
 brew 'qwen-code'
 brew 'ripgrep'
 brew 'syncthing'
+brew 'terragrunt'
+brew 'tesseract'
+brew 'tldr'
 brew 'tlrc'
+brew 'watch'
+brew 'zola'
 
 cask 'aldente', postinstall: "\"#{setup_login_items_script}\" -a 'AlDente'"
+cask 'bitwarden'
 cask 'brave-browser'
+cask 'bruno'
 cask 'clocker', postinstall: "\"#{setup_login_items_script}\" -a 'Clocker'"
 cask 'firefox@nightly' #, greedy: true
-cask 'google-chrome@beta'
+cask 'google-chrome'
+cask 'google-cloud-sdk'
+cask 'intellij-idea'
 cask 'jordanbaird-ice@beta', postinstall: "\"#{setup_login_items_script}\" -a 'Ice'" if ::OS::Mac::version >= 14
 cask 'keepassxc@beta'
+cask 'obsidian'
 cask 'ollama-app', restart_service: :changed
 cask 'onlyoffice'
 cask 'protonvpn'
 cask 'rancher' # if ::OS::Mac::version < 26
 cask 'sol', postinstall: "\"#{setup_login_items_script}\" -a 'Sol'"
-# cask 'raycast', postinstall: "\"#{setup_login_items_script}\" -a 'Raycast'"
 cask 'shortcat', postinstall: "\"#{setup_login_items_script}\" -a 'Shortcat'"
 cask 'stats', postinstall: "\"#{setup_login_items_script}\" -a 'Stats'"
-cask 'zed@preview'
-cask 'zen@twilight'
+cask 'steam'
+cask 'visual-studio-code'
+cask 'windows-app'
+cask 'zed'
+cask 'zen'
 cask 'zoom'
 
 # brew 'mas'

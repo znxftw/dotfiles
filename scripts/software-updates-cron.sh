@@ -95,9 +95,8 @@ unset zen_browser_desktop_codebase
 if command_exists ollama; then
   section_header "$(yellow 'Pull ollama models')"
   local -a ollama_models=(
-    deepseek-coder-v2
-    gpt-oss:20b
-    qwen3-coder:30b
+    qwen2.5-coder:14b
+    nomic-embed-text
   )
   for model in "${ollama_models[@]}"; do
     ollama pull "${model}"
